@@ -1279,7 +1279,7 @@
         }
 
         function showMatchDetailModal(matchStr, myClubId, myClubName, oppClubName, dateStr, myGoals, oppGoals) {
-            const match = JSON.parse(matchStr);
+            const match = JSON.parse(decodeURIComponent(matchStr));
             const oppClubId = Object.keys(match.clubs).find(id => id !== myClubId);
             
             $('#mdMyClubName').text(myClubName);
