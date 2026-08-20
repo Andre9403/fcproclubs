@@ -332,32 +332,27 @@
 
         <!-- Control Bar -->
         <div class="panel-card p-3 mb-4">
-            <div class="row g-3 align-items-center">
-                <div class="col-lg-3 col-md-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4 col-md-4">
+                    <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-shield-halved me-1"></i> Klub (Club)</label>
+                    <div class="input-group">
+                        <input type="hidden" id="clubIdInput" value="7089906">
+                        <input type="text" id="clubNameDisplay" class="form-control fw-bold text-dark" value="Menunggu Data..." readonly style="background: #f8fafc; cursor: not-allowed; border-right: none;">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#searchClubModal" style="background: #f8fafc; border-color: #cbd5e1; color: var(--text-body);">
+                            <i class="fa-solid fa-magnifying-glass"></i> Cari
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-5">
                     <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-gamepad me-1"></i> Platform</label>
                     <select id="platformSelect" class="form-select">
                         <option value="common-gen5" selected>Cross-Gen 5 (PS5 / PC / XSX)</option>
                     </select>
                 </div>
-                <div class="col-lg-3 col-md-3">
-                    <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-hashtag me-1"></i> Club ID</label>
-                    <div class="input-group">
-                        <input type="text" id="clubIdInput" class="form-control font-monospace" value="7089906">
-                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#searchClubModal" style="background: #fff; border-color: #cbd5e1; color: var(--text-body);">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3 d-flex align-items-end">
+                <div class="col-lg-3 col-md-3 text-md-end">
                     <button id="btnFetch" class="btn btn-refresh w-100">
-                        <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Semua
+                        <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Data
                     </button>
-                </div>
-                <div class="col-lg-2 text-lg-end">
-                    <span id="statusBadge" class="badge bg-light text-secondary border px-3 py-2">
-                        <i class="fa-solid fa-circle text-secondary me-1" id="statusDot"></i>
-                        <span id="statusText">Status: Standby</span>
-                    </span>
                 </div>
             </div>
         </div>
@@ -365,9 +360,9 @@
         <!-- Club Overall KPI Cards -->
         <div class="row g-3 mb-4" id="clubStatsRow" style="display: none;">
             <div class="col-6 col-md-3">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-muted small fw-bold text-uppercase">Divisi Saat Ini</span>
+                        <span class="text-muted small fw-bold text-uppercase">Divisi Terbaik</span>
                         <h3 class="fw-bolder mt-1 mb-0 text-dark font-monospace" id="kpiDivision">-</h3>
                         <small class="text-muted">Pro Clubs</small>
                     </div>
@@ -377,7 +372,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Win Rate</span>
                         <h3 class="fw-bolder mt-1 mb-0 text-success font-monospace" id="kpiWinRate">0%</h3>
@@ -389,7 +384,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Rekor (M-S-K)</span>
                         <h4 class="fw-bolder mt-1 mb-0 text-dark font-monospace" id="kpiRecord">0 - 0 - 0</h4>
@@ -401,7 +396,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Total Gol</span>
                         <h4 class="fw-bolder mt-1 mb-0 text-dark font-monospace"><span id="kpiClubGoals" class="text-success">0</span> : <span id="kpiClubGoalsAgainst" class="text-danger">0</span></h4>
@@ -417,7 +412,7 @@
         <!-- 5 KPI Cards -->
         <div class="row g-3 mb-4">
             <div class="col-6 col-xl-2 col-md-4">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Total Skuad</span>
                         <h3 class="fw-bolder mt-1 mb-0 text-dark font-monospace" id="kpiTotal">0</h3>
@@ -429,7 +424,7 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3 col-md-4">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Top Scorer</span>
                         <h6 class="fw-bold mt-1 mb-0 text-truncate text-dark" style="max-width: 130px;" id="kpiScorer">-</h6>
@@ -441,7 +436,7 @@
                 </div>
             </div>
             <div class="col-6 col-xl-3 col-md-4">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Top Assist</span>
                         <h6 class="fw-bold mt-1 mb-0 text-truncate text-dark" style="max-width: 130px;" id="kpiAssist">-</h6>
@@ -453,7 +448,7 @@
                 </div>
             </div>
             <div class="col-6 col-xl-2 col-md-6">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Avg Rating</span>
                         <h3 class="fw-bolder mt-1 mb-0 text-success font-monospace" id="kpiRating">0.0</h3>
@@ -465,7 +460,7 @@
                 </div>
             </div>
             <div class="col-12 col-xl-2 col-md-6">
-                <div class="kpi-card d-flex align-items-center justify-content-between">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Kartu Merah</span>
                         <div class="mt-1">
@@ -993,7 +988,10 @@
                 return;
             }
 
-            $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
+            
+                    $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
+                    $('#clubNameDisplay').val(clubInfo.name || 'Unknown Club');
+
             $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
             $('#statusText').text('Mengambil data...');
 
@@ -1042,21 +1040,8 @@
                             const t = parseInt(matchClub.gamesPlayed) || (w + d + l);
                             const winRate = t > 0 ? Math.round((w / t) * 100) : 0;
                             
-                            // EA doesn't return currentDivision in overallStats, fetch from leaderboard
-                            try {
-                                const lbRes = await fetchEA(`allTimeLeaderboard/search?platform=${platform}&clubName=${encodeURIComponent($('#lblClubId').text().replace(' ID: ','').trim())}`);
-                                let currentDiv = '-';
-                                if(Array.isArray(lbRes)) {
-                                    const cInfo = lbRes.find(x => String(x.clubId) === String(clubId));
-                                    if(cInfo) currentDiv = cInfo.currentDivision;
-                                } else if(typeof lbRes === 'object') {
-                                    const cInfo = Object.values(lbRes).find(x => String(x.clubId) === String(clubId));
-                                    if(cInfo) currentDiv = cInfo.currentDivision;
-                                }
-                                $('#kpiDivision').text(currentDiv || matchClub.bestDivision || '-');
-                            } catch(e) {
-                                $('#kpiDivision').text(matchClub.bestDivision || '-');
-                            }
+                            // Use Best Division
+                            $('#kpiDivision').text(matchClub.bestDivision || '-');
 
                             $('#kpiWinRate').text(`${winRate}%`);
                             $('#kpiTotalMatches').text(`${t} Laga`);
@@ -1077,13 +1062,15 @@
                 // Render Matches
                 populateMatchesTable(matchesData, clubId);
 
-                $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
-                $('#statusText').text(`Online (${members.length} Pemain)`);
+                
+                
+            
             } catch (e) {
                 console.error('Fetch error:', e);
-                $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
-                $('#statusText').text('Gagal memuat API');
+            } finally {
+                $('#pageLoadingOverlay').attr('style', 'display: none !important;');
             }
+
         }
 
         async function performSearchClub() {
@@ -1126,11 +1113,14 @@
                             <i class="fa-solid fa-chevron-right text-success opacity-50 small"></i>
                         </button>
                     `);
+                    
                     item.on('click', () => {
                         $('#clubIdInput').val(clubId);
+                        $('#clubNameDisplay').val(clubName);
                         bootstrap.Modal.getInstance(document.getElementById('searchClubModal')).hide();
                         fetchAllData();
                     });
+
                     $('#searchClubResults').append(item);
                 });
             } catch (e) {
