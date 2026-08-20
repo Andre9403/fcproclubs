@@ -753,7 +753,14 @@
             $('#kpiRating').text(ratingAvg.toFixed(1));
             $('#kpiRed').text(totalRed);
 
+            const maxTackles = Math.max(...members.map(m => parseInt(m.tacklesMade ?? m.tackles) || 0));
+            const maxRedCards = Math.max(...members.map(m => parseInt(m.redcards ?? m.redCards ?? m.redcard ?? 0) || 0));
+            const maxMotm = Math.max(...members.map(m => parseInt(m.manOfTheMatch || 0) || 0));
+            
             return {
+                maxTackles: maxTackles,
+                maxRedCards: maxRedCards,
+                maxMotm: maxMotm,
                 avgGoals: members.length ? (members.reduce((a, b) => a + (parseInt(b.goals)||0), 0) / members.length) : 0,
                 avgAssists: members.length ? (members.reduce((a, b) => a + (parseInt(b.assists)||0), 0) / members.length) : 0,
                 avgPassRate: members.length ? (members.reduce((a, b) => a + (parseInt(b.passSuccessRate)||Math.round(((b.passesMade||0)/(b.passAttempts||1))*100)||0), 0) / members.length) : 0,
@@ -850,6 +857,10 @@
                 if (teamAvg && goals > 0 && goals === teamAvg.maxGoals) badges += '<span title="Top Scorer" class="ms-1">🥇</span>';
                 if (teamAvg && assists > 0 && assists === teamAvg.maxAssists) badges += '<span title="Top Assist" class="ms-1">🎯</span>';
                 if (teamAvg && parseFloat(p.ratingAve) === teamAvg.maxRating && teamAvg.maxRating > 0) badges += '<span title="Top Rating" class="ms-1">⭐</span>';
+                
+                if (teamAvg && tackles > 0 && tackles === teamAvg.maxTackles) badges += '<span title="Top Tackler" class="ms-1 text-primary"><i class="fa-solid fa-hand-fist"></i></span>';
+                if (teamAvg && red > 0 && red === teamAvg.maxRedCards) badges += '<span title="Most Red Cards" class="ms-1 text-danger"><i class="fa-solid fa-triangle-exclamation"></i></span>';
+                if (teamAvg && parseInt(p.manOfTheMatch || 0) > 0 && parseInt(p.manOfTheMatch || 0) === teamAvg.maxMotm) badges += '<span title="Most MOTM" class="ms-1 text-warning"><i class="fa-solid fa-medal"></i></span>';
 
                 const playerJson = encodeURIComponent(JSON.stringify(p));
                 const teamAvgJson = encodeURIComponent(JSON.stringify(teamAvg || {}));
