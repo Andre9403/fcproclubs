@@ -269,11 +269,12 @@
     <nav class="navbar navbar-light-custom mb-4 py-3 sticky-top">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center gap-3">
-                <div class="kpi-icon bg-success bg-opacity-10 text-success">
-                    <i class="fa-solid fa-futbol"></i>
+                <div class="kpi-icon bg-success bg-opacity-10 text-success" id="clubHeaderLogoWrapper">
+                    <i class="fa-solid fa-futbol" id="clubHeaderIcon"></i>
+                    <img id="clubHeaderLogo" src="" alt="Club Logo" style="display: none; max-width: 100%; max-height: 100%; object-fit: contain;">
                 </div>
                 <div>
-                    <h5 class="mb-0 brand-title">FC PRO CLUBS MATCH & SQUAD HUB</h5>
+                    <h5 class="mb-0 brand-title" id="clubHeaderName">FC PRO CLUBS MATCH & SQUAD HUB</h5>
                     <small class="text-muted">Statistik Skuad & Riwayat Pertandingan</small>
                 </div>
             </div>
@@ -293,13 +294,17 @@
                 <div class="col-lg-3 col-md-3">
                     <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-gamepad me-1"></i> Platform</label>
                     <select id="platformSelect" class="form-select">
-                        <option value="common-gen5" selected>Cross-Gen 5 (PS5 / XSX / PC)</option>
-                        <option value="common-gen4">Cross-Gen 4 (PS4 / Xbox One)</option>
+                        <option value="common-gen5" selected>Cross-Gen 5 (PS5 / PC / XSX)</option>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-3">
                     <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-hashtag me-1"></i> Club ID</label>
-                    <input type="text" id="clubIdInput" class="form-control font-monospace" value="7089906">
+                    <div class="input-group">
+                        <input type="text" id="clubIdInput" class="form-control font-monospace" value="7089906">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#searchClubModal" style="background: #fff; border-color: #cbd5e1; color: var(--text-body);">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="col-lg-2 col-md-3">
                     <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-trophy me-1"></i> Tipe Match</label>
@@ -448,7 +453,35 @@
 
     </div>
 
+    <!-- Modal Cari Klub -->
+    <div class="modal fade" id="searchClubModal" tabindex="-1" aria-labelledby="searchClubModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+          <div class="modal-header border-0 pb-0 pt-4 px-4">
+            <h5 class="modal-title fw-bolder text-dark" id="searchClubModalLabel"><i class="fa-solid fa-magnifying-glass me-2 text-primary"></i>Cari Klub</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body px-4 pb-4">
+            <div class="input-group mb-3 mt-2 shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                <input type="text" id="searchClubInput" class="form-control border-0 bg-light" placeholder="Masukkan nama klub..." style="padding: 0.75rem 1rem;">
+                <button class="btn btn-primary px-4" type="button" id="btnSearchClub" style="background: var(--primary-emerald); border: none; font-weight: 600;">Cari</button>
+            </div>
+            <div id="searchClubLoading" class="text-center my-4" style="display: none;">
+                <div class="spinner-border text-success spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted mt-2 small fw-medium">Mencari klub di server EA...</p>
+            </div>
+            <div class="list-group list-group-flush mt-3 rounded overflow-hidden shadow-sm" id="searchClubResults" style="border: 1px solid var(--border-color);">
+                <!-- Hasil pencarian akan muncul di sini -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
@@ -638,12 +671,32 @@
 
             const statsEndpoint = `members/stats?platform=${platform}&clubId=${clubId}`;
             const matchesEndpoint = `clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
+            const infoEndpoint = `clubs/info?platform=${platform}&clubIds=${clubId}`;
 
             try {
-                const [statsData, matchesData] = await Promise.all([
+                const [statsData, matchesData, infoData] = await Promise.all([
                     fetchEA(statsEndpoint),
-                    fetchEA(matchesEndpoint).catch(() => [])
+                    fetchEA(matchesEndpoint).catch(() => []),
+                    fetchEA(infoEndpoint).catch(() => null)
                 ]);
+
+                // Update Header Info
+                if (infoData && infoData[clubId]) {
+                    const clubName = infoData[clubId].name || 'FC PRO CLUBS MATCH & SQUAD HUB';
+                    $('#clubHeaderName').text(clubName);
+                    document.title = `${clubName} - EA FC Pro Clubs`;
+                    
+                    // Coba ambil custom crest url jika ada
+                    if (infoData[clubId].customCrestUrl) {
+                        $('#clubHeaderIcon').hide();
+                        $('#clubHeaderLogo').attr('src', infoData[clubId].customCrestUrl).show();
+                    } else if (infoData[clubId].clubId) {
+                        // Tidak ada logo spesifik di API info secara default (biasanya di CDN EA butuh format spesifik),
+                        // tampilkan icon bola default.
+                        $('#clubHeaderLogo').hide();
+                        $('#clubHeaderIcon').show();
+                    }
+                }
 
                 // Render Skuad
                 const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
@@ -661,7 +714,68 @@
             }
         }
 
+        async function performSearchClub() {
+            const query = $('#searchClubInput').val().trim();
+            if (!query) return;
+
+            const platform = $('#platformSelect').val();
+            const searchEndpoint = `clubs/search?platform=${platform}&clubName=${encodeURIComponent(query)}`;
+
+            $('#searchClubResults').empty();
+            $('#searchClubLoading').show();
+
+            try {
+                const results = await fetchEA(searchEndpoint);
+                $('#searchClubLoading').hide();
+                
+                // Response bisa array atau object dengan key string ID klub
+                let clubs = [];
+                if (Array.isArray(results)) {
+                    clubs = results;
+                } else if (typeof results === 'object') {
+                    clubs = Object.values(results);
+                }
+
+                if (clubs.length === 0) {
+                    $('#searchClubResults').html('<div class="list-group-item text-center text-muted border-0 py-3">Klub tidak ditemukan</div>');
+                    return;
+                }
+
+                clubs.forEach(c => {
+                    const clubId = c.clubId || c.id;
+                    const clubName = c.name || 'Unknown Club';
+                    const item = $(`
+                        <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-0 border-bottom">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark">${clubName}</h6>
+                                <small class="text-muted font-monospace bg-light px-2 py-1 rounded">ID: ${clubId}</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-success opacity-50 small"></i>
+                        </button>
+                    `);
+                    item.on('click', () => {
+                        $('#clubIdInput').val(clubId);
+                        bootstrap.Modal.getInstance(document.getElementById('searchClubModal')).hide();
+                        fetchAllData();
+                    });
+                    $('#searchClubResults').append(item);
+                });
+            } catch (e) {
+                $('#searchClubLoading').hide();
+                $('#searchClubResults').html('<div class="list-group-item text-center text-danger border-0 py-3">Gagal mencari data</div>');
+            }
+        }
+
         $(document).ready(function() {
+            // Setup Search Modal Event
+            $('#btnSearchClub').on('click', performSearchClub);
+            $('#searchClubInput').on('keypress', function(e) {
+                if (e.which === 13) performSearchClub();
+            });
+            $('#searchClubModal').on('shown.bs.modal', function () {
+                $('#searchClubInput').trigger('focus');
+            });
+
             // Inisialisasi Matches DataTable
             matchesDataTable = $('#matchesTable').DataTable({
                 responsive: true,
@@ -675,8 +789,10 @@
             // Inisialisasi Squad DataTable
             playersDataTable = $('#playersTable').DataTable({
                 responsive: true,
+                paging: false, // Menghilangkan pagination (tampil semua)
+                info: true, // Tetap tampilkan info total pemain
                 order: [[5, 'desc']], // Default urut berdasarkan Gol
-                dom: '<"d-flex flex-wrap justify-content-between align-items-center mb-3"Bf>rt<"d-flex flex-wrap justify-content-between align-items-center mt-3"lip>',
+                dom: '<"d-flex flex-wrap justify-content-between align-items-center mb-3"Bf>rt<"d-flex flex-wrap justify-content-between align-items-center mt-3"i>',
                 buttons: [
                     { extend: 'copy', className: 'btn-sm', text: '<i class="fa-regular fa-copy me-1"></i> Copy' },
                     { extend: 'csv', className: 'btn-sm', text: '<i class="fa-solid fa-file-csv me-1"></i> CSV' },
@@ -685,12 +801,7 @@
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Cari nama / posisi...",
-                    lengthMenu: "Tampil _MENU_ data",
-                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ pemain",
-                    paginate: {
-                        next: '<i class="fa-solid fa-chevron-right"></i>',
-                        previous: '<i class="fa-solid fa-chevron-left"></i>'
-                    }
+                    info: "Menampilkan total _TOTAL_ pemain"
                 }
             });
 
