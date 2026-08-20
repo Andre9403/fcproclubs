@@ -388,11 +388,11 @@
             </div>
         </div>
 
-        <!-- SECTION 1: LAST 10 MATCHES -->
+        <!-- SECTION 1: LAST MATCHES -->
         <div class="panel-card p-3 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-2 px-2">
                 <h6 class="fw-bold mb-0 text-dark">
-                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat 5 Pertandingan Terakhir (Recent Matches)
+                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Pertandingan Terakhir (Recent Matches)
                 </h6>
             </div>
 
@@ -560,14 +560,12 @@
                 const clubs = m.clubs || {};
                 const myClub = clubs[myClubId] || {};
                 
-                // Cari ID lawan
                 const oppClubId = Object.keys(clubs).find(id => id !== myClubId);
                 const oppClub = clubs[oppClubId] || {};
 
                 const myGoals = parseInt(myClub.goals ?? myClub.score ?? 0);
                 const oppGoals = parseInt(oppClub.goals ?? oppClub.score ?? 0);
                 
-                // Tentukan Hasil (W / D / L)
                 let resultBadge = '<span class="match-badge badge-draw">SERI</span>';
                 if (myGoals > oppGoals) {
                     resultBadge = '<span class="match-badge badge-win">MENANG</span>';
@@ -575,7 +573,6 @@
                     resultBadge = '<span class="match-badge badge-loss">KALAH</span>';
                 }
 
-                // Format Waktu Pertandingan
                 let dateStr = '-';
                 if (m.timestamp) {
                     const d = new Date(m.timestamp * 1000);
@@ -584,7 +581,6 @@
 
                 const myClubName = myClub.details?.name || 'Klub Kami';
                 const oppClubName = oppClub.details?.name || (oppClubId ? `Club #${oppClubId}` : 'Tim Lawan');
-                
                 const scoreDisplay = `<span class="score-pill">${myGoals} - ${oppGoals}</span>`;
 
                 matchesDataTable.row.add([
@@ -599,102 +595,66 @@
 
             matchesDataTable.draw();
         }
-async function fetchAllData() {
-    const platform = $('#platformSelect').val();
-    const clubId = $('#clubIdInput').val().trim();
-    const matchType = $('#matchTypeSelect').val();
 
-    if (!clubId) {
-        alert('Harap masukkan Club ID!');
-        return;
-    }
+        // Multi-gateway fallback fetcher
+        async function fetchEAWithGateway(targetUrl) {
+            const gateways = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`
+            ];
 
-    $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
-    $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
-    $('#statusText').text('Mengambil data...');
+            for (const gw of gateways) {
+                try {
+                    const res = await fetch(gw, { cache: "no-store" });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data) return data;
+                    }
+                } catch (e) {
+                    console.warn(`Gateway ${gw} bermasalah, mencoba gateway berikutnya...`);
+                }
+            }
+            throw new Error("Semua gateway CORS publik gagal merespons");
+        }
 
-    // 1. Siapkan URL asli API EA Sports
-    const rawStatsUrl = `https://proclubs.ea.com/api/fc/members/stats?platform=${platform}&clubId=${clubId}`;
-    const rawMatchesUrl = `https://proclubs.ea.com/api/fc/clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
+        async function fetchAllData() {
+            const platform = $('#platformSelect').val();
+            const clubId = $('#clubIdInput').val().trim();
+            const matchType = $('#matchTypeSelect').val();
 
-    // 2. Bungkus dengan Open CORS Gateway publik
-    const targetStatsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rawStatsUrl)}`;
-    const targetMatchesUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rawMatchesUrl)}`;
+            if (!clubId) {
+                alert('Harap masukkan Club ID!');
+                return;
+            }
 
-    try {
-        // 3. Fetch langsung dari browser tanpa lewat backend sendiri
-        const [statsRes, matchesRes] = await Promise.all([
-            fetch(targetStatsUrl),
-            fetch(targetMatchesUrl)
-        ]);
+            $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
+            $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
+            $('#statusText').text('Mengambil data...');
 
-        if (!statsRes.ok) throw new Error('Gagal mengambil data dari EA');
+            const statsUrl = `https://proclubs.ea.com/api/fc/members/stats?platform=${platform}&clubId=${clubId}`;
+            const matchesUrl = `https://proclubs.ea.com/api/fc/clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
 
-        const statsData = await statsRes.json();
-        const matchesData = matchesRes.ok ? await matchesRes.json() : [];
+            try {
+                const [statsData, matchesData] = await Promise.all([
+                    fetchEAWithGateway(statsUrl),
+                    fetchEAWithGateway(matchesUrl).catch(() => [])
+                ]);
 
-        // 4. Render tabel Skuad
-        const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
-        populateSquadTable(members);
+                // Render Skuad
+                const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
+                populateSquadTable(members);
 
-        // 5. Render tabel 10 Match
-        populateMatchesTable(matchesData, clubId);
+                // Render Matches
+                populateMatchesTable(matchesData, clubId);
 
-        $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
-        $('#statusText').text(`Online (${members.length} Pemain)`);
-    } catch (e) {
-        console.error('Error:', e);
-        $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
-        $('#statusText').text('Gagal memuat API');
-    }
-}
-    const platform = $('#platformSelect').val();
-    const clubId = $('#clubIdInput').val().trim();
-    const matchType = $('#matchTypeSelect').val();
-
-    if (!clubId) {
-        alert('Harap masukkan Club ID!');
-        return;
-    }
-
-    $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
-    $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
-    $('#statusText').text('Mengambil data langsung...');
-
-    // URL Asli EA Sports FC
-    const statsUrl = `https://proclubs.ea.com/api/fc/members/stats?platform=${platform}&clubId=${clubId}`;
-    const matchesUrl = `https://proclubs.ea.com/api/fc/clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
-
-    // Gunakan open CORS proxy (allorigins) agar browser bisa langsung membaca JSON EA tanpa 403
-    const proxyStats = `https://api.allorigins.win/raw?url=${encodeURIComponent(statsUrl)}`;
-    const proxyMatches = `https://api.allorigins.win/raw?url=${encodeURIComponent(matchesUrl)}`;
-
-    try {
-        const [resStats, resMatches] = await Promise.all([
-            fetch(proxyStats),
-            fetch(proxyMatches)
-        ]);
-
-        if (!resStats.ok) throw new Error('Gagal mengambil data Skuad');
-        
-        const statsData = await resStats.json();
-        const matchesData = resMatches.ok ? await resMatches.json() : [];
-
-        // Render Skuad
-        const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
-        populateSquadTable(members);
-
-        // Render Matches
-        populateMatchesTable(matchesData, clubId);
-
-        $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
-        $('#statusText').text(`Online (${members.length} Pemain)`);
-    } catch (e) {
-        console.error(e);
-        $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
-        $('#statusText').text('Gagal memuat API EA');
-    }
-}
+                $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
+                $('#statusText').text(`Online (${members.length} Pemain)`);
+            } catch (e) {
+                console.error('Fetch error:', e);
+                $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
+                $('#statusText').text('Gagal memuat API');
+            }
+        }
 
         $(document).ready(function() {
             // Inisialisasi Matches DataTable
@@ -710,7 +670,7 @@ async function fetchAllData() {
             // Inisialisasi Squad DataTable
             playersDataTable = $('#playersTable').DataTable({
                 responsive: true,
-                order: [[5, 'desc']], // Sort default: Gol
+                order: [[5, 'desc']], // Default urut berdasarkan Gol
                 dom: '<"d-flex flex-wrap justify-content-between align-items-center mb-3"Bf>rt<"d-flex flex-wrap justify-content-between align-items-center mt-3"lip>',
                 buttons: [
                     { extend: 'copy', className: 'btn-sm', text: '<i class="fa-regular fa-copy me-1"></i> Copy' },
