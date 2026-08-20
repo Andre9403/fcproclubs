@@ -596,8 +596,8 @@
                         <table id="matchesTable" class="table w-100 table-hover">
                             <thead>
                                 <tr>
-                                    <th>Aksi</th>
-                                    <th>Pertandingan</th>
+                                    <th class="all">Aksi</th>
+                                    <th class="all">Pertandingan</th>
                                     <th>Hasil</th>
                                     <th>Waktu Pertandingan</th>
                                 </tr>
@@ -994,12 +994,7 @@
                     `<span class="text-muted small">${dateStr}</span>`
                 ]).node();
                 
-                if (rowNode) {
-                    const matchJson = encodeURIComponent(JSON.stringify(m));
-                    $(rowNode).on('click', function() {
-                        showMatchDetailModal(decodeURIComponent(matchJson), myClubId, myClubName, oppClubName, dateStr, myGoals, oppGoals);
-                    });
-                }
+                
 
             });
 
