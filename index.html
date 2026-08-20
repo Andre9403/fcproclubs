@@ -63,6 +63,43 @@
         [data-theme="dark"] .navbar-light-custom { background: #1e293b; border-color: #334155; }
         [data-theme="dark"] .bg-light { background-color: #334155 !important; }
 
+        [data-theme="dark"] .dataTables_wrapper .dataTables_filter input {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        [data-theme="dark"] .page-item .page-link {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #cbd5e1 !important;
+        }
+        [data-theme="dark"] .page-item.active .page-link {
+            background-color: var(--primary-emerald) !important;
+            border-color: var(--primary-emerald) !important;
+            color: #ffffff !important;
+        }
+        [data-theme="dark"] .page-item.disabled .page-link {
+            background-color: #0f172a !important;
+            color: #64748b !important;
+            border-color: #334155 !important;
+        }
+        [data-theme="dark"] .dt-buttons .btn {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #cbd5e1 !important;
+        }
+        [data-theme="dark"] .dt-buttons .btn:hover {
+            background-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        [data-theme="dark"] table.dataTable tbody tr td { 
+            background-color: #1e293b !important; 
+        }
+        [data-theme="dark"] table.dataTable tbody tr:hover td { 
+            background-color: #0f172a !important; 
+        }
+
+
         body {
             background-color: var(--bg-page);
             color: var(--text-body);
@@ -1031,7 +1068,7 @@
                     } else if (infoData[clubId].teamId) {
                         // Gunakan EA CDN untuk logo jika ada teamId
                         const teamId = infoData[clubId].teamId;
-                        const crestUrl = `https://eaassets-a.akamaihd.net/fifa/u/f/fc24/crest/120x120/l${teamId}.png`;
+                        const crestUrl = `https://www.proclubsanalytics.com/assets/images/crests/${teamId}.png`;
                         $('#clubHeaderIcon').hide();
                         $('#clubHeaderLogo').attr('src', crestUrl).attr('onerror', "this.style.display='none'; $('#clubHeaderIcon').show();").show();
                     } else {
