@@ -487,91 +487,84 @@
             </div>
         </div>
 
-        <!-- SECTION 1: LAST MATCHES -->
-        <div class="panel-card p-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                <h6 class="fw-bold mb-0 text-dark">
-                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Pertandingan Terakhir (Recent Matches)
-                </h6>
-            </div>
+        
+        <!-- TABS NAVIGATION -->
+        <ul class="nav nav-tabs mb-4 border-bottom-0" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold text-dark px-4 py-3 border-0 bg-transparent" id="squad-tab" data-bs-toggle="tab" data-bs-target="#squad-tab-pane" type="button" role="tab" style="border-bottom: 3px solid var(--primary-emerald) !important;">
+                    <i class="fa-solid fa-users me-2"></i>Squad Hub
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-muted px-4 py-3 border-0 bg-transparent" id="matches-tab" data-bs-toggle="tab" data-bs-target="#matches-tab-pane" type="button" role="tab" style="border-bottom: 3px solid transparent !important;">
+                    <i class="fa-solid fa-clock-rotate-left me-2"></i>Match History
+                </button>
+            </li>
+        </ul>
 
-            <div class="table-responsive">
-                <table id="matchesTable" class="table w-100">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Hasil</th>
-                            <th>Waktu Pertandingan</th>
-                            <th>Klub Kami</th>
-                            <th>Skor Akhir</th>
-                            <th>Klub Lawan</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- SECTION 2: SQUAD STATS -->
-        <div class="panel-card p-3">
-            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                <h6 class="fw-bold mb-0 text-dark">
-                    <i class="fa-solid fa-list-ol me-2 text-success"></i>Tabel Statistik Pemain
-                </h6>
-            </div>
-
-            <div class="table-responsive">
-                <table id="playersTable" class="table w-100">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Pemain</th>
-                            <th>Pos</th>
-                            <th>OVR</th>
-                            <th>Main</th>
-                            <th>Gol</th>
-                            <th>Assist</th>
-                            <th>G+A</th>
-                            <th>Rating</th>
-                            <th>MOTM</th>
-                            <th>Pass %</th>
-                            <th>Tackles</th>
-                            <th><i class="fa-solid fa-square text-danger" title="Kartu Merah"></i> Merah</th>
-                            <th>Clean Sheet</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Modal Cari Klub -->
-    <div class="modal fade" id="searchClubModal" tabindex="-1" aria-labelledby="searchClubModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
-          <div class="modal-header border-0 pb-0 pt-4 px-4">
-            <h5 class="modal-title fw-bolder text-dark" id="searchClubModalLabel"><i class="fa-solid fa-magnifying-glass me-2 text-primary"></i>Cari Klub</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body px-4 pb-4">
-            <div class="input-group mb-3 mt-2 shadow-sm" style="border-radius: 10px; overflow: hidden;">
-                <input type="text" id="searchClubInput" class="form-control border-0 bg-light" placeholder="Masukkan nama klub..." style="padding: 0.75rem 1rem;">
-                <button class="btn btn-primary px-4" type="button" id="btnSearchClub" style="background: var(--primary-emerald); border: none; font-weight: 600;">Cari</button>
-            </div>
-            <div id="searchClubLoading" class="text-center my-4" style="display: none;">
-                <div class="spinner-border text-success spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
+        <div class="tab-content" id="mainTabsContent">
+            <!-- TAB 1: SQUAD STATS -->
+            <div class="tab-pane fade show active" id="squad-tab-pane" role="tabpanel" aria-labelledby="squad-tab" tabindex="0">
+                <div class="panel-card p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="fa-solid fa-list-ol me-2 text-success"></i>Tabel Statistik Pemain
+                        </h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="playersTable" class="table w-100">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Pemain</th>
+                                    <th>Pos</th>
+                                    <th>OVR</th>
+                                    <th>Main</th>
+                                    <th>Gol</th>
+                                    <th>Assist</th>
+                                    <th>G+A</th>
+                                    <th>Rating</th>
+                                    <th>MOTM</th>
+                                    <th>Pass %</th>
+                                    <th>Tackles</th>
+                                    <th><i class="fa-solid fa-square text-danger" title="Kartu Merah"></i> Merah</th>
+                                    <th>Clean Sheet</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
-                <p class="text-muted mt-2 small fw-medium">Mencari klub di server EA...</p>
             </div>
-            <div class="list-group list-group-flush mt-3 rounded overflow-hidden shadow-sm" id="searchClubResults" style="border: 1px solid var(--border-color);">
-                <!-- Hasil pencarian akan muncul di sini -->
+
+            <!-- TAB 2: MATCH HISTORY -->
+            <div class="tab-pane fade" id="matches-tab-pane" role="tabpanel" aria-labelledby="matches-tab" tabindex="0">
+                <div class="panel-card p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Pertandingan Terakhir (Recent Matches)
+                        </h6>
+                        <small class="text-muted"><i class="fa-solid fa-hand-pointer me-1"></i>Klik baris untuk melihat detail</small>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="matchesTable" class="table w-100 table-hover" style="cursor: pointer;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Hasil</th>
+                                    <th>Waktu Pertandingan</th>
+                                    <th>Klub Kami</th>
+                                    <th>Skor Akhir</th>
+                                    <th>Klub Lawan</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+
     </div>
 
     <!-- Modal Profil Pemain -->
@@ -615,6 +608,59 @@
         </div>
     </div>
 
+    
+    <!-- Modal Detail Match -->
+    <div class="modal fade" id="matchDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title fw-bolder text-dark"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Match Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    
+                    <!-- Scoreboard -->
+                    <div class="row align-items-center mb-4 text-center">
+                        <div class="col-4">
+                            <h5 class="fw-bold text-success mb-1 text-truncate" id="mdMyClubName">Klub Kami</h5>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-1 font-monospace" id="mdMyScore" style="font-size:1.5rem;">0</span>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted fw-bold d-block mb-1">VS</small>
+                            <span class="badge bg-light text-muted border px-2 py-1 font-monospace" id="mdMatchTime">Waktu</span>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="fw-bold text-dark mb-1 text-truncate" id="mdOppClubName">Tim Lawan</h5>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-1 font-monospace" id="mdOppScore" style="font-size:1.5rem;">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Team Comparison -->
+                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Komparasi Tim</h6>
+                    <div id="mdStatsComparison">
+                        <!-- Bars injected via JS -->
+                    </div>
+
+                    <!-- Match Players Table -->
+                    <h6 class="fw-bold text-dark mt-4 mb-3 border-bottom pb-2">Performa Skuad Kami</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless table-striped w-100" id="mdPlayersTable">
+                            <thead class="border-bottom">
+                                <tr>
+                                    <th class="text-muted small fw-bold">Pemain</th>
+                                    <th class="text-muted small fw-bold text-center">Pos</th>
+                                    <th class="text-muted small fw-bold text-center">Gol</th>
+                                    <th class="text-muted small fw-bold text-center">Ast</th>
+                                    <th class="text-muted small fw-bold text-center">Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- JS Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -858,14 +904,23 @@
                 const oppClubName = oppClub.details?.name || (oppClubId ? `Club #${oppClubId}` : 'Tim Lawan');
                 const scoreDisplay = `<span class="score-pill">${myGoals} - ${oppGoals}</span>`;
 
-                matchesDataTable.row.add([
+                
+                const rowNode = matchesDataTable.row.add([
                     `<span class="text-muted font-monospace">${idx + 1}</span>`,
                     resultBadge,
                     `<span class="text-muted small">${dateStr}</span>`,
                     `<strong class="text-success">${myClubName}</strong>`,
                     scoreDisplay,
                     `<strong class="text-dark">${oppClubName}</strong>`
-                ]);
+                ]).node();
+                
+                if (rowNode) {
+                    const matchJson = encodeURIComponent(JSON.stringify(m));
+                    $(rowNode).on('click', function() {
+                        showMatchDetailModal(decodeURIComponent(matchJson), myClubId, myClubName, oppClubName, dateStr, myGoals, oppGoals);
+                    });
+                }
+
             });
 
             $('#matchStreak').html(streakHtml);
@@ -933,34 +988,36 @@
                     if (infoData[clubId].customCrestUrl) {
                         $('#clubHeaderIcon').hide();
                         $('#clubHeaderLogo').attr('src', infoData[clubId].customCrestUrl).show();
-                    } else if (infoData[clubId].clubId) {
-                        // Tidak ada logo spesifik di API info secara default (biasanya di CDN EA butuh format spesifik),
-                        // tampilkan icon bola default.
+                    } else if (infoData[clubId].teamId) {
+                        // Gunakan EA CDN untuk logo jika ada teamId
+                        const teamId = infoData[clubId].teamId;
+                        const crestUrl = `https://eaassets-a.akamaihd.net/fifa/u/f/fc24/crest/120x120/l${teamId}.png`;
+                        $('#clubHeaderIcon').hide();
+                        $('#clubHeaderLogo').attr('src', crestUrl).attr('onerror', "this.style.display='none'; $('#clubHeaderIcon').show();").show();
+                    } else {
                         $('#clubHeaderLogo').hide();
                         $('#clubHeaderIcon').show();
                     }
                     
-                    // Fetch Overall Club Stats by Name
+                    // Fetch Overall Club Stats by ID (Lebih Akurat)
                     try {
-                        const searchEnd = `allTimeLeaderboard/search?platform=${platform}&clubName=${encodeURIComponent(clubName)}`;
-                        const searchRes = await fetchEA(searchEnd);
-                        if (Array.isArray(searchRes)) {
-                            const matchClub = searchRes.find(c => String(c.clubId) === String(clubId));
-                            if (matchClub) {
-                                const w = parseInt(matchClub.wins) || 0;
-                                const d = parseInt(matchClub.ties) || 0;
-                                const l = parseInt(matchClub.losses) || 0;
-                                const t = parseInt(matchClub.gamesPlayed) || (w + d + l);
-                                const winRate = t > 0 ? Math.round((w / t) * 100) : 0;
-                                
-                                $('#kpiDivision').text(matchClub.currentDivision || matchClub.bestDivision || '-');
-                                $('#kpiWinRate').text(`${winRate}%`);
-                                $('#kpiTotalMatches').text(`${t} Laga`);
-                                $('#kpiRecord').text(`${w} - ${d} - ${l}`);
-                                $('#kpiClubGoals').text(matchClub.goals || 0);
-                                $('#kpiClubGoalsAgainst').text(matchClub.goalsAgainst || 0);
-                                $('#clubStatsRow').show();
-                            }
+                        const statsEnd = `clubs/overallStats?platform=${platform}&clubIds=${clubId}`;
+                        const statsRes = await fetchEA(statsEnd);
+                        if (Array.isArray(statsRes) && statsRes.length > 0) {
+                            const matchClub = statsRes[0];
+                            const w = parseInt(matchClub.wins) || 0;
+                            const d = parseInt(matchClub.ties) || 0;
+                            const l = parseInt(matchClub.losses) || 0;
+                            const t = parseInt(matchClub.gamesPlayed) || (w + d + l);
+                            const winRate = t > 0 ? Math.round((w / t) * 100) : 0;
+                            
+                            $('#kpiDivision').text(matchClub.bestDivision || '-');
+                            $('#kpiWinRate').text(`${winRate}%`);
+                            $('#kpiTotalMatches').text(`${t} Laga`);
+                            $('#kpiRecord').text(`${w} - ${d} - ${l}`);
+                            $('#kpiClubGoals').text(matchClub.goals || 0);
+                            $('#kpiClubGoalsAgainst').text(matchClub.goalsAgainst || 0);
+                            $('#clubStatsRow').show();
                         }
                     } catch (err) {
                         console.warn("Failed to fetch overall club stats", err);
@@ -1109,6 +1166,103 @@
                 }
             });
         });
-    </script>
+    
+        function renderStatBar(label, valMy, valOpp) {
+            const v1 = parseFloat(valMy) || 0;
+            const v2 = parseFloat(valOpp) || 0;
+            const total = v1 + v2;
+            const pct1 = total > 0 ? (v1 / total) * 100 : 50;
+            const pct2 = total > 0 ? (v2 / total) * 100 : 50;
+            
+            return `
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold font-monospace text-success">${v1}</span>
+                        <span class="text-muted small fw-bold text-uppercase">${label}</span>
+                        <span class="fw-bold font-monospace text-danger">${v2}</span>
+                    </div>
+                    <div class="progress" style="height: 6px; border-radius: 3px; background-color: #fee2e2;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: ${pct1}%" aria-valuenow="${pct1}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showMatchDetailModal(matchStr, myClubId, myClubName, oppClubName, dateStr, myGoals, oppGoals) {
+            const match = JSON.parse(matchStr);
+            const oppClubId = Object.keys(match.clubs).find(id => id !== myClubId);
+            
+            $('#mdMyClubName').text(myClubName);
+            $('#mdOppClubName').text(oppClubName);
+            $('#mdMyScore').text(myGoals);
+            $('#mdOppScore').text(oppGoals);
+            $('#mdMatchTime').text(dateStr);
+
+            // Comparison Bars
+            const agg = match.aggregate || {};
+            const aggMy = agg[myClubId] || {};
+            const aggOpp = agg[oppClubId] || {};
+            
+            let barsHtml = '';
+            barsHtml += renderStatBar('Shots', aggMy.shots, aggOpp.shots);
+            barsHtml += renderStatBar('Passes', aggMy.passesmade, aggOpp.passesmade);
+            barsHtml += renderStatBar('Tackles', aggMy.tacklesmade, aggOpp.tacklesmade);
+            barsHtml += renderStatBar('Saves', aggMy.saves, aggOpp.saves);
+            barsHtml += renderStatBar('Red Cards', aggMy.redcards, aggOpp.redcards);
+            $('#mdStatsComparison').html(barsHtml);
+
+            // Players Table
+            const players = match.players ? (match.players[myClubId] || {}) : {};
+            const tbody = $('#mdPlayersTable tbody');
+            tbody.empty();
+            
+            const pArray = Object.values(players);
+            if(pArray.length === 0) {
+                tbody.html('<tr><td colspan="5" class="text-center text-muted py-3">Data skuad tidak tersedia untuk match ini.</td></tr>');
+            } else {
+                // sort by rating descending
+                pArray.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+                
+                pArray.forEach(p => {
+                    const pos = POS_MAP[String(p.pos)] || String(p.pos || 'N/A').toUpperCase();
+                    const rating = parseFloat(p.rating || 0).toFixed(1);
+                    const goals = p.goals || 0;
+                    const assists = p.assists || 0;
+                    
+                    tbody.append(`
+                        <tr>
+                            <td class="fw-bold text-dark">${p.playername || 'Unknown'}</td>
+                            <td class="text-center"><span class="badge bg-light text-secondary border">${pos}</span></td>
+                            <td class="text-center font-monospace">${goals > 0 ? \`<span class="text-success fw-bold">${goals}</span>\` : '0'}</td>
+                            <td class="text-center font-monospace">${assists > 0 ? \`<span class="text-primary fw-bold">${assists}</span>\` : '0'}</td>
+                            <td class="text-center">${getRatingBadge(rating)}</td>
+                        </tr>
+                    `);
+                });
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('matchDetailModal'));
+            modal.show();
+        }
+
+        // Handle Tab Switching & DataTable redraws
+        $(document).ready(function() {
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                // Reset styling
+                $('button[data-bs-toggle="tab"]').removeClass('text-dark').addClass('text-muted').css('border-bottom', '3px solid transparent');
+                // Active styling
+                $(e.target).removeClass('text-muted').addClass('text-dark').css('border-bottom', '3px solid var(--primary-emerald)');
+                
+                // Redraw DataTables so headers adjust correctly in visible tabs
+                if ($.fn.DataTable.isDataTable('#playersTable') && playersDataTable) {
+                    playersDataTable.columns.adjust().responsive.recalc();
+                }
+                if ($.fn.DataTable.isDataTable('#matchesTable') && matchesDataTable) {
+                    matchesDataTable.columns.adjust().responsive.recalc();
+                }
+            });
+        });
+
+</script>
 </body>
 </html>
