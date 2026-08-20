@@ -599,8 +599,55 @@
 
             matchesDataTable.draw();
         }
+async function fetchAllData() {
+    const platform = $('#platformSelect').val();
+    const clubId = $('#clubIdInput').val().trim();
+    const matchType = $('#matchTypeSelect').val();
 
-        async function fetchAllData() {
+    if (!clubId) {
+        alert('Harap masukkan Club ID!');
+        return;
+    }
+
+    $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
+    $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
+    $('#statusText').text('Mengambil data...');
+
+    // 1. Siapkan URL asli API EA Sports
+    const rawStatsUrl = `https://proclubs.ea.com/api/fc/members/stats?platform=${platform}&clubId=${clubId}`;
+    const rawMatchesUrl = `https://proclubs.ea.com/api/fc/clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
+
+    // 2. Bungkus dengan Open CORS Gateway publik
+    const targetStatsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rawStatsUrl)}`;
+    const targetMatchesUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rawMatchesUrl)}`;
+
+    try {
+        // 3. Fetch langsung dari browser tanpa lewat backend sendiri
+        const [statsRes, matchesRes] = await Promise.all([
+            fetch(targetStatsUrl),
+            fetch(targetMatchesUrl)
+        ]);
+
+        if (!statsRes.ok) throw new Error('Gagal mengambil data dari EA');
+
+        const statsData = await statsRes.json();
+        const matchesData = matchesRes.ok ? await matchesRes.json() : [];
+
+        // 4. Render tabel Skuad
+        const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
+        populateSquadTable(members);
+
+        // 5. Render tabel 10 Match
+        populateMatchesTable(matchesData, clubId);
+
+        $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
+        $('#statusText').text(`Online (${members.length} Pemain)`);
+    } catch (e) {
+        console.error('Error:', e);
+        $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
+        $('#statusText').text('Gagal memuat API');
+    }
+}
     const platform = $('#platformSelect').val();
     const clubId = $('#clubIdInput').val().trim();
     const matchType = $('#matchTypeSelect').val();
