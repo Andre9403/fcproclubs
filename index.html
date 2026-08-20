@@ -348,13 +348,6 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-trophy me-1"></i> Tipe Match</label>
-                    <select id="matchTypeSelect" class="form-select">
-                        <option value="leagueMatch" selected>Liga (League)</option>
-                        <option value="playoffMatch">Playoff</option>
-                    </select>
-                </div>
                 <div class="col-lg-2 col-md-3 d-flex align-items-end">
                     <button id="btnFetch" class="btn btn-refresh w-100">
                         <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Semua
@@ -541,10 +534,20 @@
             <div class="tab-pane fade" id="matches-tab-pane" role="tabpanel" aria-labelledby="matches-tab" tabindex="0">
                 <div class="panel-card p-3 mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                        <h6 class="fw-bold mb-0 text-dark">
-                            <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Pertandingan Terakhir (Recent Matches)
-                        </h6>
-                        <small class="text-muted"><i class="fa-solid fa-hand-pointer me-1"></i>Klik baris untuk melihat detail</small>
+                        <div class="w-100 d-flex flex-wrap justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Pertandingan Terakhir (Recent Matches)
+                                </h6>
+                                <small class="text-muted"><i class="fa-solid fa-hand-pointer me-1"></i>Klik baris untuk melihat detail</small>
+                            </div>
+                            <div style="min-width: 150px;">
+                                <select id="matchTypeSelect" class="form-select form-select-sm shadow-sm" style="border-radius: 8px;">
+                                    <option value="leagueMatch" selected>Liga (League)</option>
+                                    <option value="playoffMatch">Playoff</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table id="matchesTable" class="table w-100 table-hover" style="cursor: pointer;">
@@ -565,6 +568,33 @@
             </div>
         </div>
 
+    </div>
+
+    
+    <!-- Modal Cari Klub -->
+    <div class="modal fade" id="searchClubModal" tabindex="-1" aria-labelledby="searchClubModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+          <div class="modal-header border-0 pb-0 pt-4 px-4">
+            <h5 class="modal-title fw-bolder text-dark" id="searchClubModalLabel"><i class="fa-solid fa-magnifying-glass me-2 text-primary"></i>Cari Klub</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body px-4 pb-4">
+            <div class="input-group mb-3 mt-2 shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                <input type="text" id="searchClubInput" class="form-control border-0 bg-light" placeholder="Masukkan nama klub..." style="padding: 0.75rem 1rem;">
+                <button class="btn btn-primary px-4" type="button" id="btnSearchClub" style="background: var(--primary-emerald); border: none; font-weight: 600;">Cari</button>
+            </div>
+            <div id="searchClubLoading" class="text-center my-4" style="display: none;">
+                <div class="spinner-border text-success spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted mt-2 small fw-medium">Mencari klub di server EA...</p>
+            </div>
+            <div class="list-group list-group-flush mt-3 rounded overflow-hidden shadow-sm" id="searchClubResults" style="border: 1px solid var(--border-color);">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Modal Profil Pemain -->
@@ -1001,6 +1031,7 @@
                     
                     // Fetch Overall Club Stats by ID (Lebih Akurat)
                     try {
+                        
                         const statsEnd = `clubs/overallStats?platform=${platform}&clubIds=${clubId}`;
                         const statsRes = await fetchEA(statsEnd);
                         if (Array.isArray(statsRes) && statsRes.length > 0) {
@@ -1011,7 +1042,22 @@
                             const t = parseInt(matchClub.gamesPlayed) || (w + d + l);
                             const winRate = t > 0 ? Math.round((w / t) * 100) : 0;
                             
-                            $('#kpiDivision').text(matchClub.bestDivision || '-');
+                            // EA doesn't return currentDivision in overallStats, fetch from leaderboard
+                            try {
+                                const lbRes = await fetchEA(`allTimeLeaderboard/search?platform=${platform}&clubName=${encodeURIComponent($('#lblClubId').text().replace(' ID: ','').trim())}`);
+                                let currentDiv = '-';
+                                if(Array.isArray(lbRes)) {
+                                    const cInfo = lbRes.find(x => String(x.clubId) === String(clubId));
+                                    if(cInfo) currentDiv = cInfo.currentDivision;
+                                } else if(typeof lbRes === 'object') {
+                                    const cInfo = Object.values(lbRes).find(x => String(x.clubId) === String(clubId));
+                                    if(cInfo) currentDiv = cInfo.currentDivision;
+                                }
+                                $('#kpiDivision').text(currentDiv || matchClub.bestDivision || '-');
+                            } catch(e) {
+                                $('#kpiDivision').text(matchClub.bestDivision || '-');
+                            }
+
                             $('#kpiWinRate').text(`${winRate}%`);
                             $('#kpiTotalMatches').text(`${t} Laga`);
                             $('#kpiRecord').text(`${w} - ${d} - ${l}`);
