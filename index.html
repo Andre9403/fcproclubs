@@ -1061,16 +1061,20 @@
                     $('#clubHeaderName').text(clubName);
                     document.title = `${clubName} - EA FC Pro Clubs`;
                     
-                    // Coba ambil custom crest url jika ada
-                    if (infoData[clubId].customCrestUrl) {
+                    // Prioritaskan teamId dari ProClubsAnalytics
+                    const teamId = infoData[clubId].teamId;
+                    const customCrest = infoData[clubId].customCrestUrl;
+                    let finalUrl = '';
+                    
+                    if (teamId && teamId !== '0' && teamId !== 0) {
+                        finalUrl = `https://www.proclubsanalytics.com/assets/images/crests/${teamId}.png`;
+                    } else if (customCrest && customCrest.length > 5) {
+                        finalUrl = customCrest;
+                    }
+                    
+                    if (finalUrl) {
                         $('#clubHeaderIcon').hide();
-                        $('#clubHeaderLogo').attr('src', infoData[clubId].customCrestUrl).show();
-                    } else if (infoData[clubId].teamId) {
-                        // Gunakan EA CDN untuk logo jika ada teamId
-                        const teamId = infoData[clubId].teamId;
-                        const crestUrl = `https://www.proclubsanalytics.com/assets/images/crests/${teamId}.png`;
-                        $('#clubHeaderIcon').hide();
-                        $('#clubHeaderLogo').attr('src', crestUrl).attr('onerror', "this.style.display='none'; $('#clubHeaderIcon').show();").show();
+                        $('#clubHeaderLogo').attr('src', finalUrl).attr('onerror', "this.style.display='none'; $('#clubHeaderIcon').show();").show();
                     } else {
                         $('#clubHeaderLogo').hide();
                         $('#clubHeaderIcon').show();
