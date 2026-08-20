@@ -601,42 +601,53 @@
         }
 
         async function fetchAllData() {
-            const platform = $('#platformSelect').val();
-            const clubId = $('#clubIdInput').val().trim();
-            const matchType = $('#matchTypeSelect').val();
+    const platform = $('#platformSelect').val();
+    const clubId = $('#clubIdInput').val().trim();
+    const matchType = $('#matchTypeSelect').val();
 
-            if (!clubId) {
-                alert('Harap masukkan Club ID!');
-                return;
-            }
+    if (!clubId) {
+        alert('Harap masukkan Club ID!');
+        return;
+    }
 
-            $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
-            $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
-            $('#statusText').text('Mengambil data...');
+    $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
+    $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
+    $('#statusText').text('Mengambil data langsung...');
 
-            try {
-                // 1. Fetch Skuad Stats
-                const statsPromise = fetch(`/api/stats?platform=${platform}&clubId=${clubId}`).then(r => r.json());
-                // 2. Fetch Match History
-                const matchesPromise = fetch(`/api/matches?platform=${platform}&clubId=${clubId}&matchType=${matchType}&maxResultCount=10`).then(r => r.json());
+    // URL Asli EA Sports FC
+    const statsUrl = `https://proclubs.ea.com/api/fc/members/stats?platform=${platform}&clubId=${clubId}`;
+    const matchesUrl = `https://proclubs.ea.com/api/fc/clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
 
-                const [statsData, matchesData] = await Promise.all([statsPromise, matchesPromise]);
+    // Gunakan open CORS proxy (allorigins) agar browser bisa langsung membaca JSON EA tanpa 403
+    const proxyStats = `https://api.allorigins.win/raw?url=${encodeURIComponent(statsUrl)}`;
+    const proxyMatches = `https://api.allorigins.win/raw?url=${encodeURIComponent(matchesUrl)}`;
 
-                // Render Skuad
-                const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
-                populateSquadTable(members);
+    try {
+        const [resStats, resMatches] = await Promise.all([
+            fetch(proxyStats),
+            fetch(proxyMatches)
+        ]);
 
-                // Render Matches
-                populateMatchesTable(matchesData, clubId);
+        if (!resStats.ok) throw new Error('Gagal mengambil data Skuad');
+        
+        const statsData = await resStats.json();
+        const matchesData = resMatches.ok ? await resMatches.json() : [];
 
-                $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
-                $('#statusText').text(`Online (${members.length} Pemain)`);
-            } catch (e) {
-                console.error(e);
-                $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
-                $('#statusText').text('Gagal memuat API');
-            }
-        }
+        // Render Skuad
+        const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
+        populateSquadTable(members);
+
+        // Render Matches
+        populateMatchesTable(matchesData, clubId);
+
+        $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
+        $('#statusText').text(`Online (${members.length} Pemain)`);
+    } catch (e) {
+        console.error(e);
+        $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
+        $('#statusText').text('Gagal memuat API EA');
+    }
+}
 
         $(document).ready(function() {
             // Inisialisasi Matches DataTable
