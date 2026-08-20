@@ -1,5 +1,8 @@
 {
-  "framework": null,
-  "buildCommand": null,
-  "outputDirectory": "."
+  "rewrites": [
+    {
+      "source": "/api/ea/:path*",
+      "destination": "https://proclubs.ea.com/api/fc/:path*"
+    }
+  ]
 }

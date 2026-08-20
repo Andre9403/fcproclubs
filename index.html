@@ -597,10 +597,15 @@
         }
 
         // Multi-gateway fallback fetcher
-        async function fetchEAWithGateway(targetUrl) {
+        async function fetchEA(endpoint) {
+            // endpoint format: 'members/stats?platform=...'
+            const vercelProxyUrl = `/api/ea/${endpoint}`; // Vercel rewrite proxy
+            const originalUrl = `https://proclubs.ea.com/api/fc/${endpoint}`;
+            
             const gateways = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`
+                vercelProxyUrl,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`,
+                `https://corsproxy.io/?url=${encodeURIComponent(originalUrl)}`
             ];
 
             for (const gw of gateways) {
@@ -614,7 +619,7 @@
                     console.warn(`Gateway ${gw} bermasalah, mencoba gateway berikutnya...`);
                 }
             }
-            throw new Error("Semua gateway CORS publik gagal merespons");
+            throw new Error("Semua gateway CORS gagal merespons");
         }
 
         async function fetchAllData() {
@@ -631,13 +636,13 @@
             $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
             $('#statusText').text('Mengambil data...');
 
-            const statsUrl = `https://proclubs.ea.com/api/fc/members/stats?platform=${platform}&clubId=${clubId}`;
-            const matchesUrl = `https://proclubs.ea.com/api/fc/clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
+            const statsEndpoint = `members/stats?platform=${platform}&clubId=${clubId}`;
+            const matchesEndpoint = `clubs/matches?platform=${platform}&clubIds=${clubId}&matchType=${matchType}&maxResultCount=10`;
 
             try {
                 const [statsData, matchesData] = await Promise.all([
-                    fetchEAWithGateway(statsUrl),
-                    fetchEAWithGateway(matchesUrl).catch(() => [])
+                    fetchEA(statsEndpoint),
+                    fetchEA(matchesEndpoint).catch(() => [])
                 ]);
 
                 // Render Skuad
