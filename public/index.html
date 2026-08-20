@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA Sports FC Pro Clubs - Squad & Match Hub</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #f1f5f9;
+            --surface-white: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-emerald: #059669;
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar-light-custom {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .brand-title {
+            background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .panel-card {
+            background: var(--surface-white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .kpi-card {
+            background: var(--surface-white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.15rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .kpi-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .form-control, .form-select {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: var(--text-heading);
+            font-weight: 500;
+            padding: 0.55rem 0.85rem;
+            border-radius: 10px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #fff;
+            border-color: var(--primary-emerald);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+            color: var(--text-heading);
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            padding: 0.55rem 1.3rem;
+            transition: all 0.2s ease;
+        }
+        .btn-refresh:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+        }
+
+        /* Match Result Badges */
+        .match-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            text-align: center;
+            min-width: 75px;
+        }
+        .badge-win { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .badge-draw { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+        .badge-loss { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+        .score-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Position Badges */
+        .pos-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 6px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+        .pos-fw { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        .pos-mf { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+        .pos-df { background: #dbeafe; color: #2563eb; border: 1px solid #93c5fd; }
+        .pos-gk { background: #f3e8ff; color: #9333ea; border: 1px solid #d8b4fe; }
+
+        .card-red {
+            background: #fee2e2; color: #991b1b; border: 1px solid #f87171;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700; font-size: 0.78rem; padding: 2px 7px; border-radius: 5px;
+        }
+        
+        .rating-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700; padding: 3px 7px; border-radius: 6px; font-size: 0.82rem;
+        }
+        .rating-high { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .rating-med { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+        .rating-low { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+        /* Tables Customization */
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 5px !important;
+            margin-top: 8px !important;
+        }
+
+        table.dataTable thead th {
+            background-color: #f8fafc !important;
+            color: #64748b !important;
+            font-size: 0.72rem !important;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 10px 12px !important;
+            border: none !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            white-space: nowrap;
+        }
+
+        table.dataTable tbody tr {
+            background-color: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: #f8fafc !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        table.dataTable tbody td {
+            color: #334155 !important;
+            border-top: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 10px 12px !important;
+            vertical-align: middle;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        table.dataTable tbody tr td:first-child {
+            border-left: 1px solid #f1f5f9 !important;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        table.dataTable tbody tr td:last-child {
+            border-right: 1px solid #f1f5f9 !important;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+            border-radius: 8px;
+            padding: 4px 10px;
+        }
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_length {
+            color: var(--text-muted) !important;
+            font-size: 0.82rem;
+            padding: 8px;
+        }
+
+        .page-item .page-link {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: var(--text-body);
+            border-radius: 6px;
+            margin: 0 2px;
+            font-size: 0.85rem;
+        }
+        .page-item.active .page-link {
+            background-color: var(--primary-emerald);
+            border-color: var(--primary-emerald);
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .dt-buttons .btn {
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #334155 !important;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 5px 12px;
+            margin-right: 4px;
+        }
+        .dt-buttons .btn:hover {
+            background-color: #f1f5f9 !important;
+            color: var(--primary-emerald) !important;
+            border-color: var(--primary-emerald) !important;
+        }
+    </style>
+</head>
+<body class="pb-5">
+
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-light-custom mb-4 py-3 sticky-top">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-success bg-opacity-10 text-success">
+                    <i class="fa-solid fa-futbol"></i>
+                </div>
+                <div>
+                    <h5 class="mb-0 brand-title">FC PRO CLUBS MATCH & SQUAD HUB</h5>
+                    <small class="text-muted">Statistik Skuad & Riwayat Pertandingan</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill font-monospace" id="lblClubId">
+                    <i class="fa-solid fa-shield-halved text-success me-1"></i> ID: 7089906
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+
+        <!-- Control Bar -->
+        <div class="panel-card p-3 mb-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-3 col-md-3">
+                    <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-gamepad me-1"></i> Platform</label>
+                    <select id="platformSelect" class="form-select">
+                        <option value="common-gen5" selected>Cross-Gen 5 (PS5 / XSX / PC)</option>
+                        <option value="common-gen4">Cross-Gen 4 (PS4 / Xbox One)</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-hashtag me-1"></i> Club ID</label>
+                    <input type="text" id="clubIdInput" class="form-control font-monospace" value="7089906">
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label text-muted small fw-bold mb-1"><i class="fa-solid fa-trophy me-1"></i> Tipe Match</label>
+                    <select id="matchTypeSelect" class="form-select">
+                        <option value="leagueMatch" selected>Liga (League)</option>
+                        <option value="playoffMatch">Playoff</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-3 d-flex align-items-end">
+                    <button id="btnFetch" class="btn btn-refresh w-100">
+                        <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Semua
+                    </button>
+                </div>
+                <div class="col-lg-2 text-lg-end">
+                    <span id="statusBadge" class="badge bg-light text-secondary border px-3 py-2">
+                        <i class="fa-solid fa-circle text-secondary me-1" id="statusDot"></i>
+                        <span id="statusText">Status: Standby</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-xl-2 col-md-4">
+                <div class="kpi-card d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Total Skuad</span>
+                        <h3 class="fw-bolder mt-1 mb-0 text-dark font-monospace" id="kpiTotal">0</h3>
+                        <small class="text-muted">Pemain</small>
+                    </div>
+                    <div class="kpi-icon bg-success bg-opacity-10 text-success">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3 col-md-4">
+                <div class="kpi-card d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Top Scorer</span>
+                        <h6 class="fw-bold mt-1 mb-0 text-truncate text-dark" style="max-width: 130px;" id="kpiScorer">-</h6>
+                        <span class="text-warning fw-bold font-monospace" id="kpiGoals">0 Gol</span>
+                    </div>
+                    <div class="kpi-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3 col-md-4">
+                <div class="kpi-card d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Top Assist</span>
+                        <h6 class="fw-bold mt-1 mb-0 text-truncate text-dark" style="max-width: 130px;" id="kpiAssist">-</h6>
+                        <span class="text-primary fw-bold font-monospace" id="kpiAssistsCount">0 Assist</span>
+                    </div>
+                    <div class="kpi-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2 col-md-6">
+                <div class="kpi-card d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Avg Rating</span>
+                        <h3 class="fw-bolder mt-1 mb-0 text-success font-monospace" id="kpiRating">0.0</h3>
+                        <small class="text-muted">Performa</small>
+                    </div>
+                    <div class="kpi-icon" style="color: #9333ea; background: rgba(147, 51, 234, 0.1);">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-2 col-md-6">
+                <div class="kpi-card d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Kartu Merah</span>
+                        <div class="mt-1">
+                            <span class="card-red"><i class="fa-solid fa-square"></i> <span id="kpiRed">0</span></span>
+                        </div>
+                        <small class="text-muted">Total Tim</small>
+                    </div>
+                    <div class="kpi-icon bg-danger bg-opacity-10 text-danger">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: LAST 10 MATCHES -->
+        <div class="panel-card p-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat 5 Pertandingan Terakhir (Recent Matches)
+                </h6>
+            </div>
+
+            <div class="table-responsive">
+                <table id="matchesTable" class="table w-100">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Hasil</th>
+                            <th>Waktu Pertandingan</th>
+                            <th>Klub Kami</th>
+                            <th>Skor Akhir</th>
+                            <th>Klub Lawan</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 2: SQUAD STATS -->
+        <div class="panel-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="fa-solid fa-list-ol me-2 text-success"></i>Tabel Statistik Pemain
+                </h6>
+            </div>
+
+            <div class="table-responsive">
+                <table id="playersTable" class="table w-100">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Pemain</th>
+                            <th>Pos</th>
+                            <th>OVR</th>
+                            <th>Main</th>
+                            <th>Gol</th>
+                            <th>Assist</th>
+                            <th>G+A</th>
+                            <th>Rating</th>
+                            <th>MOTM</th>
+                            <th>Pass %</th>
+                            <th>Tackles</th>
+                            <th><i class="fa-solid fa-square text-danger" title="Kartu Merah"></i> Merah</th>
+                            <th>Clean Sheet</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <script>
+        const POS_MAP = {
+            "0": "GK", "1": "SW", "2": "RWB", "3": "RB", "4": "RCB", "5": "CB", "6": "LCB", "7": "LB", "8": "LWB",
+            "9": "RDM", "10": "CDM", "11": "LDM", "12": "RM", "13": "RCM", "14": "CM", "15": "LCM", "16": "LM",
+            "17": "RAM", "18": "CAM", "19": "LAM", "20": "RF", "21": "CF", "22": "LF", "23": "RW", "24": "RS",
+            "25": "ST", "26": "LS", "27": "LW"
+        };
+
+        let playersDataTable, matchesDataTable;
+
+        function getPositionBadge(posRaw) {
+            const pos = POS_MAP[String(posRaw)] || String(posRaw || 'MF').toUpperCase();
+            let cls = 'pos-mf';
+            if (['ST', 'CF', 'RW', 'LW', 'RF', 'LF', 'RS', 'LS'].includes(pos)) cls = 'pos-fw';
+            else if (['CB', 'LB', 'RB', 'LWB', 'RWB', 'LCB', 'RCB', 'SW'].includes(pos)) cls = 'pos-df';
+            else if (pos === 'GK') cls = 'pos-gk';
+            return `<span class="pos-badge ${cls}">${pos}</span>`;
+        }
+
+        function getRatingBadge(rating) {
+            const r = parseFloat(rating) || 0;
+            let cls = 'rating-med';
+            if (r >= 8.0) cls = 'rating-high';
+            else if (r < 7.0) cls = 'rating-low';
+            return `<span class="rating-tag ${cls}">${r.toFixed(1)}</span>`;
+        }
+
+        function updateKpis(members) {
+            if (!members || members.length === 0) return;
+            $('#kpiTotal').text(members.length);
+
+            // Top Scorer
+            const sortedGoals = [...members].sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
+            $('#kpiScorer').text(sortedGoals[0]?.name || sortedGoals[0]?.proName || '-');
+            $('#kpiGoals').text(`${sortedGoals[0]?.goals || 0} Gol`);
+
+            // Top Assist
+            const sortedAssists = [...members].sort((a, b) => (parseInt(b.assists) || 0) - (parseInt(a.assists) || 0));
+            $('#kpiAssist').text(sortedAssists[0]?.name || sortedAssists[0]?.proName || '-');
+            $('#kpiAssistsCount').text(`${sortedAssists[0]?.assists || 0} Assist`);
+
+            // Rating & Red Cards
+            let sum = 0, count = 0, totalRed = 0;
+            members.forEach(m => {
+                const r = parseFloat(m.ratingAve);
+                if (!isNaN(r) && r > 0) { sum += r; count++; }
+                totalRed += parseInt(m.redcards ?? m.redCards ?? m.redcard ?? 0) || 0;
+            });
+
+            $('#kpiRating').text(count > 0 ? (sum / count).toFixed(1) : '0.0');
+            $('#kpiRed').text(totalRed);
+        }
+
+        function populateSquadTable(members) {
+            playersDataTable.clear();
+            members.forEach((p, idx) => {
+                const gp = parseInt(p.gamesPlayed) || 0;
+                const goals = parseInt(p.goals) || 0;
+                const assists = parseInt(p.assists) || 0;
+                const ovr = p.proOverall ? `<span class="badge bg-secondary font-monospace">${p.proOverall}</span>` : `<span class="text-muted">-</span>`;
+                const passRate = (p.passSuccessRate !== undefined && p.passSuccessRate !== null && p.passSuccessRate !== "") 
+                                 ? `${p.passSuccessRate}%` 
+                                 : (p.passesMade ? `${Math.round((p.passesMade / (p.passAttempts || 1)) * 100)}%` : '-');
+                const tackles = p.tacklesMade !== undefined ? p.tacklesMade : (p.tackles || '-');
+                const red = parseInt(p.redcards ?? p.redCards ?? p.redcard ?? 0) || 0;
+                const cleanSheet = p.cleanSheetsDef !== undefined ? p.cleanSheetsDef : (p.cleanSheetsGK !== undefined ? p.cleanSheetsGK : (p.cleansheets || '-'));
+
+                playersDataTable.row.add([
+                    `<span class="text-muted font-monospace">${idx + 1}</span>`,
+                    `<div class="fw-bold text-dark">${p.name || 'Unknown'}</div><small class="text-muted">${p.proName || ''}</small>`,
+                    getPositionBadge(p.proPos),
+                    ovr,
+                    `<span class="fw-bold font-monospace">${gp}</span>`,
+                    `<span class="text-warning fw-bold font-monospace">${goals}</span>`,
+                    `<span class="text-primary fw-bold font-monospace">${assists}</span>`,
+                    `<span class="text-success fw-bold font-monospace">${goals + assists}</span>`,
+                    getRatingBadge(p.ratingAve),
+                    `<span class="badge bg-light text-dark border font-monospace">${p.manOfTheMatch || 0}</span>`,
+                    `<span class="text-muted font-monospace">${passRate}</span>`,
+                    `<span class="text-muted font-monospace">${tackles}</span>`,
+                    `<span class="card-red">${red}</span>`,
+                    `<span class="text-muted font-monospace">${cleanSheet}</span>`
+                ]);
+            });
+            playersDataTable.draw();
+            updateKpis(members);
+        }
+
+        function populateMatchesTable(matches, myClubId) {
+            matchesDataTable.clear();
+            if (!Array.isArray(matches) || matches.length === 0) {
+                matchesDataTable.draw();
+                return;
+            }
+
+            const last10 = matches.slice(0, 10);
+
+            last10.forEach((m, idx) => {
+                const clubs = m.clubs || {};
+                const myClub = clubs[myClubId] || {};
+                
+                // Cari ID lawan
+                const oppClubId = Object.keys(clubs).find(id => id !== myClubId);
+                const oppClub = clubs[oppClubId] || {};
+
+                const myGoals = parseInt(myClub.goals ?? myClub.score ?? 0);
+                const oppGoals = parseInt(oppClub.goals ?? oppClub.score ?? 0);
+                
+                // Tentukan Hasil (W / D / L)
+                let resultBadge = '<span class="match-badge badge-draw">SERI</span>';
+                if (myGoals > oppGoals) {
+                    resultBadge = '<span class="match-badge badge-win">MENANG</span>';
+                } else if (myGoals < oppGoals) {
+                    resultBadge = '<span class="match-badge badge-loss">KALAH</span>';
+                }
+
+                // Format Waktu Pertandingan
+                let dateStr = '-';
+                if (m.timestamp) {
+                    const d = new Date(m.timestamp * 1000);
+                    dateStr = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+
+                const myClubName = myClub.details?.name || 'Klub Kami';
+                const oppClubName = oppClub.details?.name || (oppClubId ? `Club #${oppClubId}` : 'Tim Lawan');
+                
+                const scoreDisplay = `<span class="score-pill">${myGoals} - ${oppGoals}</span>`;
+
+                matchesDataTable.row.add([
+                    `<span class="text-muted font-monospace">${idx + 1}</span>`,
+                    resultBadge,
+                    `<span class="text-muted small">${dateStr}</span>`,
+                    `<strong class="text-success">${myClubName}</strong>`,
+                    scoreDisplay,
+                    `<strong class="text-dark">${oppClubName}</strong>`
+                ]);
+            });
+
+            matchesDataTable.draw();
+        }
+
+        async function fetchAllData() {
+            const platform = $('#platformSelect').val();
+            const clubId = $('#clubIdInput').val().trim();
+            const matchType = $('#matchTypeSelect').val();
+
+            if (!clubId) {
+                alert('Harap masukkan Club ID!');
+                return;
+            }
+
+            $('#lblClubId').html(`<i class="fa-solid fa-shield-halved text-success me-1"></i> ID: ${clubId}`);
+            $('#statusDot').removeClass('text-success text-danger text-secondary').addClass('text-warning');
+            $('#statusText').text('Mengambil data...');
+
+            try {
+                // 1. Fetch Skuad Stats
+                const statsPromise = fetch(`/api/stats?platform=${platform}&clubId=${clubId}`).then(r => r.json());
+                // 2. Fetch Match History
+                const matchesPromise = fetch(`/api/matches?platform=${platform}&clubId=${clubId}&matchType=${matchType}&maxResultCount=10`).then(r => r.json());
+
+                const [statsData, matchesData] = await Promise.all([statsPromise, matchesPromise]);
+
+                // Render Skuad
+                const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
+                populateSquadTable(members);
+
+                // Render Matches
+                populateMatchesTable(matchesData, clubId);
+
+                $('#statusDot').removeClass('text-warning text-danger').addClass('text-success');
+                $('#statusText').text(`Online (${members.length} Pemain)`);
+            } catch (e) {
+                console.error(e);
+                $('#statusDot').removeClass('text-warning text-success').addClass('text-danger');
+                $('#statusText').text('Gagal memuat API');
+            }
+        }
+
+        $(document).ready(function() {
+            // Inisialisasi Matches DataTable
+            matchesDataTable = $('#matchesTable').DataTable({
+                responsive: true,
+                paging: false,
+                searching: false,
+                info: false,
+                ordering: false,
+                dom: 'rt'
+            });
+
+            // Inisialisasi Squad DataTable
+            playersDataTable = $('#playersTable').DataTable({
+                responsive: true,
+                order: [[5, 'desc']], // Sort default: Gol
+                dom: '<"d-flex flex-wrap justify-content-between align-items-center mb-3"Bf>rt<"d-flex flex-wrap justify-content-between align-items-center mt-3"lip>',
+                buttons: [
+                    { extend: 'copy', className: 'btn-sm', text: '<i class="fa-regular fa-copy me-1"></i> Copy' },
+                    { extend: 'csv', className: 'btn-sm', text: '<i class="fa-solid fa-file-csv me-1"></i> CSV' },
+                    { extend: 'excel', className: 'btn-sm', text: '<i class="fa-solid fa-file-excel me-1"></i> Excel' }
+                ],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Cari nama / posisi...",
+                    lengthMenu: "Tampil _MENU_ data",
+                    info: "Menampilkan _START_ - _END_ dari _TOTAL_ pemain",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+
+            fetchAllData();
+            $('#btnFetch').on('click', fetchAllData);
+        });
+    </script>
+</body>
+</html>
