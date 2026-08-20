@@ -58,6 +58,14 @@
         [data-theme="dark"] .list-group-item { background-color: #1e293b; color: #cbd5e1; border-color: #334155; }
         [data-theme="dark"] .list-group-item h6 { color: #f8fafc !important; }
         [data-theme="dark"] .text-dark { color: #f8fafc !important; }
+
+        [data-theme="dark"] .text-muted { color: #94a3b8 !important; }
+        [data-theme="dark"] .text-success { color: #4ade80 !important; }
+        [data-theme="dark"] .text-danger { color: #f87171 !important; }
+        [data-theme="dark"] .text-warning { color: #facc15 !important; }
+        [data-theme="dark"] .text-primary { color: #38bdf8 !important; }
+        [data-theme="dark"] .text-info { color: #22d3ee !important; }
+
         [data-theme="dark"] .panel-card { background: #1e293b; border-color: #334155; }
         [data-theme="dark"] .kpi-card { background: #1e293b; border-color: #334155; }
         [data-theme="dark"] .navbar-light-custom { background: #1e293b; border-color: #334155; }
@@ -397,7 +405,7 @@
         
         <!-- Club Overall KPI Cards -->
         <div class="row g-3 mb-4" id="clubStatsRow" style="display: none;">
-            <div class="col-6 col-md-2">
+            <div class="col-12 col-sm-6 col-md-2">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Total Skuad</span>
@@ -409,7 +417,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-2">
+            <div class="col-12 col-sm-6 col-md-2">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Divisi Terbaik</span>
@@ -421,7 +429,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-2">
+            <div class="col-12 col-sm-6 col-md-2">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Win Rate</span>
@@ -433,7 +441,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-md-3">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Rekor (M-S-K)</span>
@@ -445,7 +453,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-md-3">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Total Gol</span>
@@ -461,19 +469,8 @@
 
         <!-- 5 KPI Cards -->
         <div class="row g-3 mb-4">
-            <div class="col-6 col-xl-2 col-md-4">
-                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-muted small fw-bold text-uppercase">Total Skuad</span>
-                        <h3 class="fw-bolder mt-1 mb-0 text-dark font-monospace" id="kpiTotal">0</h3>
-                        <small class="text-muted">Pemain</small>
-                    </div>
-                    <div class="kpi-icon bg-success bg-opacity-10 text-success">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-xl-3 col-md-4">
+            
+            <div class="col-12 col-sm-6 col-md-3">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Top Scorer</span>
@@ -485,7 +482,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-xl-3 col-md-4">
+            <div class="col-12 col-sm-6 col-md-3">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Top Assist</span>
@@ -497,7 +494,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-xl-2 col-md-6">
+            <div class="col-12 col-sm-6 col-md-3">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Avg Rating</span>
@@ -509,7 +506,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-xl-2 col-md-6">
+            <div class="col-12 col-sm-6 col-md-3">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Kartu Merah</span>
@@ -618,6 +615,14 @@
     </div>
 
     
+    <!-- Footer -->
+    <footer class="mt-5 py-4 text-center text-muted" style="border-top: 1px dashed var(--border-color);">
+        <p class="mb-0 small fw-medium">
+            Dibuat dengan keringat, air mata, dan sedikit magis oleh <strong class="text-primary">asuiki</strong> 🚀<br>
+            <span style="font-size: 0.75rem;">(Jangan protes kalau ada bug, namanya juga usaha bos!)</span>
+        </p>
+    </footer>
+
     <!-- Modal Cari Klub -->
     <div class="modal fade" id="searchClubModal" tabindex="-1" aria-labelledby="searchClubModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -991,7 +996,8 @@
                     `<span class="text-muted small">${dateStr}</span>`,
                     `<strong class="text-success">${myClubName}</strong>`,
                     scoreDisplay,
-                    `<strong class="text-dark">${oppClubName}</strong>`
+                    `<strong class="text-dark">${oppClubName}</strong>`,
+                    `<button class="btn btn-sm btn-outline-primary" onclick="showMatchDetailModal('${encodeURIComponent(JSON.stringify(m))}', '${myClubId}', '${myClubName}', '${oppClubName}', '${dateStr}', ${myGoals}, ${oppGoals})" title="Lihat Detail"><i class="fa-solid fa-eye"></i></button>`
                 ]).node();
                 
                 if (rowNode) {
