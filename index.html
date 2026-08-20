@@ -719,7 +719,8 @@
             if (!query) return;
 
             const platform = $('#platformSelect').val();
-            const searchEndpoint = `clubs/search?platform=${platform}&clubName=${encodeURIComponent(query)}`;
+            // EA mengubah endpoint pencarian menjadi allTimeLeaderboard/search
+            const searchEndpoint = `allTimeLeaderboard/search?platform=${platform}&clubName=${encodeURIComponent(query)}`;
 
             $('#searchClubResults').empty();
             $('#searchClubLoading').show();
@@ -743,7 +744,7 @@
 
                 clubs.forEach(c => {
                     const clubId = c.clubId || c.id;
-                    const clubName = c.name || 'Unknown Club';
+                    const clubName = c.clubName || c.name || (c.clubInfo && c.clubInfo.name) || 'Unknown Club';
                     const item = $(`
                         <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-0 border-bottom">
                             <div>
