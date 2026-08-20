@@ -397,7 +397,19 @@
         
         <!-- Club Overall KPI Cards -->
         <div class="row g-3 mb-4" id="clubStatsRow" style="display: none;">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
+                <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Total Skuad</span>
+                        <h3 class="fw-bolder mt-1 mb-0 text-dark font-monospace" id="kpiTotal">0</h3>
+                        <small class="text-muted">Pemain</small>
+                    </div>
+                    <div class="kpi-icon bg-secondary bg-opacity-10 text-secondary">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Divisi Terbaik</span>
@@ -409,7 +421,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <div class="kpi-card h-100 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-bold text-uppercase">Win Rate</span>
@@ -555,6 +567,7 @@
                                     <th>Tackles</th>
                                     <th><i class="fa-solid fa-square text-danger" title="Kartu Merah"></i> Merah</th>
                                     <th>Clean Sheet</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -572,7 +585,7 @@
                                 <h6 class="fw-bold mb-0 text-dark">
                                     <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Pertandingan Terakhir (Recent Matches)
                                 </h6>
-                                <small class="text-muted"><i class="fa-solid fa-hand-pointer me-1"></i>Klik baris untuk melihat detail</small>
+                                <small class="text-muted"><i class="fa-solid fa-eye me-1"></i>Klik tombol aksi untuk melihat detail</small>
                             </div>
                             <div style="min-width: 150px;">
                                 <select id="matchTypeSelect" class="form-select form-select-sm shadow-sm" style="border-radius: 8px;">
@@ -583,7 +596,7 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table id="matchesTable" class="table w-100 table-hover" style="cursor: pointer;">
+                        <table id="matchesTable" class="table w-100 table-hover">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -592,6 +605,7 @@
                                     <th>Klub Kami</th>
                                     <th>Skor Akhir</th>
                                     <th>Klub Lawan</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -904,7 +918,7 @@
 
                 const rowNode = playersDataTable.row.add([
                     `<span class="text-muted font-monospace">${idx + 1}</span>`,
-                    `<div class="fw-bold text-dark" style="cursor:pointer;" onclick="showPlayerModal('${playerJson}', '${teamAvgJson}')">${p.name || 'Unknown'} ${badges}</div><small class="text-muted">${p.proName || ''}</small>`,
+                    `<div class="fw-bold text-dark">${p.name || 'Unknown'} ${badges}</div><small class="text-muted">${p.proName || ''}</small>`,
                     getPositionBadge(p.proPos),
                     ovr,
                     `<span class="fw-bold font-monospace">${gp}</span>`,
@@ -916,17 +930,9 @@
                     `<span class="text-muted font-monospace">${passRate}</span>`,
                     `<span class="text-muted font-monospace">${tackles}</span>`,
                     `<span class="card-red">${red}</span>`,
-                    `<span class="text-muted font-monospace">${cleanSheet}</span>`
+                    `<span class="text-muted font-monospace">${cleanSheet}</span>`,
+                    `<button class="btn btn-sm btn-outline-primary" onclick="showPlayerModal('${playerJson}', '${teamAvgJson}')" title="Lihat Detail"><i class="fa-solid fa-eye"></i></button>`
                 ]).node();
-                
-                if(rowNode) {
-                    $(rowNode).css('cursor', 'pointer');
-                    $(rowNode).on('click', function(e) {
-                        if(e.target.tagName !== 'DIV') { 
-                            showPlayerModal(decodeURIComponent(playerJson), decodeURIComponent(teamAvgJson));
-                        }
-                    });
-                }
             });
             playersDataTable.draw();
         }
@@ -1098,7 +1104,7 @@
 
                             $('#kpiWinRate').text(`${winRate}%`);
                             $('#kpiTotalMatches').text(`${t} Laga`);
-                            $('#kpiRecord').text(`${w} - ${d} - ${l}`);
+                            $('#kpiRecord').html(`<span class="text-success">${w}</span> - <span class="text-warning">${d}</span> - <span class="text-danger">${l}</span>`);
                             $('#kpiClubGoals').text(matchClub.goals || 0);
                             $('#kpiClubGoalsAgainst').text(matchClub.goalsAgainst || 0);
                             $('#clubStatsRow').show();
