@@ -113,6 +113,8 @@
         .btn-save:hover { background: linear-gradient(135deg,#047857,#065f46); color: white; }
         .btn-export { background: linear-gradient(135deg,#2563eb,#1d4ed8); color: white; }
         .btn-export:hover { background: linear-gradient(135deg,#1d4ed8,#1e3a8a); color: white; }
+        .btn-share { background: linear-gradient(135deg,#8b5cf6,#6d28d9); color: white; }
+        .btn-share:hover { background: linear-gradient(135deg,#7c3aed,#5b21b6); color: white; }
         .btn-reset  { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-color) !important; }
         .btn-reset:hover { border-color: #ef4444 !important; color: #ef4444; background: var(--bg-page); }
 
@@ -394,6 +396,9 @@
             </div>
         </div>
         <div class="d-flex gap-2 mt-2 flex-wrap">
+            <button class="btn-action btn-share" onclick="shareLineup()" id="btnShare">
+                <i class="fa-solid fa-link me-1"></i>Share Link
+            </button>
             <button id="btnExport" class="btn-action btn-export" onclick="exportLineupPNG()">
                 <i class="fa-solid fa-image me-1"></i>Export PNG
             </button>
@@ -775,6 +780,72 @@ function renderSquad() {
 }
 
 /* ════════════════════════════════════════════
+   SHARE URL (ENCODE / DECODE)
+   ════════════════════════════════════════════ */
+function shareLineup() {
+    const clubId   = document.getElementById('lcClubId').value;
+    const platform = document.getElementById('lcPlatform').value;
+    const clubName = document.getElementById('lcClubName').value;
+    
+    if (Object.keys(state.slots).length === 0 && !clubId) return alert('Lineup masih kosong!');
+
+    const dataObj = {
+        c: clubId,
+        p: platform,
+        n: clubName,
+        f: state.formation,
+        m: {}
+    };
+    for (const sid in state.slots) { dataObj.m[sid] = state.slots[sid]._id; }
+
+    try {
+        const jsonStr = JSON.stringify(dataObj);
+        const b64 = btoa(encodeURIComponent(jsonStr));
+        const url = new URL(window.location.href);
+        url.searchParams.set('share', b64);
+        
+        navigator.clipboard.writeText(url.toString()).then(() => {
+            const btn = document.getElementById('btnShare');
+            const ogHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Link Dicopy!';
+            btn.classList.add('bg-success');
+            setTimeout(() => {
+                btn.innerHTML = ogHtml;
+                btn.classList.remove('bg-success');
+            }, 2000);
+        });
+    } catch(e) { alert('Gagal membuat link'); }
+}
+
+async function loadSharedLineup(base64Str) {
+    try {
+        const jsonStr = decodeURIComponent(atob(base64Str));
+        const data = JSON.parse(jsonStr);
+        
+        if (data.c) {
+            document.getElementById('lcClubId').value   = data.c;
+            document.getElementById('lcPlatform').value = data.p || 'common-gen5';
+            document.getElementById('lcClubName').value = data.n || '';
+            await loadSquadFromAPI();
+        }
+        
+        state.formation = data.f || '4-3-3';
+        state.slots = {};
+        if (data.m) {
+            for (const sid in data.m) {
+                const p = state.squad.find(x => x._id === data.m[sid]);
+                if (p) state.slots[sid] = p;
+            }
+        }
+        
+        renderFormationPills();
+        renderPitch();
+        renderSquad();
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } catch(e) { console.error(e); }
+}
+
+/* ════════════════════════════════════════════
    INTERACTION
    ════════════════════════════════════════════ */
 function selectPlayer(e, pid) {
@@ -1035,9 +1106,18 @@ function initTheme() {
    ════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
-    renderFormationPills();
-    renderPitch();
-    tryLoadCached();
+
+    // Check for shared lineup in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedData = urlParams.get('share');
+
+    if (sharedData) {
+        loadSharedLineup(sharedData);
+    } else {
+        renderFormationPills();
+        renderPitch();
+        tryLoadCached();
+    }
 
     // Club search events
     document.getElementById('btnSearchClub').addEventListener('click', performSearchClub);
