@@ -777,7 +777,7 @@ function renderSquad() {
             <div class="squad-avatar av-${grp}">${init}</div>
             <div class="squad-info">
                 <div class="squad-name">${name}${isOn?'<span class="ms-1 badge bg-success bg-opacity-10 text-success" style="font-size:0.5rem;border:none;">✓ On Pitch</span>':''}</div>
-                <div class="squad-meta"><span class="pos-mini ${grp} me-1">${pl}</span>${p.goals||0}G ${p.assists||0}A</div>
+                <div class="squad-meta"><span class="pos-mini ${grp} me-1">${pl}</span>${p.gamesPlayed||0} Main <span style="color:#d97706;" class="mx-1">★${parseFloat(p.ratingAve||0).toFixed(1)}</span> ${p.goals||0}G ${p.assists||0}A</div>
             </div>
             <div class="squad-ovr">${p.proOverall||'-'}</div>
         </div>`;
