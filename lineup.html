@@ -115,6 +115,8 @@
         .btn-export:hover { background: linear-gradient(135deg,#1d4ed8,#1e3a8a); color: white; }
         .btn-share { background: linear-gradient(135deg,#8b5cf6,#6d28d9); color: white; }
         .btn-share:hover { background: linear-gradient(135deg,#7c3aed,#5b21b6); color: white; }
+        .btn-autofill { background: linear-gradient(135deg,#f59e0b,#d97706); color: white; }
+        .btn-autofill:hover { background: linear-gradient(135deg,#d97706,#b45309); color: white; }
         .btn-reset  { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-color) !important; }
         .btn-reset:hover { border-color: #ef4444 !important; color: #ef4444; background: var(--bg-page); }
 
@@ -401,6 +403,9 @@
             </button>
             <button id="btnExport" class="btn-action btn-export" onclick="exportLineupPNG()">
                 <i class="fa-solid fa-image me-1"></i>Export PNG
+            </button>
+            <button class="btn-action btn-autofill" onclick="autoFillBest()">
+                <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Auto Fill
             </button>
             <button class="btn-action btn-reset border" onclick="resetLineup()">
                 <i class="fa-solid fa-rotate-left me-1"></i>Reset
@@ -848,6 +853,48 @@ async function loadSharedLineup(base64Str) {
 /* ════════════════════════════════════════════
    INTERACTION
    ════════════════════════════════════════════ */
+function autoFillBest() {
+    if (!state.squad || state.squad.length === 0) return alert('Load skuad terlebih dahulu!');
+    
+    // Sort players by rating (proOverall) descending
+    const sortedSquad = [...state.squad].sort((a, b) => {
+        const oA = parseInt(a.proOverall) || 0;
+        const oB = parseInt(b.proOverall) || 0;
+        return oB - oA;
+    });
+
+    const fData = FORMATIONS[state.formation];
+    if (!fData) return;
+
+    // Get currently used IDs to avoid duplicates
+    const usedIds = new Set(Object.values(state.slots).map(p => p && p._id).filter(Boolean));
+
+    // Pass 1: Fill exact position group matches
+    fData.slots.forEach(slot => {
+        if (!state.slots[slot.id]) {
+            const best = sortedSquad.find(p => !usedIds.has(p._id) && posToGroup(p.proPos) === slot.grp);
+            if (best) {
+                state.slots[slot.id] = best;
+                usedIds.add(best._id);
+            }
+        }
+    });
+
+    // Pass 2: Fill remaining empty slots with the best available player regardless of position
+    fData.slots.forEach(slot => {
+        if (!state.slots[slot.id]) {
+            const bestAny = sortedSquad.find(p => !usedIds.has(p._id));
+            if (bestAny) {
+                state.slots[slot.id] = bestAny;
+                usedIds.add(bestAny._id);
+            }
+        }
+    });
+
+    renderPitch(); 
+    renderSquad();
+}
+
 function selectPlayer(e, pid) {
     e.stopPropagation();
     const p = state.squad.find(x => x._id === pid);
