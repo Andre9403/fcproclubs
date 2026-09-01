@@ -342,6 +342,233 @@
             color: var(--primary-emerald) !important;
             border-color: var(--primary-emerald) !important;
         }
+
+        /* ===== BOTTOM MOBILE NAVBAR ===== */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--surface-white);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            z-index: 1040;
+            padding: 4px 0 env(safe-area-inset-bottom, 4px);
+        }
+        .mobile-bottom-nav .nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+            gap: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .mobile-bottom-nav .nav-btn i { font-size: 1.15rem; transition: transform 0.2s; }
+        .mobile-bottom-nav .nav-btn.active { color: var(--primary-emerald); }
+        .mobile-bottom-nav .nav-btn.active i { transform: scale(1.15); }
+        .mobile-bottom-nav .nav-dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--primary-emerald);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .mobile-bottom-nav .nav-btn.active .nav-dot { opacity: 1; }
+        @media (max-width: 767.98px) {
+            body { padding-bottom: 72px !important; }
+            #mainTabs { display: none !important; }
+        }
+        @media (min-width: 768px) {
+            .mobile-bottom-nav { display: none !important; }
+        }
+
+        /* ===== FIFA PLAYER CARD ===== */
+        .fifa-card-modal .modal-content {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .fifa-card-modal .modal-dialog { max-width: 310px; }
+        .fifa-card {
+            position: relative;
+            width: 280px;
+            border-radius: 22px;
+            margin: 0 auto;
+            overflow: hidden;
+            cursor: default;
+            transition: transform 0.35s cubic-bezier(.17,.67,.46,1.35), box-shadow 0.3s;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+        }
+        .fifa-card:hover { transform: scale(1.03) rotateY(4deg); box-shadow: 0 35px 70px rgba(0,0,0,0.6) !important; }
+        .fifa-card-fw  { background: linear-gradient(150deg, #7f0000 0%, #dc2626 35%, #f97316 65%, #fbbf24 100%); }
+        .fifa-card-mf  { background: linear-gradient(150deg, #064e3b 0%, #059669 35%, #34d399 65%, #a7f3d0 100%); }
+        .fifa-card-df  { background: linear-gradient(150deg, #1e3a8a 0%, #2563eb 35%, #38bdf8 65%, #bae6fd 100%); }
+        .fifa-card-gk  { background: linear-gradient(150deg, #4c1d95 0%, #7c3aed 35%, #a78bfa 65%, #ede9fe 100%); }
+        .fifa-card-shine {
+            position: absolute; top: 0; left: -80%;
+            width: 55%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent);
+            transform: skewX(-18deg);
+            transition: left 0.65s ease;
+            pointer-events: none; z-index: 3;
+        }
+        .fifa-card:hover .fifa-card-shine { left: 160%; }
+        .fifa-card-inner {
+            position: relative;
+            padding: 20px 18px 16px;
+            color: rgba(255,255,255,0.95);
+            z-index: 1;
+        }
+        .fifa-ovr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.8rem; font-weight: 900; line-height: 1;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.45); letter-spacing: -3px;
+        }
+        .fifa-pos-label {
+            font-size: 0.78rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.2px;
+            opacity: 0.88; margin-top: 2px;
+        }
+        .fifa-club-badge {
+            position: absolute; top: 16px; right: 16px;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .fifa-name {
+            font-size: 1.25rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            text-align: center; margin: 14px 0 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .fifa-divider { border-color: rgba(255,255,255,0.28); margin: 8px 0; }
+        .fifa-badge-row {
+            display: flex; justify-content: center;
+            gap: 5px; flex-wrap: wrap; margin: 6px 0;
+        }
+        .fifa-badge-pill {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 999px; padding: 3px 9px;
+            font-size: 0.62rem; font-weight: 700;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            backdrop-filter: blur(4px);
+        }
+        .fifa-stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 7px; margin-top: 10px;
+        }
+        .fifa-stat-item {
+            text-align: center;
+            background: rgba(0,0,0,0.22);
+            border-radius: 10px; padding: 8px 4px;
+            backdrop-filter: blur(4px);
+        }
+        .fifa-stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem; font-weight: 900; line-height: 1;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+        .fifa-stat-lbl {
+            font-size: 0.58rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            opacity: 0.8; margin-top: 3px;
+        }
+        .fifa-watermark {
+            position: absolute; bottom: 10px; right: 12px;
+            font-size: 0.58rem; opacity: 0.3;
+            font-weight: 700; letter-spacing: 1.5px; color: white;
+        }
+
+        /* ===== MATCH TIMELINE ===== */
+        .timeline-container {
+            position: relative;
+            padding: 12px 0;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--border-color), transparent);
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: calc(50% + 22px);
+            margin-bottom: 18px;
+            opacity: 0;
+            animation: tlSlideL 0.4s ease forwards;
+        }
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: calc(50% + 22px);
+            animation-name: tlSlideR;
+        }
+        @keyframes tlSlideL { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes tlSlideR { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+        .timeline-dot {
+            position: absolute;
+            left: 50%; top: 50%;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            border: 3px solid var(--surface-white);
+        }
+        .timeline-dot-win  { background: #16a34a; box-shadow: 0 0 0 2px #16a34a; }
+        .timeline-dot-draw { background: #ca8a04; box-shadow: 0 0 0 2px #ca8a04; }
+        .timeline-dot-loss { background: #dc2626; box-shadow: 0 0 0 2px #dc2626; }
+        .timeline-card {
+            background: var(--surface-white);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 11px 13px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            min-width: 0; max-width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .timeline-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        .timeline-card-win  { border-left: 4px solid #16a34a; }
+        .timeline-card-draw { border-left: 4px solid #ca8a04; }
+        .timeline-card-loss { border-left: 4px solid #dc2626; }
+        .timeline-item:nth-child(even) .timeline-card-win  { border-left: none; border-right: 4px solid #16a34a; }
+        .timeline-item:nth-child(even) .timeline-card-draw { border-left: none; border-right: 4px solid #ca8a04; }
+        .timeline-item:nth-child(even) .timeline-card-loss { border-left: none; border-right: 4px solid #dc2626; }
+        .timeline-score { font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 1.25rem; }
+        .timeline-opp { font-size: 0.8rem; font-weight: 700; color: var(--text-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+        .timeline-date { font-size: 0.68rem; color: var(--text-muted); font-weight: 500; }
+        .timeline-result-label { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .winrate-bar-wrap { height: 10px; border-radius: 5px; overflow: hidden; background: #fee2e2; display: flex; }
+        .winrate-bar-win  { background: #16a34a; transition: width 0.8s ease; }
+        .winrate-bar-draw { background: #ca8a04; transition: width 0.8s ease; }
+        @media (max-width: 575.98px) {
+            .timeline-container::before { left: 18px; }
+            .timeline-item, .timeline-item:nth-child(even) {
+                padding-right: 0 !important; padding-left: 44px !important; justify-content: flex-start !important;
+            }
+            .timeline-dot { left: 18px !important; }
+            .timeline-item:nth-child(even) .timeline-card-win  { border-right: none; border-left: 4px solid #16a34a; }
+            .timeline-item:nth-child(even) .timeline-card-draw { border-right: none; border-left: 4px solid #ca8a04; }
+            .timeline-item:nth-child(even) .timeline-card-loss { border-right: none; border-left: 4px solid #dc2626; }
+        }
+        [data-theme="dark"] .timeline-card { background: #1e293b; border-color: #334155; }
+        [data-theme="dark"] .winrate-bar-wrap { background: #450a0a; }
     </style>
 </head>
 <body class="pb-5">
@@ -535,6 +762,11 @@
                     <i class="fa-solid fa-clock-rotate-left me-2"></i>Match History
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-muted px-4 py-3 border-0 bg-transparent" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-tab-pane" type="button" role="tab" style="border-bottom: 3px solid transparent !important;">
+                    <i class="fa-solid fa-timeline me-2"></i>Match Timeline
+                </button>
+            </li>
         </ul>
 
         <div class="tab-content" id="mainTabsContent">
@@ -604,6 +836,56 @@
                             </thead>
                             <tbody></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: MATCH TIMELINE -->
+            <div class="tab-pane fade" id="timeline-tab-pane" role="tabpanel" aria-labelledby="timeline-tab" tabindex="0">
+                <div class="panel-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">
+                                <i class="fa-solid fa-timeline me-2 text-warning"></i>Match Timeline
+                            </h6>
+                            <small class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>Visualisasi kronologis riwayat laga</small>
+                        </div>
+                    </div>
+
+                    <!-- Summary Bar -->
+                    <div id="timelineWinrateSummary" class="mb-4" style="display:none;">
+                        <div class="row g-2 mb-2 text-center">
+                            <div class="col-4">
+                                <div class="kpi-card py-2 px-3">
+                                    <div class="fw-bolder font-monospace text-success" id="tlWins" style="font-size:1.5rem;">0</div>
+                                    <small class="text-muted fw-bold text-uppercase" style="font-size:0.65rem;">Menang</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="kpi-card py-2 px-3">
+                                    <div class="fw-bolder font-monospace text-warning" id="tlDraws" style="font-size:1.5rem;">0</div>
+                                    <small class="text-muted fw-bold text-uppercase" style="font-size:0.65rem;">Seri</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="kpi-card py-2 px-3">
+                                    <div class="fw-bolder font-monospace text-danger" id="tlLosses" style="font-size:1.5rem;">0</div>
+                                    <small class="text-muted fw-bold text-uppercase" style="font-size:0.65rem;">Kalah</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="winrate-bar-wrap mt-2">
+                            <div class="winrate-bar-win" id="tlBarWin" style="width:0%;"></div>
+                            <div class="winrate-bar-draw" id="tlBarDraw" style="width:0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div id="matchTimeline" class="timeline-container">
+                        <div class="text-center text-muted py-5">
+                            <i class="fa-solid fa-futbol fa-2x mb-3 opacity-25 d-block"></i>
+                            <p class="mb-0 small">Tekan <strong>Refresh Data</strong> untuk memuat timeline pertandingan.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -740,6 +1022,61 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal FIFA Player Card -->
+    <div class="modal fade fifa-card-modal" id="fifaCardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="text-end px-3 pt-3 pb-1">
+                    <button type="button" class="btn btn-sm" data-bs-dismiss="modal"
+                        style="background:rgba(255,255,255,0.15); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:8px; font-weight:600;">
+                        <i class="fa-solid fa-xmark me-1"></i>Tutup
+                    </button>
+                </div>
+                <div class="modal-body p-2 pt-0">
+                    <div class="fifa-card" id="fifaCardEl">
+                        <div class="fifa-card-shine"></div>
+                        <div class="fifa-club-badge">
+                            <i class="fa-solid fa-futbol"></i>
+                        </div>
+                        <div class="fifa-card-inner">
+                            <div class="d-flex align-items-start">
+                                <div>
+                                    <div class="fifa-ovr" id="fcOvr">75</div>
+                                    <div class="fifa-pos-label" id="fcPos">ST</div>
+                                </div>
+                            </div>
+                            <div class="fifa-name" id="fcName">PLAYER NAME</div>
+                            <hr class="fifa-divider">
+                            <div class="fifa-badge-row" id="fcBadges"></div>
+                            <div class="fifa-stats-grid" id="fcStatsGrid"></div>
+                        </div>
+                        <div class="fifa-watermark">EA FC PRO CLUBS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav">
+        <button class="nav-btn active" id="mbnSquad" onclick="switchTabMobile('squad-tab', 'mbnSquad')">
+            <i class="fa-solid fa-users"></i>
+            <span>Squad</span>
+            <div class="nav-dot"></div>
+        </button>
+        <button class="nav-btn" id="mbnTimeline" onclick="switchTabMobile('timeline-tab', 'mbnTimeline')">
+            <i class="fa-solid fa-timeline"></i>
+            <span>Timeline</span>
+            <div class="nav-dot"></div>
+        </button>
+        <button class="nav-btn" id="mbnMatches" onclick="switchTabMobile('matches-tab', 'mbnMatches')">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Matches</span>
+            <div class="nav-dot"></div>
+        </button>
+    </nav>
+
     <!-- JS Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -919,7 +1256,7 @@
                 const teamAvgJson = encodeURIComponent(JSON.stringify(teamAvg || {}));
 
                 const rowNode = playersDataTable.row.add([
-                    `<div class="ms-4"><button class="btn btn-sm btn-primary" style="border-radius: 8px;" onclick="showPlayerModal('${playerJson}', '${teamAvgJson}')" title="Lihat Profil"><i class="fa-solid fa-id-card"></i></button></div>`,
+                    `<div class="d-flex gap-1 ms-2"><button class="btn btn-sm btn-primary" style="border-radius:8px;" onclick="showPlayerModal('${playerJson}', '${teamAvgJson}')" title="Lihat Profil"><i class="fa-solid fa-id-card"></i></button><button class="btn btn-sm" style="border-radius:8px; background:linear-gradient(135deg,#f59e0b,#ef4444); color:white; border:none;" onclick="showFifaCard('${playerJson}', '${teamAvgJson}')" title="FIFA Card"><i class="fa-solid fa-address-card"></i></button></div>`,
                     `<span class="text-muted font-monospace">${idx + 1}</span>`,
 `<div class="fw-bold text-dark">${p.name || 'Unknown'} ${badges}</div><small class="text-muted">${p.proName || ''}</small>`,
                     getPositionBadge(p.proPos),
@@ -1000,6 +1337,7 @@
 
             $('#matchStreak').html(streakHtml);
             matchesDataTable.draw();
+            renderMatchTimeline(matches, myClubId);
         }
 
         // Multi-gateway fallback fetcher
@@ -1183,6 +1521,130 @@
             }
         }
 
+        /* ===== FIFA PLAYER CARD FUNCTION ===== */
+        function showFifaCard(playerStr, teamAvgStr) {
+            const player = JSON.parse(decodeURIComponent(playerStr));
+            const teamAvg = JSON.parse(decodeURIComponent(teamAvgStr));
+
+            const pos = POS_MAP[String(player.proPos)] || String(player.proPos || 'MF').toUpperCase();
+            const ovr = player.proOverall || '?';
+            const name = (player.name || player.proName || 'UNKNOWN').toUpperCase();
+            const goals   = parseInt(player.goals) || 0;
+            const assists = parseInt(player.assists) || 0;
+            const rating  = (parseFloat(player.ratingAve) || 0).toFixed(1);
+            const passRate = parseInt(player.passSuccessRate) || Math.round(((player.passesMade||0)/(player.passAttempts||1))*100) || 0;
+            const tackles  = parseInt(player.tacklesMade ?? player.tackles) || 0;
+            const motm     = parseInt(player.manOfTheMatch || 0) || 0;
+            const red      = parseInt(player.redcards ?? player.redCards ?? player.redcard ?? 0) || 0;
+
+            let posClass = 'fifa-card-mf';
+            if (['ST','CF','RW','LW','RF','LF','RS','LS'].includes(pos)) posClass = 'fifa-card-fw';
+            else if (['CB','LB','RB','LWB','RWB','LCB','RCB','SW'].includes(pos)) posClass = 'fifa-card-df';
+            else if (pos === 'GK') posClass = 'fifa-card-gk';
+
+            $('#fifaCardEl').attr('class', `fifa-card ${posClass}`);
+            $('#fcOvr').text(ovr);
+            $('#fcPos').text(pos);
+            $('#fcName').text(name);
+
+            let badges = '';
+            if (teamAvg && goals > 0 && goals === teamAvg.maxGoals)   badges += '<span class="fifa-badge-pill">🥇 Top Scorer</span>';
+            if (teamAvg && assists > 0 && assists === teamAvg.maxAssists) badges += '<span class="fifa-badge-pill">🎯 Top Assist</span>';
+            if (teamAvg && parseFloat(player.ratingAve) === teamAvg.maxRating && teamAvg.maxRating > 0) badges += '<span class="fifa-badge-pill">⭐ Top Rating</span>';
+            if (teamAvg && motm > 0 && motm === teamAvg.maxMotm)      badges += '<span class="fifa-badge-pill">🏅 Most MOTM</span>';
+            if (teamAvg && tackles > 0 && tackles === teamAvg.maxTackles) badges += '<span class="fifa-badge-pill">✊ Top Tackler</span>';
+            $('#fcBadges').html(badges || '<span class="fifa-badge-pill">⚽ Pro Player</span>');
+
+            $('#fcStatsGrid').html(`
+                <div class="fifa-stat-item"><div class="fifa-stat-val">${goals}</div><div class="fifa-stat-lbl">Gol</div></div>
+                <div class="fifa-stat-item"><div class="fifa-stat-val">${assists}</div><div class="fifa-stat-lbl">Assist</div></div>
+                <div class="fifa-stat-item"><div class="fifa-stat-val">${rating}</div><div class="fifa-stat-lbl">Rating</div></div>
+                <div class="fifa-stat-item"><div class="fifa-stat-val">${passRate}%</div><div class="fifa-stat-lbl">Pass</div></div>
+                <div class="fifa-stat-item"><div class="fifa-stat-val">${tackles}</div><div class="fifa-stat-lbl">Tackles</div></div>
+                <div class="fifa-stat-item"><div class="fifa-stat-val">${motm}</div><div class="fifa-stat-lbl">MOTM</div></div>
+            `);
+
+            new bootstrap.Modal(document.getElementById('fifaCardModal')).show();
+        }
+
+        /* ===== MATCH TIMELINE FUNCTION ===== */
+        function renderMatchTimeline(matches, myClubId) {
+            if (!Array.isArray(matches) || matches.length === 0) {
+                $('#matchTimeline').html('<div class="text-center text-muted py-5"><i class="fa-solid fa-futbol fa-2x mb-3 opacity-25 d-block"></i><p class="small mb-0">Tidak ada data pertandingan.</p></div>');
+                return;
+            }
+
+            let wins = 0, draws = 0, losses = 0;
+            let html = '';
+
+            matches.forEach((m, idx) => {
+                const clubs = m.clubs || {};
+                const myClub    = clubs[myClubId] || {};
+                const oppClubId = Object.keys(clubs).find(id => id !== myClubId);
+                const oppClub   = clubs[oppClubId] || {};
+
+                const myGoals  = parseInt(myClub.goals ?? myClub.score ?? 0);
+                const oppGoals = parseInt(oppClub.goals ?? oppClub.score ?? 0);
+                const oppName  = oppClub.details?.name || (oppClubId ? `Club #${oppClubId}` : 'Tim Lawan');
+                const myName   = myClub.details?.name || 'Klub Kami';
+
+                let resultLabel, dotClass, cardClass, scoreColor;
+                if (myGoals > oppGoals) {
+                    resultLabel = 'MENANG'; dotClass = 'timeline-dot-win';  cardClass = 'timeline-card-win';  scoreColor = '#16a34a'; wins++;
+                } else if (myGoals < oppGoals) {
+                    resultLabel = 'KALAH';  dotClass = 'timeline-dot-loss'; cardClass = 'timeline-card-loss'; scoreColor = '#dc2626'; losses++;
+                } else {
+                    resultLabel = 'SERI';   dotClass = 'timeline-dot-draw'; cardClass = 'timeline-card-draw'; scoreColor = '#ca8a04'; draws++;
+                }
+
+                let dateStr = '-';
+                if (m.timestamp) {
+                    const d = new Date(m.timestamp * 1000);
+                    dateStr = d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                }
+
+                const safeOpp  = oppName.replace(/'/g, "\\'");
+                const safeMy   = myName.replace(/'/g, "\\'");
+                const safeDate = dateStr.replace(/'/g, "\\'");
+                const matchStr = encodeURIComponent(JSON.stringify(m));
+
+                html += `
+                    <div class="timeline-item" style="animation-delay:${idx*0.07}s">
+                        <div class="timeline-dot ${dotClass}"></div>
+                        <div class="timeline-card ${cardClass}">
+                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                <span class="timeline-score" style="color:${scoreColor}">${myGoals} - ${oppGoals}</span>
+                                <span class="timeline-result-label badge" style="background:${scoreColor}20; color:${scoreColor}; border:1px solid ${scoreColor}40; border-radius:6px; padding:3px 8px;">${resultLabel}</span>
+                            </div>
+                            <div class="timeline-opp mt-1"><i class="fa-solid fa-shield-halved me-1 opacity-50" style="font-size:0.7rem;"></i>vs <strong>${safeOpp}</strong></div>
+                            <div class="timeline-date mt-1"><i class="fa-regular fa-clock me-1"></i>${safeDate}</div>
+                            <button class="btn btn-sm mt-2" style="font-size:0.65rem; padding:3px 10px; border-radius:6px; background:var(--bg-page); border:1px solid var(--border-color); color:var(--text-body);" onclick="showMatchDetailModal('${matchStr}','${myClubId}','${safeMy}','${safeOpp}','${safeDate}',${myGoals},${oppGoals})"><i class='fa-solid fa-clipboard-list me-1'></i>Detail</button>
+                        </div>
+                    </div>`;
+            });
+
+            $('#matchTimeline').html(html);
+
+            const total = wins + draws + losses;
+            if (total > 0) {
+                $('#tlWins').text(wins);
+                $('#tlDraws').text(draws);
+                $('#tlLosses').text(losses);
+                $('#tlBarWin').css('width', ((wins/total)*100) + '%');
+                $('#tlBarDraw').css('width', ((draws/total)*100) + '%');
+                $('#timelineWinrateSummary').show();
+            }
+        }
+
+        /* ===== MOBILE TAB SWITCH ===== */
+        function switchTabMobile(tabId, btnId) {
+            const tab = document.getElementById(tabId);
+            if (tab) bootstrap.Tab.getOrCreateInstance(tab).show();
+            document.querySelectorAll('.mobile-bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(btnId);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
         $(document).ready(function() {
             // Setup Search Modal Event
             $('#btnSearchClub').on('click', performSearchClub);
@@ -1342,6 +1804,13 @@
                 $('button[data-bs-toggle="tab"]').removeClass('text-dark').addClass('text-muted').css('border-bottom', '3px solid transparent');
                 // Active styling
                 $(e.target).removeClass('text-muted').addClass('text-dark').css('border-bottom', '3px solid var(--primary-emerald)');
+
+                // Sync mobile bottom nav
+                const targetId = $(e.target).attr('id');
+                document.querySelectorAll('.mobile-bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+                if (targetId === 'squad-tab')    document.getElementById('mbnSquad')?.classList.add('active');
+                if (targetId === 'matches-tab')  document.getElementById('mbnMatches')?.classList.add('active');
+                if (targetId === 'timeline-tab') document.getElementById('mbnTimeline')?.classList.add('active');
                 
                 // Redraw DataTables so headers adjust correctly in visible tabs
                 if ($.fn.DataTable.isDataTable('#playersTable') && playersDataTable) {
