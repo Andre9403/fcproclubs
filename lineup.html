@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lineup Builder — EA FC Pro Clubs</title>
+    <meta name="description" content="Lineup Builder visual untuk EA Sports FC Pro Clubs — susun formasi tim secara interaktif">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #f1f5f9;
+            --surface-white: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-emerald: #059669;
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+        }
+        [data-theme="dark"] {
+            --bg-page: #0f172a;
+            --surface-white: #1e293b;
+            --border-color: #334155;
+            --text-heading: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
+        }
+        [data-theme="dark"] .panel-card    { background:#1e293b; border-color:#334155; }
+        [data-theme="dark"] .navbar-custom { background:#1e293b; border-color:#334155; }
+        [data-theme="dark"] .formation-pill { background:#1e293b; border-color:#334155; color:#94a3b8; }
+        [data-theme="dark"] .pos-filter-btn { background:#1e293b; border-color:#334155; color:#94a3b8; }
+        [data-theme="dark"] .btn-reset      { background:#1e293b; border-color:#334155; color:#94a3b8; }
+        [data-theme="dark"] .fc-input       { background:#0f172a; border-color:#334155; color:#f8fafc; }
+        [data-theme="dark"] .squad-item:hover { background:#0f172a; }
+        [data-theme="dark"] .squad-item.selected { background:rgba(5,150,105,0.15); border-color:var(--primary-emerald); }
+        [data-theme="dark"] .squad-item.on-pitch { opacity:0.4; }
+        [data-theme="dark"] .saved-item   { background:#0f172a; border-color:#334155; }
+        [data-theme="dark"] .modal-content { background:#1e293b; color:#cbd5e1; }
+        [data-theme="dark"] .modal-header h5 { color:#f8fafc !important; }
+        [data-theme="dark"] .btn-close { filter:invert(1) grayscale(100%) brightness(200%); }
+        [data-theme="dark"] .squad-name { color:#f8fafc; }
+        [data-theme="dark"] .text-dark { color:#f8fafc !important; }
+        [data-theme="dark"] .bg-light { background:#334155 !important; }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── NAVBAR ─────────────────────────── */
+        .navbar-custom {
+            background: var(--surface-white);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            padding: 0.65rem 1.5rem;
+            position: sticky; top: 0; z-index: 1030;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand-title {
+            background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800; letter-spacing: -0.5px;
+        }
+        [data-theme="dark"] .brand-title {
+            background: linear-gradient(135deg, #10b981, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-page-link {
+            display: flex; align-items: center; gap: 6px;
+            padding: 5px 13px; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 700;
+            text-decoration: none; color: var(--text-muted);
+            transition: all 0.2s; border: 1px solid transparent;
+        }
+        .nav-page-link:hover { background: var(--bg-page); color: var(--primary-emerald); border-color: var(--border-color); }
+        .nav-page-link.active { background: rgba(5,150,105,0.1); color: var(--primary-emerald); border-color: rgba(5,150,105,0.3); }
+
+        /* ── PANEL ──────────────────────────── */
+        .panel-card {
+            background: var(--surface-white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        /* ── FORMATION PILLS ────────────────── */
+        .formation-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .formation-pill {
+            padding: 5px 13px; border-radius: 999px;
+            font-size: 0.78rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer; border: 1px solid var(--border-color);
+            background: var(--surface-white); color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .formation-pill:hover { border-color: var(--primary-emerald); color: var(--primary-emerald); }
+        .formation-pill.active { background: var(--primary-emerald); border-color: var(--primary-emerald); color: white; }
+
+        /* ── TOOLBAR BUTTONS ────────────────── */
+        .btn-action {
+            border-radius: 8px; font-size: 0.8rem; font-weight: 700;
+            padding: 6px 13px; transition: all 0.2s; cursor: pointer; border: none;
+        }
+        .btn-save   { background: linear-gradient(135deg,#059669,#047857); color: white; }
+        .btn-save:hover { background: linear-gradient(135deg,#047857,#065f46); color: white; }
+        .btn-export { background: linear-gradient(135deg,#2563eb,#1d4ed8); color: white; }
+        .btn-export:hover { background: linear-gradient(135deg,#1d4ed8,#1e3a8a); color: white; }
+        .btn-reset  { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-color) !important; }
+        .btn-reset:hover { border-color: #ef4444 !important; color: #ef4444; background: var(--bg-page); }
+
+        /* ── FC INPUT ───────────────────────── */
+        .fc-input {
+            background: var(--bg-page); border: 1px solid var(--border-color);
+            color: var(--text-heading); border-radius: 8px;
+            font-size: 0.82rem; padding: 6px 10px; width: 100%;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .fc-input:focus { border-color: var(--primary-emerald); box-shadow: 0 0 0 3px rgba(5,150,105,0.12); outline: none; }
+
+        /* ── PITCH ──────────────────────────── */
+        .pitch-outer {
+            position: relative; width: 100%;
+            max-width: 400px; margin: 0 auto;
+        }
+        .pitch-outer::before { content: ''; display: block; padding-top: 142%; }
+        .pitch-wrapper {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 10px; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.25);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            background: repeating-linear-gradient(
+                to bottom,
+                #257a21 0px, #257a21 38px,
+                #1d6019 38px, #1d6019 76px
+            );
+            user-select: none;
+        }
+        .pitch-svg {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; pointer-events: none;
+        }
+
+        /* ── PLAYER SLOTS ───────────────────── */
+        .player-slot {
+            position: absolute; transform: translate(-50%,-50%);
+            z-index: 10; text-align: center; cursor: pointer;
+        }
+        .slot-circle {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 3px; font-weight: 800; font-size: 0.7rem;
+            transition: all 0.2s; position: relative;
+        }
+        /* Empty */
+        .player-slot.empty .slot-circle {
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.65);
+        }
+        .player-slot.empty:hover .slot-circle,
+        .player-slot.empty.drop-ready .slot-circle {
+            background: rgba(5,150,105,0.35);
+            border-color: #10b981;
+            animation: dropPulse 0.9s infinite alternate;
+        }
+        @keyframes dropPulse {
+            from { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+            to   { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+        }
+        .player-slot.drag-over .slot-circle { background: rgba(5,150,105,0.5) !important; border-color: #10b981 !important; }
+        /* Filled */
+        .player-slot.filled .slot-circle {
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35); font-size: 1rem;
+        }
+        .slot-circle.grp-gk { background: rgba(124,58,237,0.88); }
+        .slot-circle.grp-df { background: rgba(37,99,235,0.88); }
+        .slot-circle.grp-mf { background: rgba(180,135,0,0.88); }
+        .slot-circle.grp-fw { background: rgba(220,38,38,0.88); }
+        /* Remove btn */
+        .slot-remove {
+            position: absolute; top: -5px; right: -5px;
+            width: 17px; height: 17px; border-radius: 50%;
+            background: #ef4444; border: 2px solid white;
+            color: white; font-size: 0.5rem;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 12; font-weight: 900; line-height: 1;
+        }
+        .player-slot.filled:hover .slot-remove { display: flex; }
+        .slot-label {
+            font-size: 0.58rem; font-weight: 800;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            letter-spacing: 0.3px; line-height: 1;
+            max-width: 55px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .slot-ovr {
+            font-size: 0.5rem; font-family: 'JetBrains Mono',monospace;
+            font-weight: 700; color: rgba(255,255,255,0.65); margin-top: 1px;
+        }
+
+        /* ── SQUAD PANEL ────────────────────── */
+        .squad-panel {
+            display: flex; flex-direction: column;
+            height: calc(100vh - 280px);
+            min-height: 350px; max-height: 680px;
+        }
+        .squad-list { flex: 1; overflow-y: auto; min-height: 0; }
+        .squad-list::-webkit-scrollbar { width: 4px; }
+        .squad-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        .pos-filter-btn {
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 0.7rem; font-weight: 700;
+            cursor: pointer; border: 1px solid var(--border-color);
+            background: var(--surface-white); color: var(--text-muted);
+            transition: all 0.15s;
+        }
+        .pos-filter-btn.active { background: var(--primary-emerald); border-color: var(--primary-emerald); color: white; }
+
+        .squad-item {
+            display: flex; align-items: center; gap: 9px;
+            padding: 7px 9px; border-radius: 8px; margin-bottom: 2px;
+            cursor: grab; transition: all 0.15s; user-select: none;
+            border: 1px solid transparent;
+        }
+        .squad-item:active { cursor: grabbing; }
+        .squad-item:hover { background: var(--bg-page); }
+        .squad-item.selected { background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.35); }
+        .squad-item.on-pitch { opacity: 0.38; cursor: not-allowed; }
+        .squad-item.on-pitch:hover { background: transparent; }
+
+        .squad-avatar {
+            width: 33px; height: 33px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.82rem; color: white; flex-shrink: 0;
+        }
+        .av-gk { background: #7c3aed; }
+        .av-df { background: #2563eb; }
+        .av-mf { background: #b45309; }
+        .av-fw { background: #dc2626; }
+
+        .squad-info { flex: 1; min-width: 0; }
+        .squad-name {
+            font-size: 0.8rem; font-weight: 700;
+            color: var(--text-heading);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .squad-meta { font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono',monospace; }
+        .squad-ovr  { font-family: 'JetBrains Mono',monospace; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); flex-shrink:0; }
+
+        .pos-mini {
+            font-family: 'JetBrains Mono',monospace;
+            font-size: 0.6rem; font-weight: 700;
+            padding: 1px 5px; border-radius: 4px;
+        }
+        .pos-mini.gk { background:#f3e8ff; color:#7c3aed; }
+        .pos-mini.df { background:#dbeafe; color:#2563eb; }
+        .pos-mini.mf { background:#fef3c7; color:#b45309; }
+        .pos-mini.fw { background:#fee2e2; color:#dc2626; }
+
+        /* ── SAVED LINEUPS ──────────────────── */
+        .saved-item {
+            background: var(--bg-page); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .saved-item-name {
+            font-size: 0.82rem; font-weight: 700; color: var(--text-heading);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+        }
+        .saved-item-meta { font-size: 0.65rem; color: var(--text-muted); font-family:'JetBrains Mono',monospace; }
+
+        /* ── EMPTY STATES ───────────────────── */
+        .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-muted); }
+
+        /* ── RESPONSIVE ─────────────────────── */
+        @media (max-width: 767.98px) {
+            .squad-panel { height: 280px; max-height: 280px; }
+            .pitch-outer  { max-width: 100%; }
+            .navbar-custom { padding: 0.5rem 1rem; }
+        }
+    </style>
+</head>
+<body class="pb-5">
+
+<!-- ── NAVBAR ──────────────────────────────────── -->
+<nav class="navbar-custom mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(5,150,105,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-solid fa-clipboard-list text-success"></i>
+        </div>
+        <div>
+            <h5 class="mb-0 brand-title">LINEUP BUILDER</h5>
+            <small class="text-muted" style="font-size:0.72rem;">EA FC Pro Clubs — Susun Formasi Tim</small>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <div class="d-none d-sm-flex gap-1">
+            <a href="index.html" class="nav-page-link">
+                <i class="fa-solid fa-chart-bar"></i><span>Stats Hub</span>
+            </a>
+            <a href="lineup.html" class="nav-page-link active">
+                <i class="fa-solid fa-clipboard-list"></i><span>Lineup</span>
+            </a>
+        </div>
+        <!-- Mobile nav back -->
+        <a href="index.html" class="d-sm-none nav-page-link" style="padding:5px 10px;">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <button id="themeToggle" class="btn rounded-circle"
+            style="width:38px;height:38px;border:none;background:var(--bg-page);" title="Dark Mode">
+            <i class="fa-solid fa-moon text-muted"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- ── MAIN CONTAINER ──────────────────────────── -->
+<div class="container-fluid px-3 px-md-4">
+
+    <!-- TOOLBAR -->
+    <div class="panel-card p-3 mb-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-7">
+                <label class="text-muted fw-bold mb-2 d-block text-uppercase" style="font-size:0.62rem;letter-spacing:0.5px;">
+                    <i class="fa-solid fa-table-cells-large me-1"></i>Formasi
+                </label>
+                <div class="formation-pills" id="formationPills"></div>
+            </div>
+            <div class="col-12 col-md-5">
+                <label class="text-muted fw-bold mb-2 d-block text-uppercase" style="font-size:0.62rem;letter-spacing:0.5px;">
+                    <i class="fa-solid fa-tag me-1"></i>Nama Lineup
+                </label>
+                <div class="d-flex gap-2">
+                    <input type="text" id="lineupNameInput" class="fc-input flex-fill"
+                        placeholder="Contoh: Formasi Utama" value="Lineup 1" style="min-width:0;">
+                    <button id="btnSave" class="btn-action btn-save" onclick="saveLineup()">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2 mt-2 flex-wrap">
+            <button id="btnExport" class="btn-action btn-export" onclick="exportLineupPNG()">
+                <i class="fa-solid fa-image me-1"></i>Export PNG
+            </button>
+            <button class="btn-action btn-reset border" onclick="resetLineup()">
+                <i class="fa-solid fa-rotate-left me-1"></i>Reset
+            </button>
+            <button class="btn-action btn-reset border" data-bs-toggle="modal" data-bs-target="#savedLineupsModal">
+                <i class="fa-solid fa-folder-open me-1"></i>Tersimpan
+            </button>
+        </div>
+    </div>
+
+    <!-- PITCH + SQUAD -->
+    <div class="row g-3">
+
+        <!-- LEFT: PITCH -->
+        <div class="col-12 col-md-7 col-lg-6">
+            <div class="panel-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="fa-solid fa-table-cells-large me-2 text-success"></i>
+                        Lapangan — <span id="pitchFormLabel" class="font-monospace text-success">4-3-3</span>
+                    </h6>
+                    <small class="text-muted" id="pitchHint" style="font-size:0.68rem;">
+                        <i class="fa-solid fa-hand-pointer me-1 text-success"></i>Pilih pemain → tap slot
+                    </small>
+                </div>
+
+                <div id="pitchWrap">
+                    <div class="pitch-outer">
+                        <div class="pitch-wrapper" id="pitchField"
+                            ondragover="event.preventDefault()"
+                            ondrop="handlePitchDrop(event)">
+
+                            <!-- SVG pitch lines -->
+                            <svg class="pitch-svg" viewBox="0 0 100 142" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                                <!-- Border -->
+                                <rect x="3" y="3" width="94" height="136" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Halfway line -->
+                                <line x1="3" y1="71" x2="97" y2="71" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Center circle -->
+                                <circle cx="50" cy="71" r="12" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Center spot -->
+                                <circle cx="50" cy="71" r="1.1" fill="rgba(255,255,255,0.5)"/>
+                                <!-- Top penalty box -->
+                                <rect x="26" y="3" width="48" height="22" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Top goal area -->
+                                <rect x="37" y="3" width="26" height="9" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Top goal net -->
+                                <rect x="43" y="1.2" width="14" height="2.8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.45)" stroke-width="0.4"/>
+                                <!-- Top penalty spot -->
+                                <circle cx="50" cy="20" r="0.9" fill="rgba(255,255,255,0.5)"/>
+                                <!-- Top penalty arc -->
+                                <path d="M 37 25 A 13 13 0 0 1 63 25" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Bottom penalty box -->
+                                <rect x="26" y="117" width="48" height="22" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Bottom goal area -->
+                                <rect x="37" y="130" width="26" height="9" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Bottom goal net -->
+                                <rect x="43" y="138" width="14" height="2.8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.45)" stroke-width="0.4"/>
+                                <!-- Bottom penalty spot -->
+                                <circle cx="50" cy="122" r="0.9" fill="rgba(255,255,255,0.5)"/>
+                                <!-- Bottom penalty arc -->
+                                <path d="M 37 117 A 13 13 0 0 0 63 117" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Corner arcs -->
+                                <path d="M 3 8 A 5 5 0 0 0 8 3"   fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <path d="M 92 3 A 5 5 0 0 0 97 8" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <path d="M 97 134 A 5 5 0 0 0 92 139" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <path d="M 8 139 A 5 5 0 0 0 3 134" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.55"/>
+                                <!-- Direction labels -->
+                                <text x="50" y="11.5" text-anchor="middle" fill="rgba(255,255,255,0.28)" font-size="3.5" font-family="sans-serif" font-weight="bold">▲ SERANG</text>
+                                <text x="50" y="137"  text-anchor="middle" fill="rgba(255,255,255,0.28)" font-size="3.5" font-family="sans-serif" font-weight="bold">DEFEND ▼</text>
+                            </svg>
+
+                            <!-- Player slots generated by JS -->
+                            <div id="pitchSlots"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: LOAD CLUB + SQUAD LIST -->
+        <div class="col-12 col-md-5 col-lg-6">
+
+            <!-- Load Club -->
+            <div class="panel-card p-3 mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size:0.85rem;">
+                        <i class="fa-solid fa-cloud-arrow-down me-2 text-primary"></i>Load Skuad Klub
+                    </h6>
+                    <span id="squadLoadedBadge" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="display:none; font-size:0.65rem;">
+                        <i class="fa-solid fa-check me-1"></i>Loaded
+                    </span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-5">
+                        <input type="text" id="lcClubId" class="fc-input" placeholder="Club ID" value="7089906">
+                    </div>
+                    <div class="col-4">
+                        <select id="lcPlatform" class="fc-input">
+                            <option value="common-gen5">Gen5 (PS5/PC)</option>
+                            <option value="common-gen4">Gen4 (PS4)</option>
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <button id="btnLoadSquad" class="btn-action btn-save w-100" onclick="loadSquadFromAPI()" title="Fetch Skuad">
+                            <i class="fa-solid fa-arrows-rotate" id="loadSquadIcon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Squad Panel -->
+            <div class="panel-card p-3 squad-panel">
+                <div class="d-flex align-items-center justify-content-between mb-2 flex-shrink-0">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size:0.85rem;">
+                        <i class="fa-solid fa-users me-2 text-warning"></i>
+                        Skuad <span class="text-muted fw-normal">(<span id="squadCountLabel">0</span>)</span>
+                    </h6>
+                    <small id="selectedHint" class="text-success fw-bold" style="display:none;font-size:0.68rem;">
+                        <i class="fa-solid fa-hand-pointer me-1"></i>Tap slot di lapangan
+                    </small>
+                </div>
+                <!-- Search -->
+                <div class="mb-2 flex-shrink-0">
+                    <input type="text" id="squadSearch" class="fc-input" placeholder="Cari nama pemain...">
+                </div>
+                <!-- Position filter -->
+                <div class="d-flex gap-1 mb-2 flex-wrap flex-shrink-0">
+                    <button class="pos-filter-btn active" data-f="all">Semua</button>
+                    <button class="pos-filter-btn" data-f="gk">GK</button>
+                    <button class="pos-filter-btn" data-f="df">DEF</button>
+                    <button class="pos-filter-btn" data-f="mf">MID</button>
+                    <button class="pos-filter-btn" data-f="fw">FWD</button>
+                </div>
+                <!-- List -->
+                <div class="squad-list" id="squadList">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-users fa-2x mb-2 opacity-25 d-block"></i>
+                        <p class="small mb-1 fw-medium">Skuad belum dimuat.</p>
+                        <p class="small">Klik tombol <strong>↻</strong> di atas atau kunjungi Stats Hub untuk load data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── MODAL: SAVED LINEUPS ─────────────────────── -->
+<div class="modal fade" id="savedLineupsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bolder text-dark">
+                    <i class="fa-solid fa-folder-open me-2 text-warning"></i>Lineup Tersimpan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4" id="savedLineupsList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── SCRIPTS ──────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+/* ════════════════════════════════════════════
+   FORMATION DATA
+   ════════════════════════════════════════════ */
+const FORMATIONS = {
+    '4-3-3': { slots: [
+        {id:'gk', pos:'GK', x:50,y:87,grp:'gk'},
+        {id:'rb', pos:'RB', x:82,y:70,grp:'df'}, {id:'rcb',pos:'CB', x:62,y:70,grp:'df'},
+        {id:'lcb',pos:'CB', x:38,y:70,grp:'df'}, {id:'lb', pos:'LB', x:18,y:70,grp:'df'},
+        {id:'rcm',pos:'CM', x:70,y:49,grp:'mf'}, {id:'cm', pos:'CM', x:50,y:48,grp:'mf'},
+        {id:'lcm',pos:'CM', x:30,y:49,grp:'mf'},
+        {id:'rw', pos:'RW', x:80,y:21,grp:'fw'}, {id:'st', pos:'ST', x:50,y:17,grp:'fw'},
+        {id:'lw', pos:'LW', x:20,y:21,grp:'fw'},
+    ]},
+    '4-4-2': { slots: [
+        {id:'gk', pos:'GK', x:50,y:87,grp:'gk'},
+        {id:'rb', pos:'RB', x:82,y:70,grp:'df'}, {id:'rcb',pos:'CB', x:62,y:70,grp:'df'},
+        {id:'lcb',pos:'CB', x:38,y:70,grp:'df'}, {id:'lb', pos:'LB', x:18,y:70,grp:'df'},
+        {id:'rm', pos:'RM', x:82,y:49,grp:'mf'}, {id:'rcm',pos:'CM', x:60,y:49,grp:'mf'},
+        {id:'lcm',pos:'CM', x:40,y:49,grp:'mf'}, {id:'lm', pos:'LM', x:18,y:49,grp:'mf'},
+        {id:'rs', pos:'ST', x:63,y:20,grp:'fw'}, {id:'ls', pos:'ST', x:37,y:20,grp:'fw'},
+    ]},
+    '4-2-3-1': { slots: [
+        {id:'gk', pos:'GK',  x:50,y:87,grp:'gk'},
+        {id:'rb', pos:'RB',  x:82,y:72,grp:'df'}, {id:'rcb',pos:'CB',  x:62,y:72,grp:'df'},
+        {id:'lcb',pos:'CB',  x:38,y:72,grp:'df'}, {id:'lb', pos:'LB',  x:18,y:72,grp:'df'},
+        {id:'rdm',pos:'CDM', x:63,y:58,grp:'mf'}, {id:'ldm',pos:'CDM', x:37,y:58,grp:'mf'},
+        {id:'ram',pos:'CAM', x:78,y:37,grp:'mf'}, {id:'cam',pos:'CAM', x:50,y:34,grp:'mf'},
+        {id:'lam',pos:'CAM', x:22,y:37,grp:'mf'},
+        {id:'st', pos:'ST',  x:50,y:17,grp:'fw'},
+    ]},
+    '3-5-2': { slots: [
+        {id:'gk', pos:'GK', x:50,y:87,grp:'gk'},
+        {id:'rcb',pos:'CB', x:72,y:71,grp:'df'}, {id:'cb', pos:'CB', x:50,y:71,grp:'df'},
+        {id:'lcb',pos:'CB', x:28,y:71,grp:'df'},
+        {id:'rm', pos:'RM', x:88,y:50,grp:'mf'}, {id:'rcm',pos:'CM', x:67,y:50,grp:'mf'},
+        {id:'cm', pos:'CM', x:50,y:50,grp:'mf'}, {id:'lcm',pos:'CM', x:33,y:50,grp:'mf'},
+        {id:'lm', pos:'LM', x:12,y:50,grp:'mf'},
+        {id:'rs', pos:'ST', x:65,y:20,grp:'fw'}, {id:'ls', pos:'ST', x:35,y:20,grp:'fw'},
+    ]},
+    '5-3-2': { slots: [
+        {id:'gk',  pos:'GK',  x:50,y:87,grp:'gk'},
+        {id:'rwb', pos:'RWB', x:87,y:67,grp:'df'}, {id:'rcb',pos:'CB',  x:70,y:73,grp:'df'},
+        {id:'cb',  pos:'CB',  x:50,y:73,grp:'df'}, {id:'lcb',pos:'CB',  x:30,y:73,grp:'df'},
+        {id:'lwb', pos:'LWB', x:13,y:67,grp:'df'},
+        {id:'rcm', pos:'CM',  x:70,y:49,grp:'mf'}, {id:'cm', pos:'CM',  x:50,y:49,grp:'mf'},
+        {id:'lcm', pos:'CM',  x:30,y:49,grp:'mf'},
+        {id:'rs',  pos:'ST',  x:65,y:20,grp:'fw'}, {id:'ls', pos:'ST',  x:35,y:20,grp:'fw'},
+    ]},
+    '4-5-1': { slots: [
+        {id:'gk', pos:'GK', x:50,y:87,grp:'gk'},
+        {id:'rb', pos:'RB', x:82,y:72,grp:'df'}, {id:'rcb',pos:'CB', x:62,y:72,grp:'df'},
+        {id:'lcb',pos:'CB', x:38,y:72,grp:'df'}, {id:'lb', pos:'LB', x:18,y:72,grp:'df'},
+        {id:'rm', pos:'RM', x:86,y:50,grp:'mf'}, {id:'rcm',pos:'CM', x:67,y:50,grp:'mf'},
+        {id:'cm', pos:'CM', x:50,y:50,grp:'mf'}, {id:'lcm',pos:'CM', x:33,y:50,grp:'mf'},
+        {id:'lm', pos:'LM', x:14,y:50,grp:'mf'},
+        {id:'st', pos:'ST', x:50,y:18,grp:'fw'},
+    ]},
+    '3-4-3': { slots: [
+        {id:'gk', pos:'GK', x:50,y:87,grp:'gk'},
+        {id:'rcb',pos:'CB', x:72,y:71,grp:'df'}, {id:'cb', pos:'CB', x:50,y:71,grp:'df'},
+        {id:'lcb',pos:'CB', x:28,y:71,grp:'df'},
+        {id:'rm', pos:'RM', x:80,y:51,grp:'mf'}, {id:'rcm',pos:'CM', x:60,y:51,grp:'mf'},
+        {id:'lcm',pos:'CM', x:40,y:51,grp:'mf'}, {id:'lm', pos:'LM', x:20,y:51,grp:'mf'},
+        {id:'rw', pos:'RW', x:80,y:20,grp:'fw'}, {id:'st', pos:'ST', x:50,y:17,grp:'fw'},
+        {id:'lw', pos:'LW', x:20,y:20,grp:'fw'},
+    ]},
+};
+
+const POS_MAP = {
+    "0":"GK","1":"SW","2":"RWB","3":"RB","4":"RCB","5":"CB","6":"LCB","7":"LB","8":"LWB",
+    "9":"RDM","10":"CDM","11":"LDM","12":"RM","13":"RCM","14":"CM","15":"LCM","16":"LM",
+    "17":"RAM","18":"CAM","19":"LAM","20":"RF","21":"CF","22":"LF","23":"RW","24":"RS",
+    "25":"ST","26":"LS","27":"LW"
+};
+
+/* ════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════ */
+const state = {
+    formation: '4-3-3',
+    slots: {},            // slotId → player object
+    squad: [],
+    selected: null,       // selected player from squad
+    filterPos: 'all',
+    query: ''
+};
+
+let savesCache = {};
+let dragId = null;
+
+/* ════════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════════ */
+function posToGroup(posRaw) {
+    const p = POS_MAP[String(posRaw)] || 'CM';
+    if (p === 'GK') return 'gk';
+    if (['CB','LB','RB','LWB','RWB','LCB','RCB','SW'].includes(p)) return 'df';
+    if (['ST','CF','RW','LW','RF','LF','RS','LS'].includes(p)) return 'fw';
+    return 'mf';
+}
+function posLabel(posRaw) { return POS_MAP[String(posRaw)] || 'MF'; }
+
+function onPitchIds() {
+    return new Set(Object.values(state.slots).map(p => p._id));
+}
+
+/* ════════════════════════════════════════════
+   PITCH RENDER
+   ════════════════════════════════════════════ */
+function renderPitch() {
+    const slots   = FORMATIONS[state.formation].slots;
+    const onPitch = onPitchIds();
+    document.getElementById('pitchFormLabel').textContent = state.formation;
+
+    let html = '';
+    slots.forEach(slot => {
+        const player  = state.slots[slot.id];
+        const isEmpty = !player;
+        const ready   = state.selected && isEmpty;
+
+        if (isEmpty) {
+            html += `
+            <div class="player-slot empty${ready ? ' drop-ready' : ''}"
+                 style="left:${slot.x}%;top:${slot.y}%"
+                 data-slot="${slot.id}"
+                 ondragover="event.preventDefault();this.classList.add('drag-over')"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="handleSlotDrop(event,'${slot.id}')"
+                 onclick="clickSlot('${slot.id}')">
+                <div class="slot-circle grp-${slot.grp}">${slot.pos}</div>
+                <div class="slot-label">${slot.pos}</div>
+            </div>`;
+        } else {
+            const init  = (player.name || player.proName || '?').charAt(0).toUpperCase();
+            const short = (player.name || player.proName || 'Unknown').split(' ')[0].substring(0,8);
+            const grp   = posToGroup(player.proPos);
+            const ovr   = player.proOverall || '';
+            html += `
+            <div class="player-slot filled"
+                 style="left:${slot.x}%;top:${slot.y}%"
+                 data-slot="${slot.id}"
+                 onclick="clickFilledSlot('${slot.id}')">
+                <div class="slot-circle grp-${grp}">
+                    ${init}
+                    <button class="slot-remove" onclick="event.stopPropagation();removeSlot('${slot.id}')">×</button>
+                </div>
+                <div class="slot-label">${short}</div>
+                ${ovr ? `<div class="slot-ovr">OVR ${ovr}</div>` : ''}
+            </div>`;
+        }
+    });
+    document.getElementById('pitchSlots').innerHTML = html;
+}
+
+function renderFormationPills() {
+    document.getElementById('formationPills').innerHTML =
+        Object.keys(FORMATIONS).map(f =>
+            `<button class="formation-pill${f===state.formation?' active':''}" onclick="switchFormation('${f}')">${f}</button>`
+        ).join('');
+}
+
+function switchFormation(f) {
+    state.formation = f;
+    renderFormationPills();
+    renderPitch();
+}
+
+/* ════════════════════════════════════════════
+   SQUAD LIST RENDER
+   ════════════════════════════════════════════ */
+function renderSquad() {
+    const onPitch = onPitchIds();
+    const filtered = state.squad.filter(p => {
+        if (state.filterPos !== 'all' && posToGroup(p.proPos) !== state.filterPos) return false;
+        if (state.query && !(p.name||p.proName||'').toLowerCase().includes(state.query.toLowerCase())) return false;
+        return true;
+    });
+
+    const container = document.getElementById('squadList');
+    document.getElementById('squadCountLabel').textContent = state.squad.length;
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-magnifying-glass fa-2x mb-2 opacity-25 d-block"></i><p class="small mb-0">Tidak ada pemain ditemukan.</p></div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(p => {
+        const isOn  = onPitch.has(p._id);
+        const isSel = state.selected && state.selected._id === p._id;
+        const grp   = posToGroup(p.proPos);
+        const pl    = posLabel(p.proPos);
+        const init  = (p.name||p.proName||'?').charAt(0).toUpperCase();
+        const name  = p.name||p.proName||'Unknown';
+        return `
+        <div class="squad-item${isOn?' on-pitch':''}${isSel?' selected':''}"
+             data-pid="${p._id}"
+             draggable="${!isOn}"
+             ondragstart="handleDragStart(event,'${p._id}')"
+             onclick="${isOn?'':'selectPlayer(event,\''+p._id+'\')'}" >
+            <i class="fa-solid fa-grip-vertical" style="color:var(--border-color);font-size:0.65rem;"></i>
+            <div class="squad-avatar av-${grp}">${init}</div>
+            <div class="squad-info">
+                <div class="squad-name">${name}${isOn?'<span class="ms-1 badge bg-success bg-opacity-10 text-success" style="font-size:0.5rem;border:none;">✓ On Pitch</span>':''}</div>
+                <div class="squad-meta"><span class="pos-mini ${grp} me-1">${pl}</span>${p.goals||0}G ${p.assists||0}A</div>
+            </div>
+            <div class="squad-ovr">${p.proOverall||'-'}</div>
+        </div>`;
+    }).join('');
+}
+
+/* ════════════════════════════════════════════
+   INTERACTION
+   ════════════════════════════════════════════ */
+function selectPlayer(e, pid) {
+    e.stopPropagation();
+    const p = state.squad.find(x => x._id === pid);
+    if (!p) return;
+    state.selected = (state.selected && state.selected._id === pid) ? null : p;
+    const hint = document.getElementById('selectedHint');
+    hint.style.display = state.selected ? 'block' : 'none';
+    renderPitch();
+    renderSquad();
+}
+
+function clickSlot(slotId) {
+    if (!state.selected) return;
+    state.slots[slotId] = state.selected;
+    state.selected = null;
+    document.getElementById('selectedHint').style.display = 'none';
+    renderPitch(); renderSquad();
+}
+
+function clickFilledSlot(slotId) {
+    if (state.selected) {
+        state.slots[slotId] = state.selected;
+        state.selected = null;
+        document.getElementById('selectedHint').style.display = 'none';
+        renderPitch(); renderSquad();
+    }
+}
+
+function removeSlot(slotId) {
+    delete state.slots[slotId];
+    renderPitch(); renderSquad();
+}
+
+// Drag & Drop
+function handleDragStart(e, pid) {
+    dragId = pid;
+    e.dataTransfer.setData('text/plain', pid);
+    e.dataTransfer.effectAllowed = 'move';
+}
+function handleSlotDrop(e, slotId) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const pid = e.dataTransfer.getData('text/plain') || dragId;
+    const p = state.squad.find(x => x._id === pid);
+    if (!p) return;
+    state.slots[slotId] = p;
+    dragId = null; state.selected = null;
+    document.getElementById('selectedHint').style.display = 'none';
+    renderPitch(); renderSquad();
+}
+function handlePitchDrop(e) { e.preventDefault(); dragId = null; }
+
+/* ════════════════════════════════════════════
+   SAVE / LOAD / DELETE
+   ════════════════════════════════════════════ */
+function saveLineup() {
+    const name = document.getElementById('lineupNameInput').value.trim() || 'Lineup';
+    let saves = JSON.parse(localStorage.getItem('lineup_saves') || '[]');
+    const obj = { id:'ln_'+Date.now(), name, formation:state.formation, slots:state.slots, at:new Date().toLocaleString('id-ID') };
+    const idx = saves.findIndex(s => s.name === name);
+    idx >= 0 ? saves[idx] = obj : saves.unshift(obj);
+    localStorage.setItem('lineup_saves', JSON.stringify(saves.slice(0,15)));
+
+    const btn = document.getElementById('btnSave');
+    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Tersimpan!';
+    btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
+    setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i>Simpan'; btn.style.background=''; }, 2000);
+}
+
+function loadLineup(id) {
+    const s = savesCache[id];
+    if (!s) return;
+    state.formation = s.formation;
+    state.slots = s.slots || {};
+    state.selected = null;
+    document.getElementById('lineupNameInput').value = s.name;
+    document.getElementById('selectedHint').style.display = 'none';
+    renderFormationPills(); renderPitch(); renderSquad();
+    bootstrap.Modal.getInstance(document.getElementById('savedLineupsModal'))?.hide();
+}
+
+function deleteLineup(id) {
+    let saves = JSON.parse(localStorage.getItem('lineup_saves') || '[]');
+    saves = saves.filter(s => s.id !== id);
+    localStorage.setItem('lineup_saves', JSON.stringify(saves));
+    document.querySelector(`[data-save-id="${id}"]`)?.remove();
+}
+
+function renderSavedLineupsList() {
+    const saves = JSON.parse(localStorage.getItem('lineup_saves') || '[]');
+    savesCache = {};
+    saves.forEach(s => savesCache[s.id] = s);
+    const c = document.getElementById('savedLineupsList');
+    if (!saves.length) {
+        c.innerHTML = `<div class="empty-state"><i class="fa-solid fa-folder-open fa-2x mb-2 opacity-25 d-block"></i><p class="small mb-0">Belum ada lineup tersimpan.</p></div>`;
+        return;
+    }
+    c.innerHTML = saves.map(s => `
+        <div class="saved-item" data-save-id="${s.id}">
+            <div style="flex:1;min-width:0;">
+                <div class="saved-item-name">${s.name}</div>
+                <div class="saved-item-meta"><span class="badge bg-secondary bg-opacity-10 text-secondary border me-1">${s.formation}</span>${s.at}</div>
+            </div>
+            <div class="d-flex gap-1">
+                <button class="btn btn-sm" style="border-radius:6px;font-size:0.72rem;padding:4px 10px;background:rgba(5,150,105,0.1);color:#059669;border:1px solid rgba(5,150,105,0.3);" onclick="loadLineup('${s.id}')">
+                    <i class="fa-solid fa-upload me-1"></i>Load
+                </button>
+                <button class="btn btn-sm" style="border-radius:6px;font-size:0.72rem;padding:4px 8px;color:#ef4444;border:1px solid #fca5a5;background:transparent;" onclick="deleteLineup('${s.id}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>`).join('');
+}
+
+function resetLineup() {
+    if (!confirm('Reset semua pemain dari lapangan?')) return;
+    state.slots = {}; state.selected = null;
+    document.getElementById('selectedHint').style.display = 'none';
+    renderPitch(); renderSquad();
+}
+
+/* ════════════════════════════════════════════
+   EXPORT PNG
+   ════════════════════════════════════════════ */
+async function exportLineupPNG() {
+    const btn = document.getElementById('btnExport');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Proses...';
+    btn.disabled = true;
+    try {
+        const el = document.getElementById('pitchWrap');
+        const canvas = await html2canvas(el, { backgroundColor: null, scale: 2, useCORS: true, logging: false });
+        const a = document.createElement('a');
+        a.download = `lineup-${state.formation}-${Date.now()}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+    } catch(e) { alert('Gagal export: ' + e.message); }
+    finally {
+        btn.innerHTML = '<i class="fa-solid fa-image me-1"></i>Export PNG';
+        btn.disabled = false;
+    }
+}
+
+/* ════════════════════════════════════════════
+   LOAD SQUAD FROM API
+   ════════════════════════════════════════════ */
+async function fetchEA(ep) {
+    const orig = `https://proclubs.ea.com/api/fc/${ep}`;
+    const gws  = [`/api/ea/${ep}`,
+                  `https://api.allorigins.win/raw?url=${encodeURIComponent(orig)}`,
+                  `https://corsproxy.io/?url=${encodeURIComponent(orig)}`];
+    for (const gw of gws) {
+        try { const r = await fetch(gw,{cache:'no-store'}); if(r.ok){const d=await r.json();if(d)return d;} }
+        catch(e){}
+    }
+    throw new Error('Semua gateway gagal');
+}
+
+async function loadSquadFromAPI() {
+    const clubId   = document.getElementById('lcClubId').value.trim();
+    const platform = document.getElementById('lcPlatform').value;
+    if (!clubId) return alert('Masukkan Club ID!');
+    const icon = document.getElementById('loadSquadIcon');
+    icon.className = 'fa-solid fa-spinner fa-spin';
+    try {
+        const data = await fetchEA(`members/stats?platform=${platform}&clubId=${clubId}`);
+        const members = Array.isArray(data) ? data : (data.members || data[clubId]?.members || []);
+        members.forEach((m,i) => { m._id = (m.name||m.proName||'p'+i).replace(/'/g,''); });
+        state.squad = members;
+        localStorage.setItem('proclubs_squad', JSON.stringify({ clubId, platform, members }));
+        document.getElementById('squadLoadedBadge').style.display = 'inline-block';
+        renderSquad();
+    } catch(e) { alert('Gagal memuat skuad: ' + e.message); }
+    finally { icon.className = 'fa-solid fa-arrows-rotate'; }
+}
+
+function tryLoadCached() {
+    const raw = localStorage.getItem('proclubs_squad');
+    if (!raw) return;
+    try {
+        const { clubId, platform, members } = JSON.parse(raw);
+        members.forEach((m,i) => { m._id = (m.name||m.proName||'p'+i).replace(/'/g,''); });
+        state.squad = members;
+        if (clubId)   document.getElementById('lcClubId').value = clubId;
+        if (platform) document.getElementById('lcPlatform').value = platform;
+        document.getElementById('squadLoadedBadge').style.display = 'inline-block';
+        renderSquad();
+    } catch(e) {}
+}
+
+/* ════════════════════════════════════════════
+   DARK MODE
+   ════════════════════════════════════════════ */
+function initTheme() {
+    if ((localStorage.getItem('theme')||'light') === 'dark') {
+        document.body.setAttribute('data-theme','dark');
+        document.querySelector('#themeToggle i').className = 'fa-solid fa-sun text-warning';
+    }
+    document.getElementById('themeToggle').addEventListener('click', function() {
+        const dark = document.body.getAttribute('data-theme') === 'dark';
+        dark ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme','dark');
+        localStorage.setItem('theme', dark ? 'light' : 'dark');
+        this.querySelector('i').className = dark ? 'fa-solid fa-moon text-muted' : 'fa-solid fa-sun text-warning';
+    });
+}
+
+/* ════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    renderFormationPills();
+    renderPitch();
+    tryLoadCached();
+
+    // Squad search
+    document.getElementById('squadSearch').addEventListener('input', function() {
+        state.query = this.value;
+        renderSquad();
+    });
+
+    // Position filter
+    document.querySelectorAll('.pos-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.pos-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            state.filterPos = this.dataset.f;
+            renderSquad();
+        });
+    });
+
+    // Saved lineups modal
+    document.getElementById('savedLineupsModal').addEventListener('show.bs.modal', renderSavedLineupsList);
+
+    // Click outside pitch to deselect
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#pitchField') && !e.target.closest('#squadList')) return;
+        if (e.target.closest('#squadList') && !e.target.closest('.squad-item')) {
+            state.selected = null;
+            document.getElementById('selectedHint').style.display = 'none';
+            renderPitch(); renderSquad();
+        }
+    });
+});
+</script>
+</body>
+</html>

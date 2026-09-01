@@ -593,6 +593,10 @@
                 <span class="badge bg-light text-dark border px-3 py-2 rounded-pill font-monospace" id="lblClubId">
                     <i class="fa-solid fa-shield-halved text-success me-1"></i> ID: 7089906
                 </span>
+<a href="lineup.html" class="btn d-none d-md-flex align-items-center gap-1 ms-1" style="border-radius:8px;border:1px solid var(--border-color);background:var(--bg-page);color:var(--text-body);font-weight:700;font-size:0.78rem;padding:5px 13px;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='#059669';this.style.color='#059669'" onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-body)'">
+                    <i class="fa-solid fa-clipboard-list text-success"></i>
+                    <span>Lineup</span>
+                </a>
                 <button id="themeToggle" class="btn btn-outline-secondary rounded-circle ms-1" style="width: 40px; height: 40px; border: none; background: var(--bg-page); transition: background 0.2s;" title="Toggle Dark Mode">
                     <i class="fa-solid fa-moon text-muted"></i>
                 </button>
@@ -1450,6 +1454,12 @@
                 // Render Skuad
                 const members = Array.isArray(statsData) ? statsData : (statsData.members || statsData[clubId]?.members || []);
                 populateSquadTable(members);
+
+                // Save squad to localStorage for Lineup Builder
+                try {
+                    const membersForLineup = members.map((m,i) => ({ ...m, _id: (m.name||m.proName||'p'+i).replace(/'/g,'') }));
+                    localStorage.setItem('proclubs_squad', JSON.stringify({ clubId, platform, members: membersForLineup }));
+                } catch(e) { /* ignore quota errors */ }
 
                 // Render Matches
                 populateMatchesTable(matchesData, clubId);
