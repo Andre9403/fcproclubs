@@ -856,14 +856,16 @@ async function loadSharedLineup(base64Str) {
 function autoFillBest() {
     if (!state.squad || state.squad.length === 0) return alert('Load skuad terlebih dahulu!');
     
-    // Sort players priority: ratingAve -> gamesPlayed -> proOverall
+    // Sort players priority: gamesPlayed -> ratingAve -> proOverall
     const sortedSquad = [...state.squad].sort((a, b) => {
-        const rA = parseFloat(a.ratingAve) || 0;
-        const rB = parseFloat(b.ratingAve) || 0;
-        if (rB !== rA) return rB - rA;
         const gpA = parseInt(a.gamesPlayed) || 0;
         const gpB = parseInt(b.gamesPlayed) || 0;
         if (gpB !== gpA) return gpB - gpA;
+        
+        const rA = parseFloat(a.ratingAve) || 0;
+        const rB = parseFloat(b.ratingAve) || 0;
+        if (rB !== rA) return rB - rA;
+        
         const oA = parseInt(a.proOverall) || 0;
         const oB = parseInt(b.proOverall) || 0;
         return oB - oA;
