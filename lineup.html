@@ -872,31 +872,19 @@ function autoFillBest() {
     const fData = FORMATIONS[state.formation];
     if (!fData) return;
 
-    // Get currently used IDs to avoid replacing manual placements
+    // Get currently used IDs to avoid duplicates
     const usedIds = new Set(Object.values(state.slots).map(p => p && p._id).filter(Boolean));
 
-    // Determine empty slots and top N available players
-    const emptySlots = fData.slots.filter(s => !state.slots[s.id]);
-    const topAvailable = sortedSquad.filter(p => !usedIds.has(p._id)).slice(0, emptySlots.length);
-
-    let unassignedPlayers = [...topAvailable];
-    let unassignedSlots = [...emptySlots];
-
-    // Pass 1: Try to match their preferred position group
-    for (let i = unassignedSlots.length - 1; i >= 0; i--) {
-        const slot = unassignedSlots[i];
-        const matchIdx = unassignedPlayers.findIndex(p => posToGroup(p.proPos) === slot.grp);
-        if (matchIdx !== -1) {
-            state.slots[slot.id] = unassignedPlayers[matchIdx];
-            unassignedPlayers.splice(matchIdx, 1);
-            unassignedSlots.splice(i, 1);
+    // Fill exact position group matches only
+    fData.slots.forEach(slot => {
+        if (!state.slots[slot.id]) {
+            const best = sortedSquad.find(p => !usedIds.has(p._id) && posToGroup(p.proPos) === slot.grp);
+            if (best) {
+                state.slots[slot.id] = best;
+                usedIds.add(best._id);
+            }
         }
-    }
-
-    // Pass 2: Assign remaining best players to whatever slots are left (out-of-position)
-    for (let i = 0; i < unassignedSlots.length; i++) {
-        state.slots[unassignedSlots[i].id] = unassignedPlayers[i];
-    }
+    });
 
     renderPitch(); 
     renderSquad();
