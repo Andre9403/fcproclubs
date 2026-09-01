@@ -856,8 +856,11 @@ async function loadSharedLineup(base64Str) {
 function autoFillBest() {
     if (!state.squad || state.squad.length === 0) return alert('Load skuad terlebih dahulu!');
     
-    // Sort players by rating: gamesPlayed descending, then proOverall descending
+    // Sort players priority: ratingAve -> gamesPlayed -> proOverall
     const sortedSquad = [...state.squad].sort((a, b) => {
+        const rA = parseFloat(a.ratingAve) || 0;
+        const rB = parseFloat(b.ratingAve) || 0;
+        if (rB !== rA) return rB - rA;
         const gpA = parseInt(a.gamesPlayed) || 0;
         const gpB = parseInt(b.gamesPlayed) || 0;
         if (gpB !== gpA) return gpB - gpA;
@@ -869,30 +872,31 @@ function autoFillBest() {
     const fData = FORMATIONS[state.formation];
     if (!fData) return;
 
-    // Get currently used IDs to avoid duplicates
+    // Get currently used IDs to avoid replacing manual placements
     const usedIds = new Set(Object.values(state.slots).map(p => p && p._id).filter(Boolean));
 
-    // Pass 1: Fill exact position group matches
-    fData.slots.forEach(slot => {
-        if (!state.slots[slot.id]) {
-            const best = sortedSquad.find(p => !usedIds.has(p._id) && posToGroup(p.proPos) === slot.grp);
-            if (best) {
-                state.slots[slot.id] = best;
-                usedIds.add(best._id);
-            }
-        }
-    });
+    // Determine empty slots and top N available players
+    const emptySlots = fData.slots.filter(s => !state.slots[s.id]);
+    const topAvailable = sortedSquad.filter(p => !usedIds.has(p._id)).slice(0, emptySlots.length);
 
-    // Pass 2: Fill remaining empty slots with the best available player regardless of position
-    fData.slots.forEach(slot => {
-        if (!state.slots[slot.id]) {
-            const bestAny = sortedSquad.find(p => !usedIds.has(p._id));
-            if (bestAny) {
-                state.slots[slot.id] = bestAny;
-                usedIds.add(bestAny._id);
-            }
+    let unassignedPlayers = [...topAvailable];
+    let unassignedSlots = [...emptySlots];
+
+    // Pass 1: Try to match their preferred position group
+    for (let i = unassignedSlots.length - 1; i >= 0; i--) {
+        const slot = unassignedSlots[i];
+        const matchIdx = unassignedPlayers.findIndex(p => posToGroup(p.proPos) === slot.grp);
+        if (matchIdx !== -1) {
+            state.slots[slot.id] = unassignedPlayers[matchIdx];
+            unassignedPlayers.splice(matchIdx, 1);
+            unassignedSlots.splice(i, 1);
         }
-    });
+    }
+
+    // Pass 2: Assign remaining best players to whatever slots are left (out-of-position)
+    for (let i = 0; i < unassignedSlots.length; i++) {
+        state.slots[unassignedSlots[i].id] = unassignedPlayers[i];
+    }
 
     renderPitch(); 
     renderSquad();
