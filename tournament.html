@@ -70,6 +70,9 @@
         [data-theme="dark"] .card-header { background-color: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
         [data-theme="dark"] #unassignedTeamsContainer { background-color: #0f172a !important; border-color: #334155 !important; }
         [data-theme="dark"] .badge.bg-white { background-color: #0f172a !important; color: #cbd5e1 !important; border-color: #334155 !important; }
+        [data-theme="dark"] .modal-content { background-color: #1e293b !important; color: #f8fafc !important; border-color: #334155 !important; }
+        [data-theme="dark"] .modal-header, [data-theme="dark"] .modal-footer { border-color: #334155 !important; }
+        [data-theme="dark"] #shareUrlInput { background-color: #0f172a !important; color: #93c5fd !important; border-color: #334155 !important; }
 
         body {
             background-color: var(--bg-page);
@@ -188,6 +191,10 @@
                     <i class="fa-solid fa-house text-success"></i>
                     <span>Beranda</span>
                 </a>
+                <button id="btnShareTournament" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm d-flex align-items-center gap-1" type="button" onclick="openShareModal()">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span>Share Turnamen</span>
+                </button>
                 <button id="btnExport" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
                     <i class="fa-solid fa-download"></i> Export Data
                 </button>
@@ -358,6 +365,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="fw-bold mb-0">Peserta & Tim Terdaftar (<span id="teamCount">0</span>)</h6>
                                 <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary fw-bold" type="button" onclick="openShareModal()">
+                                        <i class="fa-solid fa-share-nodes me-1"></i> Share
+                                    </button>
                                     <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
                                         <i class="fa-solid fa-users-gear me-1"></i> Atur Grup Manual
                                     </button>
@@ -393,9 +403,14 @@
                             <h6 class="fw-bold mb-0">Babak Grup (Group Stage)</h6>
                             <small class="text-muted">Hasil skor langsung menentukan klasemen dan tim yang lolos</small>
                         </div>
-                        <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
-                            <i class="fa-solid fa-users-gear me-1"></i> Ubah Peserta Grup
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary fw-bold" type="button" onclick="openShareModal()">
+                                <i class="fa-solid fa-share-nodes me-1"></i> Bagikan Jadwal
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
+                                <i class="fa-solid fa-users-gear me-1"></i> Ubah Peserta Grup
+                            </button>
+                        </div>
                     </div>
                     <div id="groupStageContainer">
                         <div class="text-center py-5 text-muted">
@@ -413,9 +428,14 @@
                             <h6 class="fw-bold mb-0">Bagan Turnamen (Knockout)</h6>
                             <small class="text-muted">Babak gugur ditentukan otomatis dari posisi klasemen grup</small>
                         </div>
-                        <button class="btn btn-success fw-bold" id="btnGenerateKnockout">
-                            <i class="fa-solid fa-diagram-next me-1"></i> Generate dari Klasemen Akhir
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary fw-bold" type="button" onclick="openShareModal()">
+                                <i class="fa-solid fa-share-nodes me-1"></i> Bagikan Bracket
+                            </button>
+                            <button class="btn btn-success fw-bold" id="btnGenerateKnockout">
+                                <i class="fa-solid fa-diagram-next me-1"></i> Generate dari Klasemen Akhir
+                            </button>
+                        </div>
                     </div>
                     
                     <div id="bracketContainer" class="bracket-container border rounded bg-light" style="min-height: 400px;">
@@ -483,6 +503,76 @@
         </div>
     </div>
 
+    <!-- Modal Share Data Turnamen -->
+    <div class="modal fade" id="shareTournamentModal" tabindex="-1" aria-labelledby="shareTournamentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" data-theme-aware="true">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold text-primary" id="shareTournamentModalLabel">
+                        <i class="fa-solid fa-share-nodes me-2"></i>Bagikan Data Turnamen
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2" style="width: 52px; height: 52px;">
+                            <i class="fa-solid fa-trophy fs-3"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">Turnamen EA FC 26</h6>
+                        <p class="text-muted small mb-0" id="shareModalSubtitle">Bagikan tautan ini ke pemain lain atau grup WhatsApp.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted mb-1">
+                            <i class="fa-solid fa-link me-1"></i> Link Turnamen Ringkas
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace small" id="shareUrlInput" readonly style="font-size: 0.8rem; background-color: var(--bg-card, #f8f9fa);">
+                            <button class="btn btn-primary fw-bold px-3" type="button" id="btnCopyShareUrl" onclick="copyShareUrl()">
+                                <i class="fa-solid fa-copy me-1"></i> Salin
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <small class="text-success fw-semibold" id="shareLengthBadge" style="font-size: 0.72rem;">
+                                <i class="fa-solid fa-shield-check me-1"></i> URL Terkompresi Super Ringkas
+                            </small>
+                            <span id="copySuccessFeedback" class="text-success small fw-bold" style="display: none; font-size: 0.75rem;">
+                                <i class="fa-solid fa-check me-1"></i> Link disalin!
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="#" target="_blank" class="btn btn-success fw-bold d-flex align-items-center justify-content-center gap-2" id="btnShareWhatsApp">
+                            <i class="fa-brands fa-whatsapp fs-5"></i> Bagikan ke WhatsApp
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary fw-semibold btn-sm" id="btnNativeShare" style="display: none;">
+                            <i class="fa-solid fa-arrow-up-from-bracket me-1"></i> Opsi Bagikan Lainnya...
+                        </button>
+                    </div>
+
+                    <div class="border-top pt-3 mt-3 text-center">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-circle-info me-1 text-primary"></i> Siapapun yang membuka link ini akan otomatis memuat data peserta, grup, skor klasemen, dan bracket turnamen.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <div id="shareNotificationToast" class="toast align-items-center text-bg-primary border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-semibold" id="shareNotificationMsg">
+                    🏆 Data turnamen berhasil dimuat!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap & Plugins JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -519,6 +609,7 @@
             initBulkInsert();
             await loadFcTeams();
             loadState();
+            await checkAndLoadSharedTournament();
             renderRegisteredTeams();
             renderGroups();
             renderBracket();
@@ -1724,6 +1815,426 @@
             reader.readAsText(file);
             this.value = null;
         });
+
+        // ==========================================
+        // SHARE TOURNAMENT DATA (COMPACT URL ENCODING)
+        // ==========================================
+        
+        // Compact schema generation
+        function buildCompactState() {
+            if (!state.teams || state.teams.length === 0) return null;
+
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const activeGroups = getActiveGroupNames();
+
+            // 1. Teams compact
+            const compactTeams = state.teams.map(t => {
+                const playerName = t.playerName || '';
+                let clubRef = t.teamName || t.name || 'Tim';
+                let customLogo = '';
+
+                // Check if official club in fcTeamsData
+                const official = (Array.isArray(fcTeamsData) ? fcTeamsData : []).find(fc => 
+                    fc.name.toLowerCase() === (t.teamName || '').toLowerCase() || 
+                    fc.logo === t.logo
+                );
+                if (official) {
+                    clubRef = official.id; // e.g. "mci", "mun"
+                } else if (t.logo && !t.logo.includes('ui-avatars.com')) {
+                    customLogo = t.logo;
+                }
+
+                let gIdx = -1;
+                if (t.assignedGroup) {
+                    const letterMatch = t.assignedGroup.match(/Group\s+([A-Z])/i);
+                    if (letterMatch) {
+                        gIdx = alphabet.indexOf(letterMatch[1].toUpperCase());
+                    } else {
+                        gIdx = activeGroups.indexOf(t.assignedGroup);
+                    }
+                }
+
+                const item = [playerName, clubRef, gIdx];
+                if (customLogo) item.push(customLogo);
+                return item;
+            });
+
+            const compact = {
+                f: [state.format.groups || 2, state.format.advancing || 2],
+                t: compactTeams
+            };
+
+            // 2. Groups & Matches compact
+            if (state.groups && Object.keys(state.groups).length > 0) {
+                compact.g = {};
+                Object.keys(state.groups).forEach(gName => {
+                    const g = state.groups[gName];
+                    const letter = gName.replace(/Group\s+/i, '');
+                    if (g && Array.isArray(g.matches) && g.matches.length > 0) {
+                        compact.g[letter] = g.matches.map(m => {
+                            const t1Idx = state.teams.findIndex(x => x.id === m.team1);
+                            const t2Idx = state.teams.findIndex(x => x.id === m.team2);
+                            return [
+                                t1Idx, 
+                                t2Idx, 
+                                m.score1 !== null && m.score1 !== undefined ? m.score1 : 0, 
+                                m.score2 !== null && m.score2 !== undefined ? m.score2 : 0, 
+                                m.played ? 1 : 0,
+                                m.round || 1
+                            ];
+                        });
+                    }
+                });
+            }
+
+            // 3. Knockout compact
+            if (state.knockout && state.knockout.length > 0) {
+                compact.k = state.knockout.map(round => {
+                    return round.map(m => {
+                        const t1Idx = m.t1 ? state.teams.findIndex(x => x.id === m.t1.id || (x.playerName === m.t1.playerName && x.teamName === m.t1.teamName)) : -1;
+                        const t2Idx = m.t2 ? state.teams.findIndex(x => x.id === m.t2.id || (x.playerName === m.t2.playerName && x.teamName === m.t2.teamName)) : -1;
+                        return [
+                            t1Idx,
+                            t2Idx,
+                            m.s1 !== null && m.s1 !== undefined ? m.s1 : 0,
+                            m.s2 !== null && m.s2 !== undefined ? m.s2 : 0
+                        ];
+                    });
+                });
+            }
+
+            return compact;
+        }
+
+        // Reconstruct full tournament state from compact schema
+        function reconstructStateFromCompact(compact) {
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numGroups = compact.f && compact.f[0] ? compact.f[0] : 2;
+            const advancing = compact.f && compact.f[1] ? compact.f[1] : 2;
+
+            state.format = { groups: numGroups, advancing: advancing };
+            const numGroupsInput = document.getElementById('numGroups');
+            const advancingInput = document.getElementById('advancingPerGroup');
+            if (numGroupsInput) numGroupsInput.value = numGroups;
+            if (advancingInput) advancingInput.value = advancing;
+
+            const activeGroups = [];
+            for (let i = 0; i < numGroups; i++) {
+                activeGroups.push(`Group ${alphabet[i]}`);
+            }
+
+            // 1. Reconstruct Teams
+            state.teams = (compact.t || []).map((item, idx) => {
+                const playerName = item[0] || '';
+                const clubRef = item[1] || '';
+                const gIdx = item[2] !== undefined ? item[2] : -1;
+                const customLogo = item[3] || '';
+
+                let teamName = clubRef;
+                let logo = '';
+
+                // Check in fcTeamsData
+                const official = (Array.isArray(fcTeamsData) ? fcTeamsData : []).find(fc => 
+                    fc.id === clubRef || fc.name.toLowerCase() === clubRef.toLowerCase()
+                );
+                if (official) {
+                    teamName = official.name;
+                    logo = official.logo;
+                } else {
+                    logo = customLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(teamName)}&background=random`;
+                }
+
+                const assignedGroup = (gIdx >= 0 && gIdx < activeGroups.length) ? activeGroups[gIdx] : '';
+                const uniqueId = 'p_' + Date.now() + '_' + idx;
+
+                return {
+                    id: uniqueId,
+                    playerName: playerName,
+                    teamName: teamName,
+                    name: playerName ? `${teamName} (${playerName})` : teamName,
+                    logo: logo,
+                    assignedGroup: assignedGroup
+                };
+            });
+
+            // 2. Reconstruct Groups
+            state.groups = {};
+            if (compact.g && Object.keys(compact.g).length > 0) {
+                Object.keys(compact.g).forEach(letter => {
+                    const gName = `Group ${letter}`;
+                    // Standings from assigned teams
+                    const groupTeams = state.teams.filter(t => t.assignedGroup === gName);
+                    const standings = groupTeams.map(t => ({
+                        id: t.id,
+                        playerName: t.playerName || '',
+                        teamName: t.teamName || t.name,
+                        name: t.name,
+                        logo: t.logo,
+                        p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0
+                    }));
+
+                    // Matches
+                    const matches = (compact.g[letter] || []).map((m, mIdx) => {
+                        const t1 = state.teams[m[0]];
+                        const t2 = state.teams[m[1]];
+                        return {
+                            id: `m_${letter}_${mIdx}_${Date.now()}`,
+                            round: m[5] || 1,
+                            team1: t1 ? t1.id : null,
+                            team2: t2 ? t2.id : null,
+                            score1: m[2] !== undefined ? m[2] : 0,
+                            score2: m[3] !== undefined ? m[3] : 0,
+                            played: !!m[4]
+                        };
+                    });
+
+                    state.groups[gName] = {
+                        standings: standings,
+                        matches: matches
+                    };
+
+                    // Recalculate standings stats (P, W, D, L, GF, GA, GD, PTS)
+                    recalcStandings(gName);
+                });
+            }
+
+            // 3. Reconstruct Knockout
+            state.knockout = [];
+            if (compact.k && Array.isArray(compact.k) && compact.k.length > 0) {
+                state.knockout = compact.k.map((round, rIdx) => {
+                    return round.map((m, mIdx) => {
+                        const t1 = (m[0] !== undefined && m[0] >= 0) ? state.teams[m[0]] : null;
+                        const t2 = (m[1] !== undefined && m[1] >= 0) ? state.teams[m[1]] : null;
+                        return {
+                            id: `ko_${rIdx}_${mIdx}_${Date.now()}`,
+                            t1: t1 ? { ...t1 } : null,
+                            t2: t2 ? { ...t2 } : null,
+                            s1: m[2] !== undefined ? m[2] : 0,
+                            s2: m[3] !== undefined ? m[3] : 0
+                        };
+                    });
+                });
+            }
+        }
+
+        // Compress string using browser native stream or fallback
+        async function compressToUrlSafeBase64(str) {
+            if (window.CompressionStream) {
+                try {
+                    const stream = new Blob([new TextEncoder().encode(str)]).stream();
+                    const compressedStream = stream.pipeThrough(new CompressionStream('deflate-raw'));
+                    const chunks = [];
+                    const reader = compressedStream.getReader();
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        chunks.push(value);
+                    }
+                    const blob = new Blob(chunks);
+                    const buffer = await blob.arrayBuffer();
+                    const bytes = new Uint8Array(buffer);
+                    let binary = '';
+                    for (let i = 0; i < bytes.byteLength; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    return 'z' + btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                } catch(e) {
+                    console.warn('CompressionStream fallback:', e);
+                }
+            }
+            return 'r' + btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        // Decompress string using browser native stream or fallback
+        async function decompressFromUrlSafeBase64(encoded) {
+            if (!encoded) return '';
+            const type = encoded.charAt(0);
+            const payload = encoded.slice(1);
+            const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            const padding = '='.repeat((4 - b64.length % 4) % 4);
+            const binary = atob(b64 + padding);
+
+            if (type === 'z' && window.DecompressionStream) {
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                const stream = new Blob([bytes]).stream();
+                const decompressedStream = stream.pipeThrough(new DecompressionStream('deflate-raw'));
+                const response = new Response(decompressedStream);
+                return await response.text();
+            }
+            return decodeURIComponent(escape(binary));
+        }
+
+        // Open Share Modal
+        async function openShareModal() {
+            if (!state.teams || state.teams.length === 0) {
+                alert('Belum ada data tim atau peserta yang terdaftar untuk dibagikan.');
+                return;
+            }
+
+            const compact = buildCompactState();
+            if (!compact) return;
+
+            const jsonStr = JSON.stringify(compact);
+            const encodedPayload = await compressToUrlSafeBase64(jsonStr);
+
+            // Construct short URL using hash (#s=...)
+            const url = new URL(window.location.href);
+            url.search = '';
+            url.hash = `s=${encodedPayload}`;
+            const shareUrl = url.toString();
+
+            // Populate modal fields
+            const input = document.getElementById('shareUrlInput');
+            const lengthBadge = document.getElementById('shareLengthBadge');
+            const waBtn = document.getElementById('btnShareWhatsApp');
+            const nativeBtn = document.getElementById('btnNativeShare');
+            const subtitle = document.getElementById('shareModalSubtitle');
+            const copyFeedback = document.getElementById('copySuccessFeedback');
+
+            if (copyFeedback) copyFeedback.style.display = 'none';
+            if (input) input.value = shareUrl;
+            
+            if (lengthBadge) {
+                lengthBadge.innerHTML = `<i class="fa-solid fa-bolt text-warning me-1"></i> Panjang Link: <b>${shareUrl.length}</b> karakter (super ringkas & aman)`;
+            }
+
+            const stageInfo = state.knockout && state.knockout.length > 0 
+                ? 'Knockout Bracket' 
+                : (Object.keys(state.groups).length > 0 ? 'Group Stage & Klasemen' : 'Daftar Peserta');
+
+            if (subtitle) {
+                subtitle.textContent = `${state.teams.length} Tim Terdaftar • Tahap: ${stageInfo}`;
+            }
+
+            // WhatsApp link
+            if (waBtn) {
+                const waText = encodeURIComponent(
+                    `🏆 *TURNAMEN EA FC 26*\n` +
+                    `👥 Peserta: ${state.teams.length} Tim (${stageInfo})\n` +
+                    `🔗 Buka Jadwal & Klasemen:\n${shareUrl}`
+                );
+                waBtn.href = `https://api.whatsapp.com/send?text=${waText}`;
+            }
+
+            // Native share support
+            if (nativeBtn) {
+                if (navigator.share) {
+                    nativeBtn.style.display = 'inline-flex';
+                    nativeBtn.onclick = () => {
+                        navigator.share({
+                            title: 'Turnamen EA FC 26',
+                            text: `Jadwal & Klasemen Turnamen EA FC 26 (${state.teams.length} Tim)`,
+                            url: shareUrl
+                        }).catch(() => {});
+                    };
+                } else {
+                    nativeBtn.style.display = 'none';
+                }
+            }
+
+            const modalEl = document.getElementById('shareTournamentModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        }
+
+        // Copy Share URL
+        function copyShareUrl() {
+            const input = document.getElementById('shareUrlInput');
+            if (!input || !input.value) return;
+
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.getElementById('btnCopyShareUrl');
+                const feedback = document.getElementById('copySuccessFeedback');
+                if (feedback) {
+                    feedback.style.display = 'inline';
+                    setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+                }
+                if (btn) {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Disalin!';
+                    btn.classList.replace('btn-primary', 'btn-success');
+                    setTimeout(() => {
+                        btn.innerHTML = original;
+                        btn.classList.replace('btn-success', 'btn-primary');
+                    }, 2000);
+                }
+            }).catch(() => {
+                input.select();
+                document.execCommand('copy');
+                alert('Link turnamen berhasil disalin ke clipboard!');
+            });
+        }
+
+        // Check if page opened with shared tournament payload in URL
+        async function checkAndLoadSharedTournament() {
+            let payload = '';
+            const hash = window.location.hash || '';
+            if (hash) {
+                const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+                payload = hashParams.get('s') || hashParams.get('share');
+                if (!payload && hash.startsWith('#s=')) {
+                    payload = hash.replace('#s=', '');
+                } else if (!payload && hash.startsWith('#share=')) {
+                    payload = hash.replace('#share=', '');
+                }
+            }
+            if (!payload) {
+                const urlParams = new URLSearchParams(window.location.search);
+                payload = urlParams.get('s') || urlParams.get('share');
+            }
+
+            if (!payload) return;
+
+            try {
+                if (!fcTeamsData || fcTeamsData.length === 0) {
+                    await loadFcTeams();
+                }
+
+                const jsonStr = await decompressFromUrlSafeBase64(payload);
+                if (!jsonStr) return;
+                const compact = JSON.parse(jsonStr);
+
+                if (compact && Array.isArray(compact.t) && compact.t.length > 0) {
+                    reconstructStateFromCompact(compact);
+                    saveState();
+
+                    // Bersihkan hash dari URL agar tidak reload berulang
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    // Switch to active tab
+                    setTimeout(() => {
+                        if (state.knockout && state.knockout.length > 0) {
+                            const koTab = document.getElementById('knockout-tab');
+                            if (koTab) bootstrap.Tab.getOrCreateInstance(koTab).show();
+                        } else if (state.groups && Object.keys(state.groups).length > 0) {
+                            const grpTab = document.getElementById('group-tab');
+                            if (grpTab) bootstrap.Tab.getOrCreateInstance(grpTab).show();
+                        }
+                    }, 100);
+
+                    showShareToast(`🏆 Berhasil memuat data turnamen (${state.teams.length} peserta)!`);
+                }
+            } catch(e) {
+                console.error('Gagal memuat shared tournament:', e);
+            }
+        }
+
+        function showShareToast(message) {
+            const toastEl = document.getElementById('shareNotificationToast');
+            const msgEl = document.getElementById('shareNotificationMsg');
+            if (toastEl && msgEl) {
+                msgEl.textContent = message;
+                const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                toast.show();
+            } else {
+                alert(message);
+            }
+        }
 
         document.getElementById('btnGenerateKnockout').addEventListener('click', () => {
             const qualifiedTeams = [];
