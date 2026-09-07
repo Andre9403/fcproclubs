@@ -61,6 +61,11 @@
         [data-theme="dark"] .bg-primary-subtle { background-color: #1e3a8a !important; color: #93c5fd !important; }
         [data-theme="dark"] .bg-secondary-subtle { background-color: #334155 !important; color: #cbd5e1 !important; }
         [data-theme="dark"] .match-score-input { background-color: #0f172a; color: #f8fafc; border-color: #334155; }
+        [data-theme="dark"] #fcTeamDropdown { background-color: #1e293b !important; border-color: #334155 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
+        [data-theme="dark"] #teamSearchPrefix { background-color: #0f172a !important; border-color: #334155 !important; }
+        [data-theme="dark"] .team-dropdown-item { color: #f8fafc !important; background-color: transparent; }
+        [data-theme="dark"] .team-dropdown-item:hover, [data-theme="dark"] .team-dropdown-item:focus { background-color: #334155 !important; color: #f8fafc !important; }
+        [data-theme="dark"] .team-dropdown-item.active { background-color: #059669 !important; color: #ffffff !important; }
 
         body {
             background-color: var(--bg-page);
@@ -254,16 +259,29 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label small fw-bold">
-                                        <i class="fa-solid fa-shield-halved text-success me-1"></i> Pilih Klub EA FC 26
+                                    <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-1">
+                                        <span><i class="fa-solid fa-shield-halved text-success me-1"></i> Pilih Klub EA FC 26</span>
+                                        <span class="text-muted small" style="font-size: 0.72rem;">Ketik untuk mencari</span>
                                     </label>
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <img id="selectedTeamLogoPreview" src="" alt="" style="width: 36px; height: 36px; object-fit: contain; display: none;" class="rounded-circle border p-1 bg-white flex-shrink-0">
-                                        <select class="form-select flex-grow-1" id="fcTeamSelect">
-                                            <option value="">Loading clubs...</option>
-                                        </select>
+                                    <div class="position-relative" id="fcTeamSearchWrapper">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white" id="teamSearchPrefix" style="width: 44px; justify-content: center; padding: 4px;">
+                                                <img id="selectedTeamLogoPreview" src="" alt="" style="width: 26px; height: 26px; object-fit: contain; display: none;" class="rounded-circle border p-0.5 bg-white">
+                                                <i id="defaultSearchIcon" class="fa-solid fa-magnifying-glass text-muted"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="fcTeamSearchInput" placeholder="Ketik nama klub (cth: Madrid, Arsenal, Barca)..." autocomplete="off">
+                                            <button class="btn btn-outline-secondary" type="button" id="btnToggleTeamDropdown" title="Buka daftar klub">
+                                                <i class="fa-solid fa-chevron-down small"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" id="selectedTeamId" value="">
+
+                                        <!-- Searchable Dropdown List -->
+                                        <div id="fcTeamDropdown" class="position-absolute w-100 bg-white border rounded-3 shadow-lg mt-1 p-1 list-group" style="max-height: 280px; overflow-y: auto; z-index: 1050; display: none;">
+                                            <!-- Populated via JS -->
+                                        </div>
                                     </div>
-                                    <button class="btn btn-success w-100 fw-bold" id="btnAddFcTeam">
+                                    <button class="btn btn-success w-100 fw-bold mt-2" id="btnAddFcTeam">
                                         <i class="fa-solid fa-plus me-1"></i> Tambah Klub FC
                                     </button>
                                 </div>
@@ -371,15 +389,22 @@
         let fcTeamsData = [];
 
         // Elements
-        const fcTeamSelect = document.getElementById('fcTeamSelect');
+        const fcTeamSearchInput = document.getElementById('fcTeamSearchInput');
+        const fcTeamDropdown = document.getElementById('fcTeamDropdown');
+        const btnToggleTeamDropdown = document.getElementById('btnToggleTeamDropdown');
+        const selectedTeamId = document.getElementById('selectedTeamId');
         const selectedTeamLogoPreview = document.getElementById('selectedTeamLogoPreview');
+        const defaultSearchIcon = document.getElementById('defaultSearchIcon');
         const playerNameInput = document.getElementById('playerNameInput');
         const registeredTeamsList = document.getElementById('registeredTeamsList');
         const groupStageContainer = document.getElementById('groupStageContainer');
 
+        let selectedFcTeam = null;
+
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
+            initTeamSearch();
             await loadFcTeams();
             loadState();
             renderRegisteredTeams();
@@ -414,29 +439,115 @@
             try {
                 const res = await fetch('assets/data/fc_teams.json');
                 fcTeamsData = await res.json();
-                fcTeamSelect.innerHTML = '<option value="">-- Pilih Klub --</option>';
-                fcTeamsData.forEach(t => {
-                    const opt = document.createElement('option');
-                    opt.value = t.id;
-                    opt.textContent = t.name;
-                    fcTeamSelect.appendChild(opt);
-                });
-
-                // Event listener untuk preview logo
-                fcTeamSelect.addEventListener('change', () => {
-                    const id = fcTeamSelect.value;
-                    const team = fcTeamsData.find(t => t.id === id);
-                    if (team && team.logo) {
-                        selectedTeamLogoPreview.src = team.logo;
-                        selectedTeamLogoPreview.style.display = 'block';
-                    } else {
-                        selectedTeamLogoPreview.style.display = 'none';
-                    }
-                });
+                renderTeamDropdown();
             } catch (e) {
                 console.error("Gagal load data klub:", e);
-                fcTeamSelect.innerHTML = '<option value="">Gagal memuat tim</option>';
+                fcTeamDropdown.innerHTML = '<div class="p-3 text-danger small text-center">Gagal memuat daftar klub</div>';
             }
+        }
+
+        function initTeamSearch() {
+            // Typing in search input filters list
+            fcTeamSearchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                if (!selectedFcTeam || selectedFcTeam.name.toLowerCase() !== query) {
+                    clearFcTeamSelection();
+                }
+                renderTeamDropdown(query);
+                fcTeamDropdown.style.display = 'block';
+            });
+
+            // Focus on input shows dropdown
+            fcTeamSearchInput.addEventListener('focus', () => {
+                renderTeamDropdown(fcTeamSearchInput.value);
+                fcTeamDropdown.style.display = 'block';
+            });
+
+            // Toggle button
+            btnToggleTeamDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (fcTeamDropdown.style.display === 'block') {
+                    fcTeamDropdown.style.display = 'none';
+                } else {
+                    renderTeamDropdown(fcTeamSearchInput.value);
+                    fcTeamDropdown.style.display = 'block';
+                    fcTeamSearchInput.focus();
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const wrapper = document.getElementById('fcTeamSearchWrapper');
+                if (wrapper && !wrapper.contains(e.target)) {
+                    fcTeamDropdown.style.display = 'none';
+                }
+            });
+
+            // Keyboard support
+            fcTeamSearchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = fcTeamSearchInput.value.trim().toLowerCase();
+                    if (!selectedFcTeam && query) {
+                        const exact = fcTeamsData.find(t => t.name.toLowerCase() === query);
+                        const match = exact || fcTeamsData.find(t => t.name.toLowerCase().includes(query));
+                        if (match) {
+                            selectFcTeam(match.id);
+                        }
+                    }
+                    fcTeamDropdown.style.display = 'none';
+                } else if (e.key === 'Escape') {
+                    fcTeamDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function renderTeamDropdown(filterText = '') {
+            const query = (filterText || '').trim().toLowerCase();
+            const filtered = query 
+                ? fcTeamsData.filter(t => t.name.toLowerCase().includes(query))
+                : fcTeamsData;
+
+            if (filtered.length === 0) {
+                fcTeamDropdown.innerHTML = `
+                    <div class="p-3 text-center text-muted small">
+                        <i class="fa-solid fa-circle-exclamation text-warning me-1"></i> Tidak ada klub yang cocok.
+                        <div class="mt-1">Anda bisa gunakan <b>Tim Kustom</b> di bawah.</div>
+                    </div>`;
+                return;
+            }
+
+            fcTeamDropdown.innerHTML = filtered.map(t => {
+                const isSelected = selectedFcTeam && selectedFcTeam.id === t.id;
+                return `
+                <button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-2.5 border-0 rounded-2 team-dropdown-item text-start ${isSelected ? 'active' : ''}" onclick="selectFcTeam('${t.id}')">
+                    <img src="${t.logo}" width="26" height="26" style="object-fit:contain; flex-shrink:0;" class="rounded-circle border p-0.5 bg-white me-1" alt="">
+                    <span class="fw-semibold small flex-grow-1">${t.name}</span>
+                    ${isSelected ? '<i class="fa-solid fa-check small text-success"></i>' : ''}
+                </button>
+                `;
+            }).join('');
+        }
+
+        function selectFcTeam(id) {
+            const team = fcTeamsData.find(t => t.id === id);
+            if (!team) return;
+            selectedFcTeam = team;
+            selectedTeamId.value = team.id;
+            fcTeamSearchInput.value = team.name;
+
+            selectedTeamLogoPreview.src = team.logo;
+            selectedTeamLogoPreview.style.display = 'inline-block';
+            defaultSearchIcon.style.display = 'none';
+
+            fcTeamDropdown.style.display = 'none';
+        }
+
+        function clearFcTeamSelection() {
+            selectedFcTeam = null;
+            selectedTeamId.value = '';
+            selectedTeamLogoPreview.style.display = 'none';
+            defaultSearchIcon.style.display = 'inline-block';
         }
 
         function saveState() {
@@ -486,15 +597,21 @@
                 return;
             }
 
-            const id = fcTeamSelect.value;
-            if (!id) {
-                alert('Silakan pilih klub EA FC 26!');
-                fcTeamSelect.focus();
-                return;
+            let team = selectedFcTeam;
+            // Auto-resolve jika user ketik nama klub tanpa klik dropdown
+            if (!team) {
+                const query = fcTeamSearchInput.value.trim().toLowerCase();
+                if (query) {
+                    team = fcTeamsData.find(t => t.name.toLowerCase() === query) ||
+                           fcTeamsData.find(t => t.name.toLowerCase().includes(query));
+                }
             }
 
-            const team = fcTeamsData.find(t => t.id === id);
-            if (!team) return;
+            if (!team) {
+                alert('Silakan pilih klub EA FC 26 dari daftar atau ketik nama klub yang sesuai!');
+                fcTeamSearchInput.focus();
+                return;
+            }
 
             // Cek duplikasi player + klub yang sama persis
             const isDuplicate = state.teams.some(t => 
@@ -517,6 +634,8 @@
             });
 
             playerNameInput.value = '';
+            fcTeamSearchInput.value = '';
+            clearFcTeamSelection();
             saveState();
             renderRegisteredTeams();
             playerNameInput.focus();
