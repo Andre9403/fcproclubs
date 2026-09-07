@@ -364,7 +364,7 @@
 
         async function loadFcTeams() {
             try {
-                const res = await fetch('public/data/fc_teams.json');
+                const res = await fetch('assets/data/fc_teams.json');
                 fcTeamsData = await res.json();
                 fcTeamSelect.innerHTML = '<option value="">-- Pilih Klub --</option>';
                 fcTeamsData.forEach(t => {
