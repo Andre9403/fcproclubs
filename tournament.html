@@ -170,64 +170,213 @@
         [data-theme="dark"] .bracket-match { background: #1e293b; border-color: #334155; }
         [data-theme="dark"] .bracket-team:first-child { border-bottom-color: #334155; }
 
+        /* ==========================================
+           RESPONSIVE MOBILE OPTIMIZATIONS
+           ========================================== */
+        @media (max-width: 767.98px) {
+            /* Navbar Mobile */
+            .navbar-light-custom {
+                padding-top: 8px !important;
+                padding-bottom: 8px !important;
+                margin-bottom: 12px !important;
+            }
+            .navbar-light-custom .container-fluid {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            .brand-title {
+                font-size: 0.95rem !important;
+                letter-spacing: -0.3px !important;
+            }
+            .navbar .kpi-icon {
+                width: 36px !important;
+                height: 36px !important;
+                padding: 6px !important;
+            }
+            .navbar .kpi-icon i {
+                font-size: 1rem !important;
+            }
+
+            /* Container & Card Padding */
+            .main-content-container {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+            .panel-card {
+                border-radius: 14px !important;
+                margin-bottom: 16px !important;
+                border: 1px solid var(--border-color) !important;
+            }
+            .tab-content {
+                padding: 10px !important;
+            }
+
+            /* Mobile Tab Menu (App-style Segmented Control) */
+            .nav-tabs {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                gap: 4px !important;
+                padding: 5px !important;
+                background: var(--bg-page) !important;
+                border-radius: 12px !important;
+                margin: 8px 8px 0 8px !important;
+                border: 1px solid var(--border-color) !important;
+            }
+            .nav-tabs .nav-item {
+                flex: 1 1 0 !important;
+                text-align: center !important;
+            }
+            .nav-tabs .nav-link {
+                width: 100% !important;
+                padding: 8px 2px !important;
+                font-size: 0.76rem !important;
+                font-weight: 700 !important;
+                border-radius: 8px !important;
+                border: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 3px !important;
+                white-space: nowrap !important;
+                color: var(--text-muted) !important;
+                background: transparent !important;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            .nav-tabs .nav-link i {
+                font-size: 1.1rem !important;
+                margin-right: 0 !important;
+            }
+            .nav-tabs .nav-link.active {
+                background: var(--surface-white) !important;
+                color: var(--primary-emerald) !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.08) !important;
+            }
+            [data-theme="dark"] .nav-tabs {
+                background: #0f172a !important;
+                border-color: #334155 !important;
+            }
+            [data-theme="dark"] .nav-tabs .nav-link.active {
+                background: #1e293b !important;
+                color: #10b981 !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.35) !important;
+            }
+
+            /* Responsive Tables & Cards */
+            .table-responsive {
+                border-radius: 10px !important;
+            }
+            .table-responsive table {
+                font-size: 0.76rem !important;
+            }
+            .table-responsive th, .table-responsive td {
+                padding: 6px 4px !important;
+            }
+            .team-logo-small {
+                width: 26px !important;
+                height: 26px !important;
+            }
+
+            /* Match Center Inputs on Mobile */
+            .match-score-input {
+                width: 38px !important;
+                padding: 3px 1px !important;
+                font-size: 0.85rem !important;
+            }
+
+            /* Bracket on Mobile */
+            .bracket-container {
+                padding: 12px 8px !important;
+                gap: 16px !important;
+            }
+            .bracket-round {
+                min-width: 215px !important;
+            }
+            .bracket-match {
+                padding: 8px 10px !important;
+                margin: 8px 0 !important;
+                border-radius: 8px !important;
+            }
+
+            /* Modals Mobile */
+            .modal-dialog {
+                margin: 0.5rem !important;
+            }
+            .modal-content {
+                border-radius: 14px !important;
+            }
+        }
+
     </style>
 </head>
 <body class="pb-5">
 
     <!-- Top Navigation -->
-    <nav class="navbar navbar-light-custom mb-4 py-3 sticky-top">
-        <div class="container-fluid px-4">
-            <div class="d-flex align-items-center gap-3">
-                <div class="kpi-icon bg-success bg-opacity-10 text-success p-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+    <nav class="navbar navbar-light-custom mb-3 py-2 py-md-3 sticky-top">
+        <div class="container-fluid px-2 px-md-4">
+            <div class="d-flex align-items-center gap-2 gap-md-3">
+                <div class="kpi-icon bg-success bg-opacity-10 text-success p-2 rounded-circle d-flex align-items-center justify-content-center">
                     <i class="fa-solid fa-trophy fs-4"></i>
                 </div>
                 <div>
                     <h5 class="mb-0 brand-title">TOURNAMENT MANAGER</h5>
-                    <small class="text-muted">Group Stage & Knockout Bracket</small>
+                    <small class="text-muted d-none d-sm-block">Group Stage & Knockout Bracket</small>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <a href="index.html" class="btn d-none d-md-flex align-items-center gap-1 ms-1" style="border-radius:8px;border:1px solid var(--border-color);background:var(--bg-page);color:var(--text-body);font-weight:700;font-size:0.78rem;padding:5px 13px;text-decoration:none;transition:all 0.2s;">
+            <div class="d-flex align-items-center gap-1 gap-md-2">
+                <a href="index.html" class="btn d-none d-lg-flex align-items-center gap-1 ms-1" style="border-radius:8px;border:1px solid var(--border-color);background:var(--bg-page);color:var(--text-body);font-weight:700;font-size:0.78rem;padding:5px 13px;text-decoration:none;transition:all 0.2s;">
                     <i class="fa-solid fa-house text-success"></i>
                     <span>Beranda</span>
                 </a>
-                <button id="btnShareTournament" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm d-flex align-items-center gap-1" type="button" onclick="openShareModal()">
+                <button id="btnShareTournament" class="btn btn-primary btn-sm rounded-pill px-2.5 px-md-3 fw-bold shadow-sm d-flex align-items-center gap-1" type="button" onclick="openShareModal()">
                     <i class="fa-solid fa-share-nodes"></i>
-                    <span>Share Turnamen</span>
+                    <span class="d-none d-sm-inline">Share Turnamen</span>
+                    <span class="d-inline d-sm-none">Share</span>
                 </button>
-                <button id="btnExport" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
-                    <i class="fa-solid fa-download"></i> Export Data
+                <button id="btnExport" class="btn btn-outline-primary btn-sm rounded-pill px-2.5 px-md-3 fw-bold" title="Export Data JSON">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="d-none d-md-inline ms-1">Export</span>
                 </button>
-                <button id="btnImport" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold" onclick="document.getElementById('importFile').click()">
-                    <i class="fa-solid fa-upload"></i> Import Data
+                <button id="btnImport" class="btn btn-outline-success btn-sm rounded-pill px-2.5 px-md-3 fw-bold" onclick="document.getElementById('importFile').click()" title="Import Data JSON">
+                    <i class="fa-solid fa-upload"></i>
+                    <span class="d-none d-md-inline ms-1">Import</span>
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display: none;">
-                <button id="themeToggle" class="btn btn-outline-secondary rounded-circle ms-1" style="width: 40px; height: 40px; border: none; background: var(--bg-page); transition: background 0.2s;" title="Toggle Dark Mode">
+                <button id="themeToggle" class="btn btn-outline-secondary rounded-circle ms-0.5 ms-md-1 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border: none; background: var(--bg-page); transition: background 0.2s;" title="Toggle Dark Mode">
                     <i class="fa-solid fa-moon text-muted"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-2 px-md-4 main-content-container">
         <div class="panel-card p-0 mb-4 overflow-hidden">
-            <ul class="nav nav-tabs px-3 pt-3 bg-light border-bottom-0" id="tournamentTabs" role="tablist">
+            <ul class="nav nav-tabs px-2 px-md-3 pt-2 pt-md-3 bg-light border-bottom-0" id="tournamentTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="setup-tab" data-bs-toggle="tab" data-bs-target="#setup" type="button" role="tab"><i class="fa-solid fa-gear me-1"></i> Setup & Tim</button>
+                    <button class="nav-link active" id="setup-tab" data-bs-toggle="tab" data-bs-target="#setup" type="button" role="tab">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Setup & Tim</span>
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="group-tab" data-bs-toggle="tab" data-bs-target="#group" type="button" role="tab"><i class="fa-solid fa-table-list me-1"></i> Group Stage</button>
+                    <button class="nav-link" id="group-tab" data-bs-toggle="tab" data-bs-target="#group" type="button" role="tab">
+                        <i class="fa-solid fa-table-list"></i>
+                        <span>Group Stage</span>
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="knockout-tab" data-bs-toggle="tab" data-bs-target="#knockout" type="button" role="tab"><i class="fa-solid fa-sitemap me-1"></i> Knockout Bracket</button>
+                    <button class="nav-link" id="knockout-tab" data-bs-toggle="tab" data-bs-target="#knockout" type="button" role="tab">
+                        <i class="fa-solid fa-sitemap"></i>
+                        <span>Knockout</span>
+                    </button>
                 </li>
             </ul>
 
-            <div class="tab-content p-4" id="tournamentTabsContent">
+            <div class="tab-content p-2 p-sm-3 p-md-4" id="tournamentTabsContent">
                 
                 <!-- SETUP & TEAMS TAB -->
                 <div class="tab-pane fade show active" id="setup" role="tabpanel">
-                    <div class="row g-4">
+                    <div class="row g-3 g-md-4">
                         <div class="col-md-4">
                             <!-- Format Turnamen -->
                             <div class="border rounded p-3 mb-3 bg-white" data-theme-aware="true">
@@ -362,27 +511,27 @@
                         <!-- Daftar Tim Terdaftar -->
                         <!-- Daftar Tim Terdaftar -->
                         <div class="col-md-8">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                                 <h6 class="fw-bold mb-0">Peserta & Tim Terdaftar (<span id="teamCount">0</span>)</h6>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex gap-1 gap-sm-2">
                                     <button class="btn btn-sm btn-outline-primary fw-bold" type="button" onclick="openShareModal()">
                                         <i class="fa-solid fa-share-nodes me-1"></i> Share
                                     </button>
                                     <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
-                                        <i class="fa-solid fa-users-gear me-1"></i> Atur Grup Manual
+                                        <i class="fa-solid fa-users-gear me-1"></i> Atur Grup
                                     </button>
-                                    <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
+                                    <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus</button>
                                 </div>
                             </div>
                             <div class="table-responsive bg-white rounded border" data-theme-aware="true">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th width="40" class="text-center">No</th>
-                                            <th>Tim & Logo</th>
-                                            <th>Nama User / Player</th>
-                                            <th width="150">Pilih Grup</th>
-                                            <th width="70" class="text-center">Aksi</th>
+                                            <th width="35" class="text-center">No</th>
+                                            <th>Tim <span class="d-none d-md-inline">& Logo</span><span class="d-md-none">& User</span></th>
+                                            <th class="d-none d-md-table-cell">Nama User / Player</th>
+                                            <th style="min-width: 95px; width: 135px;">Pilih Grup</th>
+                                            <th width="50" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="registeredTeamsList">
@@ -1321,24 +1470,29 @@
                 <tr>
                     <td class="text-center fw-bold text-muted">${i+1}</td>
                     <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="${t.logo}" class="team-logo-small rounded-circle border bg-white p-1 flex-shrink-0" style="width:34px; height:34px; object-fit:contain;" alt="${teamTitle}">
-                            <span class="fw-bold text-dark">${teamTitle}</span>
+                        <div class="d-flex align-items-center gap-1.5 gap-sm-2">
+                            <img src="${t.logo}" class="team-logo-small rounded-circle border bg-white p-0.5 flex-shrink-0" alt="${teamTitle}">
+                            <div class="text-truncate">
+                                <span class="fw-bold text-dark d-block text-truncate" style="font-size:0.85rem;">${teamTitle}</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1.5 py-0.5 fw-semibold d-inline-block d-md-none mt-0.5" style="font-size:0.68rem;">
+                                    <i class="fa-solid fa-user me-0.5"></i> ${playerTitle}
+                                </span>
+                            </div>
                         </div>
                     </td>
-                    <td>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5 fw-semibold" style="font-size:0.85rem;">
+                    <td class="d-none d-md-table-cell">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5 fw-semibold" style="font-size:0.82rem;">
                             <i class="fa-solid fa-user me-1"></i> ${playerTitle}
                         </span>
                     </td>
                     <td>
-                        <select class="form-select form-select-sm" onchange="setTeamGroup('${t.id}', this.value)" style="font-size:0.8rem;">
-                            <option value="">(Acak / Otomatis)</option>
+                        <select class="form-select form-select-sm py-1 px-1.5" onchange="setTeamGroup('${t.id}', this.value)" style="font-size:0.76rem; min-width: 88px; max-width: 135px;">
+                            <option value="">(Acak)</option>
                             ${groupOptions}
                         </select>
                     </td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-danger border-0" title="Hapus" onclick="removeTeam('${t.id}')">
+                        <button class="btn btn-sm btn-outline-danger border-0 p-1" title="Hapus" onclick="removeTeam('${t.id}')">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </td>
@@ -1618,7 +1772,7 @@
                     <div class="border rounded p-3 bg-white shadow-sm" data-theme-aware="true">
                         <h5 class="fw-bold mb-3 border-bottom pb-2">${gName}</h5>
                         <div class="table-responsive mb-4">
-                            <table class="table table-sm table-hover align-middle text-center small mb-0">
+                            <table class="table table-sm table-hover align-middle text-center small mb-0 group-standings-table">
                                 <thead class="table-light">
                                     <tr>
                                         <th class="text-start">Tim & User</th>
@@ -1636,10 +1790,10 @@
                                     ${g.standings.map((s, i) => `
                                         <tr class="${i < state.format.advancing ? 'table-success' : ''}">
                                             <td class="text-start">
-                                                <div class="d-inline-flex align-items-center gap-2">
-                                                    <img src="${s.logo}" width="22" height="22" style="object-fit:contain; flex-shrink:0;" class="rounded-circle border p-0.5 bg-white" alt="">
-                                                    <span class="fw-bold text-dark">${s.teamName || s.name}</span>
-                                                    ${s.playerName ? `<span class="badge bg-secondary-subtle text-secondary border fw-semibold" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${s.playerName}</span>` : ''}
+                                                <div class="d-inline-flex align-items-center gap-1 gap-sm-2 text-truncate" style="max-width: 100%;">
+                                                    <img src="${s.logo}" width="20" height="20" style="object-fit:contain; flex-shrink:0;" class="rounded-circle border p-0.5 bg-white" alt="">
+                                                    <span class="fw-bold text-dark text-truncate">${s.teamName || s.name}</span>
+                                                    ${s.playerName ? `<span class="badge bg-secondary-subtle text-secondary border fw-semibold ms-1" style="font-size:0.68rem;"><i class="fa-solid fa-user me-0.5"></i>${s.playerName}</span>` : ''}
                                                 </div>
                                             </td>
                                             <td>${s.p}</td>
@@ -1673,28 +1827,28 @@
                                 const s2 = m.score2 !== null ? Math.max(0, m.score2) : 0;
 
                                 return `
-                                <div class="list-group-item px-2 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
-                                    <div class="d-flex align-items-center justify-content-end gap-2 text-end" style="flex: 1; min-width: 0;">
+                                <div class="list-group-item px-1 px-sm-2 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
+                                    <div class="d-flex align-items-center justify-content-end gap-1 gap-sm-2 text-end" style="flex: 1; min-width: 0;">
                                         <div class="text-truncate">
-                                            <div class="fw-bold small text-truncate text-dark">${t1Team}</div>
-                                            ${t1Player ? `<div class="text-muted text-truncate" style="font-size: 0.72rem;"><i class="fa-solid fa-user me-1"></i>${t1Player}</div>` : ''}
+                                            <div class="fw-bold small text-truncate text-dark" style="font-size:0.8rem;">${t1Team}</div>
+                                            ${t1Player ? `<div class="text-muted text-truncate" style="font-size: 0.7rem;"><i class="fa-solid fa-user me-0.5"></i>${t1Player}</div>` : ''}
                                         </div>
-                                        <img src="${t1Logo}" width="28" height="28" style="object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
+                                        <img src="${t1Logo}" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
                                     </div>
-                                    <div class="px-2 d-flex align-items-center gap-1 flex-shrink-0">
+                                    <div class="px-1 px-sm-2 d-flex align-items-center gap-1 flex-shrink-0">
                                         <input type="number" min="0" class="form-control form-control-sm match-score-input" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateMatchScore('${gName}', '${m.id}', 1, this.value)">
-                                        <span class="fw-bold text-muted">-</span>
+                                        <span class="fw-bold text-muted small">-</span>
                                         <input type="number" min="0" class="form-control form-control-sm match-score-input" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateMatchScore('${gName}', '${m.id}', 2, this.value)">
-                                        <button class="btn btn-sm ${m.played ? 'btn-success' : 'btn-outline-secondary'} px-2 py-0.5 ms-1 fw-semibold" onclick="toggleMatchPlayed('${gName}', '${m.id}')" title="${m.played ? 'Status: Selesai (klik untuk reset)' : 'Simpan hasil match (termasuk 0-0)'}">
+                                        <button class="btn btn-sm ${m.played ? 'btn-success' : 'btn-outline-secondary'} px-1.5 px-sm-2 py-0.5 ms-0.5 ms-sm-1 fw-semibold" onclick="toggleMatchPlayed('${gName}', '${m.id}')" title="${m.played ? 'Status: Selesai (klik untuk reset)' : 'Simpan hasil match (termasuk 0-0)'}">
                                             <i class="fa-solid ${m.played ? 'fa-check' : 'fa-floppy-disk'}"></i>
-                                            <span class="d-none d-md-inline ms-1">${m.played ? 'Selesai' : 'Simpan'}</span>
+                                            <span class="d-none d-lg-inline ms-1">${m.played ? 'Selesai' : 'Simpan'}</span>
                                         </button>
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-start gap-2 text-start" style="flex: 1; min-width: 0;">
-                                        <img src="${t2Logo}" width="28" height="28" style="object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
+                                    <div class="d-flex align-items-center justify-content-start gap-1 gap-sm-2 text-start" style="flex: 1; min-width: 0;">
+                                        <img src="${t2Logo}" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
                                         <div class="text-truncate">
-                                            <div class="fw-bold small text-truncate text-dark">${t2Team}</div>
-                                            ${t2Player ? `<div class="text-muted text-truncate" style="font-size: 0.72rem;"><i class="fa-solid fa-user me-1"></i>${t2Player}</div>` : ''}
+                                            <div class="fw-bold small text-truncate text-dark" style="font-size:0.8rem;">${t2Team}</div>
+                                            ${t2Player ? `<div class="text-muted text-truncate" style="font-size: 0.7rem;"><i class="fa-solid fa-user me-0.5"></i>${t2Player}</div>` : ''}
                                         </div>
                                     </div>
                                 </div>
