@@ -316,6 +316,40 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Quick Bulk Copas Peserta & Tim -->
+                            <div class="border rounded p-3 bg-white mt-3" data-theme-aware="true">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fw-bold mb-0 text-primary">
+                                        <i class="fa-solid fa-paste me-2"></i>Bulk Copas Peserta & Tim
+                                    </h6>
+                                    <button class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold" id="btnLoadBulkExample" type="button" style="font-size: 0.75rem;" title="Isi dengan contoh format">
+                                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Isi Contoh
+                                    </button>
+                                </div>
+                                <div class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                    Copas daftar peserta & tim sekaligus (otomatis mengenali nomor, nama pemain, dan klub/singkatan):
+                                </div>
+                                <textarea class="form-control font-monospace mb-2" id="bulkInsertTextarea" rows="7" style="font-size: 0.82rem; line-height: 1.45;" placeholder="Contoh format:
+1. Raju mancity
+2. Ubed PSG
+3. Iyan Barca
+4. mbutz madrid
+5. Andre MU
+6. Nep Liverpool
+7. Rovi MU
+8. Yudha Munchen"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small" id="bulkPreviewSummary" style="font-size: 0.74rem;">Format: <code>No. Nama Tim</code></span>
+                                    <button class="btn btn-link btn-sm p-0 text-decoration-none text-danger small" type="button" id="btnClearBulkText" style="font-size: 0.74rem;">
+                                        <i class="fa-solid fa-trash-can me-1"></i>Bersihkan
+                                    </button>
+                                </div>
+                                <button class="btn btn-primary w-100 fw-bold shadow-sm" id="btnProcessBulkInsert">
+                                    <i class="fa-solid fa-file-import me-1"></i> Proses & Tambahkan Semua
+                                </button>
+                                <div id="bulkInsertStatus" class="mt-2 small" style="display: none;"></div>
+                            </div>
                         </div>
 
                         <!-- Daftar Tim Terdaftar -->
@@ -482,6 +516,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             initTeamSearch();
+            initBulkInsert();
             await loadFcTeams();
             loadState();
             renderRegisteredTeams();
@@ -772,6 +807,357 @@
             renderRegisteredTeams();
             playerNameInput.focus();
         });
+
+        // ==========================================
+        // BULK INSERT PESERTA & TIM (COP-AS MASSAL)
+        // ==========================================
+        const CLUB_ALIASES = {
+            // Manchester City
+            'mancity': 'mci',
+            'man city': 'mci',
+            'city': 'mci',
+            'mc': 'mci',
+            'manchester city': 'mci',
+
+            // Manchester United
+            'mu': 'mun',
+            'man utd': 'mun',
+            'man united': 'mun',
+            'manutd': 'mun',
+            'manchester united': 'mun',
+
+            // Real Madrid
+            'madrid': 'rmd',
+            'real madrid': 'rmd',
+            'real': 'rmd',
+
+            // Barcelona
+            'barca': 'bar',
+            'barça': 'bar',
+            'barcelona': 'bar',
+            'fc barcelona': 'bar',
+            'fcb': 'bar',
+
+            // Bayern Munich
+            'munchen': 'bay',
+            'münchen': 'bay',
+            'bayern': 'bay',
+            'bayern munich': 'bay',
+            'bayern munchen': 'bay',
+            'bayern münchen': 'bay',
+
+            // PSG
+            'psg': 'psg',
+            'paris': 'psg',
+            'paris sg': 'psg',
+            'paris saint germain': 'psg',
+            'paris saint-germain': 'psg',
+
+            // Liverpool
+            'liverpool': 'liv',
+            'lfc': 'liv',
+            'the reds': 'liv',
+
+            // Arsenal
+            'arsenal': 'ars',
+            'ars': 'ars',
+            'afc': 'ars',
+            'meriam london': 'ars',
+
+            // Chelsea
+            'chelsea': 'che',
+            'che': 'che',
+            'the blues': 'che',
+
+            // Tottenham
+            'tottenham': 'tot',
+            'tottenham hotspur': 'tot',
+            'spurs': 'tot',
+            'tot': 'tot',
+
+            // Inter Milan
+            'inter': 'int',
+            'inter milan': 'int',
+            'internazionale': 'int',
+
+            // AC Milan
+            'milan': 'acm',
+            'ac milan': 'acm',
+            'acm': 'acm',
+
+            // Juventus
+            'juve': 'juv',
+            'juventus': 'juv',
+
+            // Atletico Madrid
+            'atletico': 'atm',
+            'atletico madrid': 'atm',
+            'atleti': 'atm',
+            'atm': 'atm',
+
+            // Borussia Dortmund
+            'dortmund': 'dor',
+            'borussia dortmund': 'dor',
+            'bvb': 'dor',
+
+            // Bayer Leverkusen
+            'leverkusen': 'lev',
+            'bayer leverkusen': 'lev',
+            'bayer': 'lev',
+
+            // Napoli
+            'napoli': 'nap',
+            'nap': 'nap',
+
+            // RB Leipzig
+            'leipzig': 'rbl',
+            'rb leipzig': 'rbl',
+            'rbl': 'rbl',
+
+            // Newcastle United
+            'newcastle': 'nwc',
+            'newcastle united': 'nwc',
+            'nwc': 'nwc',
+
+            // Aston Villa
+            'aston villa': 'ast',
+            'villa': 'ast',
+            'ast': 'ast'
+        };
+
+        const BULK_EXAMPLE_TEXT = `1. Raju mancity
+2. Ubed PSG
+3. Iyan Barca
+4. mbutz madrid
+5. Andre MU
+6. Nep Liverpool
+7. Rovi MU
+8. Yudha Munchen`;
+
+        function resolveTeamFromText(teamStr) {
+            const rawStr = (teamStr || '').trim();
+            const cleanStr = rawStr.toLowerCase();
+
+            // 1. Cek alias klub EA FC 26
+            if (CLUB_ALIASES[cleanStr]) {
+                const teamId = CLUB_ALIASES[cleanStr];
+                const match = fcTeamsData.find(t => t.id === teamId);
+                if (match) return { name: match.name, logo: match.logo, isOfficial: true };
+            }
+
+            // 2. Cek kecocokan nama langsung di fcTeamsData
+            if (Array.isArray(fcTeamsData)) {
+                const exact = fcTeamsData.find(t => t.name.toLowerCase() === cleanStr);
+                if (exact) return { name: exact.name, logo: exact.logo, isOfficial: true };
+
+                const partial = fcTeamsData.find(t => 
+                    t.name.toLowerCase().includes(cleanStr) || cleanStr.includes(t.name.toLowerCase())
+                );
+                if (partial) return { name: partial.name, logo: partial.logo, isOfficial: true };
+            }
+
+            // 3. Fallback: Tim Kustom dengan auto avatar
+            const originalName = rawStr || 'Tim Kustom';
+            return {
+                name: originalName,
+                logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(originalName)}&background=random`,
+                isOfficial: false
+            };
+        }
+
+        function parseBulkLine(rawLine) {
+            if (!rawLine) return null;
+
+            // Bersihkan hidden / zero-width characters (misal hasil copas WhatsApp/Telegram)
+            let line = rawLine.replace(/[\u200B-\u200D\uFEFF\u2060\u00A0]/g, ' ').trim();
+            if (!line) return null;
+
+            // Hapus penomoran di depan: cth "1. ", "2) ", "3 - ", "[4] ", "5: "
+            line = line.replace(/^(?:\[\d+\]|\d+[\.\)\-\:\s])\s*/, '').trim();
+            if (!line) return null;
+
+            let playerName = '';
+            let teamStr = '';
+
+            // Cek delimiter eksplisit: "-", ":", "|", ",", "\t"
+            const delimiterMatch = line.match(/^(.+?)\s*[-:|,\t]\s*(.+)$/);
+            if (delimiterMatch) {
+                playerName = delimiterMatch[1].trim();
+                teamStr = delimiterMatch[2].trim();
+            } else {
+                // Tidak ada delimiter khusus (cth: "Raju mancity", "Andre MU", "Yudha Munchen")
+                // Urutkan alias dari yang terpanjang agar multi-kata dicek duluan
+                const aliasKeys = Object.keys(CLUB_ALIASES).sort((a, b) => b.length - a.length);
+                let foundAlias = null;
+                let foundPrefix = null;
+
+                for (const alias of aliasKeys) {
+                    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const reg = new RegExp(`^(.*?)\\s+(${escaped})$`, 'i');
+                    const m = line.match(reg);
+                    if (m && m[1].trim()) {
+                        foundPrefix = m[1].trim();
+                        foundAlias = alias;
+                        break;
+                    }
+                }
+
+                if (foundAlias) {
+                    playerName = foundPrefix;
+                    teamStr = foundAlias;
+                } else {
+                    // Coba cocokkan dengan nama klub lengkap di fcTeamsData
+                    let foundOfficial = null;
+                    if (Array.isArray(fcTeamsData)) {
+                        for (const t of fcTeamsData) {
+                            const escaped = t.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            const reg = new RegExp(`^(.*?)\\s+(${escaped})$`, 'i');
+                            const m = line.match(reg);
+                            if (m && m[1].trim()) {
+                                foundPrefix = m[1].trim();
+                                foundOfficial = t.name;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (foundOfficial) {
+                        playerName = foundPrefix;
+                        teamStr = foundOfficial;
+                    } else {
+                        // Jika tidak ada klub dikenal, pisahkan berdasarkan kata: kata pertama = player, sisa = tim
+                        const words = line.split(/\s+/);
+                        if (words.length >= 2) {
+                            playerName = words[0];
+                            teamStr = words.slice(1).join(' ');
+                        } else {
+                            playerName = line;
+                            teamStr = 'FC';
+                        }
+                    }
+                }
+            }
+
+            if (!playerName) return null;
+
+            const resolved = resolveTeamFromText(teamStr);
+            return {
+                playerName,
+                teamName: resolved.name,
+                logo: resolved.logo,
+                isOfficial: resolved.isOfficial
+            };
+        }
+
+        function initBulkInsert() {
+            const textarea = document.getElementById('bulkInsertTextarea');
+            const btnProcess = document.getElementById('btnProcessBulkInsert');
+            const btnExample = document.getElementById('btnLoadBulkExample');
+            const btnClear = document.getElementById('btnClearBulkText');
+            const statusBox = document.getElementById('bulkInsertStatus');
+            const previewSummary = document.getElementById('bulkPreviewSummary');
+
+            if (!textarea || !btnProcess) return;
+
+            // Update info baris saat diketik
+            textarea.addEventListener('input', () => {
+                const text = textarea.value.trim();
+                if (!text) {
+                    previewSummary.innerHTML = 'Format: <code>No. Nama Tim</code>';
+                    return;
+                }
+                const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+                previewSummary.innerHTML = `<b class="text-primary">${lines.length}</b> baris terdeteksi`;
+            });
+
+            // Isi contoh format
+            if (btnExample) {
+                btnExample.addEventListener('click', () => {
+                    textarea.value = BULK_EXAMPLE_TEXT;
+                    previewSummary.innerHTML = `<b class="text-primary">8</b> baris contoh dimuat`;
+                    statusBox.style.display = 'none';
+                    textarea.focus();
+                });
+            }
+
+            // Bersihkan textarea
+            if (btnClear) {
+                btnClear.addEventListener('click', () => {
+                    textarea.value = '';
+                    previewSummary.innerHTML = 'Format: <code>No. Nama Tim</code>';
+                    statusBox.style.display = 'none';
+                    textarea.focus();
+                });
+            }
+
+            // Proses bulk insert
+            btnProcess.addEventListener('click', async () => {
+                const text = textarea.value.trim();
+                if (!text) {
+                    alert('Silakan tempel (paste) teks peserta terlebih dahulu!');
+                    textarea.focus();
+                    return;
+                }
+
+                if (!fcTeamsData || fcTeamsData.length === 0) {
+                    await loadFcTeams();
+                }
+
+                const rawLines = text.split(/\r?\n/);
+                let addedCount = 0;
+                let skippedDuplicates = 0;
+                let invalidCount = 0;
+
+                for (const rawLine of rawLines) {
+                    const parsed = parseBulkLine(rawLine);
+                    if (!parsed) {
+                        if (rawLine.trim()) invalidCount++;
+                        continue;
+                    }
+
+                    // Cek duplikasi player + klub yang sama persis
+                    const exists = state.teams.some(t => 
+                        (t.playerName || '').toLowerCase() === parsed.playerName.toLowerCase() && 
+                        (t.teamName || t.name || '').toLowerCase() === parsed.teamName.toLowerCase()
+                    );
+
+                    if (exists) {
+                        skippedDuplicates++;
+                        continue;
+                    }
+
+                    const uniqueId = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                    state.teams.push({
+                        id: uniqueId,
+                        playerName: parsed.playerName,
+                        teamName: parsed.teamName,
+                        name: `${parsed.teamName} (${parsed.playerName})`,
+                        logo: parsed.logo,
+                        assignedGroup: ''
+                    });
+                    addedCount++;
+                }
+
+                if (addedCount > 0) {
+                    saveState();
+                    renderRegisteredTeams();
+                }
+
+                // Tampilkan status hasil proses
+                statusBox.style.display = 'block';
+                if (addedCount > 0) {
+                    let msg = `<strong><i class="fa-solid fa-circle-check text-success me-1"></i> Berhasil menambahkan ${addedCount} peserta & tim!</strong>`;
+                    if (skippedDuplicates > 0) {
+                        msg += `<div class="text-muted mt-1" style="font-size: 0.72rem;">(${skippedDuplicates} peserta dilewati karena kombinasi user & klub sudah ada)</div>`;
+                    }
+                    statusBox.innerHTML = `<div class="alert alert-success py-2 px-3 mb-0 shadow-sm">${msg}</div>`;
+                } else if (skippedDuplicates > 0) {
+                    statusBox.innerHTML = `<div class="alert alert-warning py-2 px-3 mb-0 shadow-sm"><i class="fa-solid fa-triangle-exclamation me-1"></i> Semua ${skippedDuplicates} peserta sudah terdaftar sebelumnya.</div>`;
+                } else {
+                    statusBox.innerHTML = `<div class="alert alert-danger py-2 px-3 mb-0 shadow-sm"><i class="fa-solid fa-circle-xmark me-1"></i> Tidak ada baris yang valid untuk diproses.</div>`;
+                }
+            });
+        }
 
         function removeTeam(id) {
             state.teams = state.teams.filter(t => t.id !== id);
