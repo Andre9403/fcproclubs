@@ -66,6 +66,10 @@
         [data-theme="dark"] .team-dropdown-item { color: #f8fafc !important; background-color: transparent; }
         [data-theme="dark"] .team-dropdown-item:hover, [data-theme="dark"] .team-dropdown-item:focus { background-color: #334155 !important; color: #f8fafc !important; }
         [data-theme="dark"] .team-dropdown-item.active { background-color: #059669 !important; color: #ffffff !important; }
+        [data-theme="dark"] .card { background-color: #1e293b; border-color: #334155 !important; }
+        [data-theme="dark"] .card-header { background-color: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
+        [data-theme="dark"] #unassignedTeamsContainer { background-color: #0f172a !important; border-color: #334155 !important; }
+        [data-theme="dark"] .badge.bg-white { background-color: #0f172a !important; color: #cbd5e1 !important; border-color: #334155 !important; }
 
         body {
             background-color: var(--bg-page);
@@ -223,7 +227,7 @@
                                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>Format Turnamen</h6>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Jumlah Grup</label>
-                                    <select class="form-select" id="numGroups">
+                                    <select class="form-select" id="numGroups" onchange="onNumGroupsChange()">
                                         <option value="1">1 Grup (Liga)</option>
                                         <option value="2" selected>2 Grup</option>
                                         <option value="4">4 Grup</option>
@@ -238,9 +242,14 @@
                                         <option value="4">4 Tim</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-primary w-100 fw-bold" id="btnGenerateGroups">
-                                    <i class="fa-solid fa-diagram-project me-1"></i> Generate Group Stage
-                                </button>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary fw-bold" id="btnGenerateGroups">
+                                        <i class="fa-solid fa-diagram-project me-1"></i> Buat Group Stage
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
+                                        <i class="fa-solid fa-users-gear me-1"></i> Setting Manual Peserta Grup
+                                    </button>
+                                </div>
                                 <small class="text-danger d-block mt-2 text-center" id="generateWarning"></small>
                             </div>
 
@@ -310,24 +319,31 @@
                         </div>
 
                         <!-- Daftar Tim Terdaftar -->
+                        <!-- Daftar Tim Terdaftar -->
                         <div class="col-md-8">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="fw-bold mb-0">Peserta & Tim Terdaftar (<span id="teamCount">0</span>)</h6>
-                                <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
+                                        <i class="fa-solid fa-users-gear me-1"></i> Atur Grup Manual
+                                    </button>
+                                    <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
+                                </div>
                             </div>
                             <div class="table-responsive bg-white rounded border" data-theme-aware="true">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th width="50" class="text-center">No</th>
+                                            <th width="40" class="text-center">No</th>
                                             <th>Tim & Logo</th>
                                             <th>Nama User / Player</th>
-                                            <th width="80" class="text-center">Aksi</th>
+                                            <th width="150">Pilih Grup</th>
+                                            <th width="70" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="registeredTeamsList">
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td>
+                                            <td colspan="5" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -338,11 +354,20 @@
 
                 <!-- GROUP STAGE TAB -->
                 <div class="tab-pane fade" id="group" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-0">Babak Grup (Group Stage)</h6>
+                            <small class="text-muted">Hasil skor langsung menentukan klasemen dan tim yang lolos</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
+                            <i class="fa-solid fa-users-gear me-1"></i> Ubah Peserta Grup
+                        </button>
+                    </div>
                     <div id="groupStageContainer">
                         <div class="text-center py-5 text-muted">
                             <i class="fa-solid fa-layer-group fs-1 mb-3"></i>
                             <h5>Group Stage Belum Di-generate</h5>
-                            <p>Silakan daftarkan tim dan klik "Generate Group Stage" di tab Setup.</p>
+                            <p>Silakan daftarkan tim dan klik "Buat Group Stage" di tab Setup.</p>
                         </div>
                     </div>
                 </div>
@@ -368,6 +393,58 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Setting Manual Peserta Grup -->
+    <div class="modal fade" id="manualGroupModal" tabindex="-1" aria-labelledby="manualGroupModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="manualGroupModalLabel">
+                        <i class="fa-solid fa-users-gear text-primary me-2"></i>Setting Manual Peserta Grup
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-circle-info fs-5 flex-shrink-0 text-primary"></i>
+                        <div>
+                            Tentukan peserta untuk masing-masing grup. Peserta yang belum diatur dapat dimasukkan manual atau klik tombol <b>Acak Sisa</b>.
+                        </div>
+                    </div>
+
+                    <!-- Active Group Cards -->
+                    <div class="row g-3 mb-3" id="modalGroupsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Unassigned Teams Bar -->
+                    <div class="border rounded p-3 bg-light" id="unassignedTeamsContainer">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold small text-muted text-uppercase">
+                                <i class="fa-solid fa-user-clock me-1"></i> Peserta Belum Ada Grup (<span id="unassignedCount">0</span>)
+                            </span>
+                        </div>
+                        <div id="unassignedBadgesList" class="d-flex flex-wrap gap-2">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold" onclick="resetAllAssignedGroups()">
+                            <i class="fa-solid fa-arrow-rotate-left me-1"></i> Reset Semua
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm fw-semibold" onclick="autoDistributeRemaining()">
+                            <i class="fa-solid fa-shuffle me-1"></i> Acak Sisa
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-primary fw-bold" onclick="applyManualGroupsAndGenerate()">
+                        <i class="fa-solid fa-check me-1"></i> Terapkan & Buat Jadwal Grup
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -410,6 +487,11 @@
             renderRegisteredTeams();
             renderGroups();
             renderBracket();
+
+            const modalEl = document.getElementById('manualGroupModal');
+            if (modalEl) {
+                modalEl.addEventListener('show.bs.modal', renderManualGroupModal);
+            }
         });
 
         function initTheme() {
@@ -559,12 +641,15 @@
             if (saved) {
                 try {
                     state = JSON.parse(saved);
-                    // Migrasi data tim jika dari versi lama tanpa playerName
+                    // Migrasi data tim jika dari versi lama tanpa playerName / assignedGroup
                     if (Array.isArray(state.teams)) {
                         state.teams.forEach(t => {
                             if (!t.playerName && !t.teamName) {
                                 t.teamName = t.name || 'Tim';
                                 t.playerName = '';
+                            }
+                            if (t.assignedGroup === undefined) {
+                                t.assignedGroup = '';
                             }
                         });
                     }
@@ -630,7 +715,8 @@
                 playerName: playerName,
                 teamName: team.name,
                 name: `${team.name} (${playerName})`,
-                logo: team.logo
+                logo: team.logo,
+                assignedGroup: ''
             });
 
             playerNameInput.value = '';
@@ -675,7 +761,8 @@
                 playerName: playerName,
                 teamName: teamName,
                 name: `${teamName} (${playerName})`,
-                logo: logo
+                logo: logo,
+                assignedGroup: ''
             });
 
             playerNameInput.value = '';
@@ -704,15 +791,55 @@
             }
         });
 
+        function getActiveGroupNames() {
+            const numGroups = parseInt(document.getElementById('numGroups').value) || (state.format && state.format.groups) || 2;
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const names = [];
+            for (let i = 0; i < numGroups; i++) {
+                names.push(`Group ${alphabet[i]}`);
+            }
+            return names;
+        }
+
+        function onNumGroupsChange() {
+            const num = parseInt(document.getElementById('numGroups').value) || 2;
+            state.format.groups = num;
+            saveState();
+            renderRegisteredTeams();
+            const modalEl = document.getElementById('manualGroupModal');
+            if (modalEl && modalEl.classList.contains('show')) {
+                renderManualGroupModal();
+            }
+        }
+
+        function setTeamGroup(teamId, groupName) {
+            const team = state.teams.find(t => t.id === teamId);
+            if (!team) return;
+            team.assignedGroup = groupName;
+            saveState();
+            renderRegisteredTeams();
+            const modalEl = document.getElementById('manualGroupModal');
+            if (modalEl && modalEl.classList.contains('show')) {
+                renderManualGroupModal();
+            }
+        }
+
         function renderRegisteredTeams() {
             document.getElementById('teamCount').textContent = state.teams.length;
             if (state.teams.length === 0) {
-                registeredTeamsList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td></tr>`;
+                registeredTeamsList.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td></tr>`;
                 return;
             }
+
+            const activeGroups = getActiveGroupNames();
+
             registeredTeamsList.innerHTML = state.teams.map((t, i) => {
                 const teamTitle = t.teamName || t.name;
                 const playerTitle = t.playerName || '-';
+                const groupOptions = activeGroups.map(g => 
+                    `<option value="${g}" ${t.assignedGroup === g ? 'selected' : ''}>${g}</option>`
+                ).join('');
+
                 return `
                 <tr>
                     <td class="text-center fw-bold text-muted">${i+1}</td>
@@ -727,6 +854,12 @@
                             <i class="fa-solid fa-user me-1"></i> ${playerTitle}
                         </span>
                     </td>
+                    <td>
+                        <select class="form-select form-select-sm" onchange="setTeamGroup('${t.id}', this.value)" style="font-size:0.8rem;">
+                            <option value="">(Acak / Otomatis)</option>
+                            ${groupOptions}
+                        </select>
+                    </td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-danger border-0" title="Hapus" onclick="removeTeam('${t.id}')">
                             <i class="fa-solid fa-trash-can"></i>
@@ -737,36 +870,197 @@
             }).join('');
         }
 
-        // Generate Groups
-        document.getElementById('btnGenerateGroups').addEventListener('click', () => {
+        function renderManualGroupModal() {
+            const activeGroups = getActiveGroupNames();
+            const modalGroupsGrid = document.getElementById('modalGroupsGrid');
+            const unassignedBadgesList = document.getElementById('unassignedBadgesList');
+            const unassignedCount = document.getElementById('unassignedCount');
+
+            // Teams without an active assigned group
+            const unassignedTeams = state.teams.filter(t => !t.assignedGroup || !activeGroups.includes(t.assignedGroup));
+            unassignedCount.textContent = unassignedTeams.length;
+
+            // Render active group cards
+            modalGroupsGrid.innerHTML = activeGroups.map(gName => {
+                const groupTeams = state.teams.filter(t => t.assignedGroup === gName);
+                const otherGroups = activeGroups.filter(g => g !== gName);
+
+                const teamsHtml = groupTeams.length === 0
+                    ? `<div class="p-3 text-center text-muted small border border-dashed rounded bg-light">Belum ada peserta di grup ini.</div>`
+                    : groupTeams.map(t => `
+                        <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-white mb-1.5 shadow-sm">
+                            <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                                <img src="${t.logo}" width="24" height="24" style="object-fit:contain;" class="rounded-circle border p-0.5 bg-white flex-shrink-0" alt="">
+                                <div class="text-truncate">
+                                    <span class="fw-bold small text-truncate text-dark d-block">${t.teamName || t.name}</span>
+                                    <span class="text-muted text-truncate d-block" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t.playerName || '-'}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                                <select class="form-select form-select-sm py-0 px-1 text-muted" style="font-size:0.75rem; width:88px;" onchange="setTeamGroup('${t.id}', this.value); renderManualGroupModal();">
+                                    <option value="${gName}">Tetap</option>
+                                    ${otherGroups.map(og => `<option value="${og}">Pindah ${og.replace('Group ','Grup ')}</option>`).join('')}
+                                    <option value="">Keluarkan</option>
+                                </select>
+                            </div>
+                        </div>
+                    `).join('');
+
+                const quickAddOptions = unassignedTeams.map(t => 
+                    `<option value="${t.id}">${t.teamName || t.name} (${t.playerName || 'User'})</option>`
+                ).join('');
+
+                return `
+                <div class="col-md-6">
+                    <div class="card border h-100 shadow-sm">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
+                            <span class="fw-bold text-dark"><i class="fa-solid fa-layer-group text-primary me-1.5"></i>${gName}</span>
+                            <span class="badge ${groupTeams.length > 0 ? 'bg-primary' : 'bg-secondary'} rounded-pill">${groupTeams.length} Tim</span>
+                        </div>
+                        <div class="card-body p-2 d-flex flex-column">
+                            <div class="flex-grow-1 mb-2" style="max-height: 220px; overflow-y: auto;">
+                                ${teamsHtml}
+                            </div>
+                            ${unassignedTeams.length > 0 ? `
+                                <select class="form-select form-select-sm mt-auto border-primary-subtle text-primary fw-semibold" onchange="if(this.value){ setTeamGroup(this.value, '${gName}'); renderManualGroupModal(); }" style="font-size:0.78rem;">
+                                    <option value="">+ Masukkan Peserta ke ${gName}...</option>
+                                    ${quickAddOptions}
+                                </select>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Render unassigned badges
+            if (unassignedTeams.length === 0) {
+                unassignedBadgesList.innerHTML = `<span class="text-success small fw-semibold"><i class="fa-solid fa-circle-check me-1"></i> Semua peserta (${state.teams.length}) sudah masuk ke dalam grup!</span>`;
+            } else {
+                unassignedBadgesList.innerHTML = unassignedTeams.map(t => `
+                    <div class="badge bg-white text-dark border p-2 d-inline-flex align-items-center gap-2 shadow-sm">
+                        <img src="${t.logo}" width="18" height="18" style="object-fit:contain;" class="rounded-circle border p-0.5 bg-white">
+                        <span class="fw-bold">${t.teamName || t.name}</span>
+                        <span class="text-muted" style="font-size:0.75rem;">(${t.playerName || 'User'})</span>
+                        <div class="dropdown d-inline-block ms-1">
+                            <button class="btn btn-xs btn-outline-primary py-0 px-1 dropdown-toggle" type="button" data-bs-toggle="dropdown" style="font-size:0.7rem;">
+                                Pilih Grup
+                            </button>
+                            <ul class="dropdown-menu shadow">
+                                ${activeGroups.map(g => `
+                                    <li><a class="dropdown-item small" href="#" onclick="event.preventDefault(); setTeamGroup('${t.id}', '${g}'); renderManualGroupModal();"><i class="fa-solid fa-plus text-success me-1"></i> Masukkan ke ${g}</a></li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function resetAllAssignedGroups() {
+            if (confirm('Reset semua pembagian grup peserta menjadi Otomatis/Acak?')) {
+                state.teams.forEach(t => t.assignedGroup = '');
+                saveState();
+                renderRegisteredTeams();
+                renderManualGroupModal();
+            }
+        }
+
+        function autoDistributeRemaining() {
+            const activeGroups = getActiveGroupNames();
+            const unassigned = state.teams.filter(t => !t.assignedGroup || !activeGroups.includes(t.assignedGroup));
+            if (unassigned.length === 0) {
+                alert('Semua peserta sudah memiliki grup!');
+                return;
+            }
+
+            const shuffled = [...unassigned].sort(() => 0.5 - Math.random());
+            shuffled.forEach(team => {
+                let minGroupName = activeGroups[0];
+                let minCount = state.teams.filter(t => t.assignedGroup === minGroupName).length;
+                for (let i = 1; i < activeGroups.length; i++) {
+                    const g = activeGroups[i];
+                    const count = state.teams.filter(t => t.assignedGroup === g).length;
+                    if (count < minCount) {
+                        minCount = count;
+                        minGroupName = g;
+                    }
+                }
+                team.assignedGroup = minGroupName;
+            });
+
+            saveState();
+            renderRegisteredTeams();
+            renderManualGroupModal();
+        }
+
+        function applyManualGroupsAndGenerate() {
+            const modalEl = document.getElementById('manualGroupModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            generateGroupsLogic();
+        }
+
+        function generateGroupsLogic() {
             const numGroups = parseInt(document.getElementById('numGroups').value);
             const advancing = parseInt(document.getElementById('advancingPerGroup').value);
             
             if (state.teams.length < numGroups) {
                 document.getElementById('generateWarning').textContent = "Jumlah tim kurang dari jumlah grup.";
+                alert("Jumlah tim terdaftar (" + state.teams.length + ") kurang dari jumlah grup (" + numGroups + ").");
                 return;
             }
             
             document.getElementById('generateWarning').textContent = "";
             state.format = { groups: numGroups, advancing };
             
-            // Shuffle teams
-            const shuffled = [...state.teams].sort(() => 0.5 - Math.random());
-            
-            state.groups = {};
             const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            
-            for(let i=0; i<numGroups; i++) {
-                state.groups[`Group ${alphabet[i]}`] = {
+            const activeGroupNames = [];
+            state.groups = {};
+            for (let i = 0; i < numGroups; i++) {
+                const gName = `Group ${alphabet[i]}`;
+                activeGroupNames.push(gName);
+                state.groups[gName] = {
                     standings: [],
                     matches: []
                 };
             }
             
-            // Distribute
-            shuffled.forEach((team, idx) => {
-                const groupName = `Group ${alphabet[idx % numGroups]}`;
-                state.groups[groupName].standings.push({
+            // 1. Tempatkan tim yang sudah diatur manual
+            const unassignedTeams = [];
+            state.teams.forEach(team => {
+                if (team.assignedGroup && activeGroupNames.includes(team.assignedGroup)) {
+                    state.groups[team.assignedGroup].standings.push({
+                        id: team.id,
+                        playerName: team.playerName || '',
+                        teamName: team.teamName || team.name,
+                        name: team.name,
+                        logo: team.logo,
+                        p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0
+                    });
+                } else {
+                    unassignedTeams.push(team);
+                }
+            });
+
+            // 2. Acak tim yang belum diatur grupnya
+            const shuffledUnassigned = [...unassignedTeams].sort(() => 0.5 - Math.random());
+
+            // 3. Distribusikan tim yang belum diatur secara seimbang
+            shuffledUnassigned.forEach(team => {
+                let minGroupName = activeGroupNames[0];
+                let minCount = state.groups[minGroupName].standings.length;
+                for (let i = 1; i < activeGroupNames.length; i++) {
+                    const gName = activeGroupNames[i];
+                    if (state.groups[gName].standings.length < minCount) {
+                        minCount = state.groups[gName].standings.length;
+                        minGroupName = gName;
+                    }
+                }
+                team.assignedGroup = minGroupName;
+                state.groups[minGroupName].standings.push({
                     id: team.id,
                     playerName: team.playerName || '',
                     teamName: team.teamName || team.name,
@@ -776,18 +1070,24 @@
                 });
             });
 
-            // Generate Round Robin matches
+            // 4. Generate Round Robin matches
             Object.keys(state.groups).forEach(gName => {
                 const t = state.groups[gName].standings.map(s => s.id);
                 state.groups[gName].matches = generateRoundRobin(t);
             });
             
             saveState();
+            renderRegisteredTeams();
             renderGroups();
             
             // Switch tab to group
             const groupTab = new bootstrap.Tab(document.getElementById('group-tab'));
             groupTab.show();
+        }
+
+        // Generate Groups Button
+        document.getElementById('btnGenerateGroups').addEventListener('click', () => {
+            generateGroupsLogic();
         });
 
         function generateRoundRobin(teams) {
