@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA Sports FC - Tournament Manager</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #f1f5f9;
+            --surface-white: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-emerald: #059669;
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+        }
+
+        [data-theme="dark"] {
+            --bg-page: #0f172a;
+            --surface-white: #1e293b;
+            --border-color: #334155;
+            --text-heading: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
+        }
+
+        [data-theme="dark"] .brand-title {
+            background: linear-gradient(135deg, #10b981 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        [data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #f8fafc;
+        }
+
+        [data-theme="dark"] .modal-content { background-color: #1e293b; color: #cbd5e1; }
+        [data-theme="dark"] .modal-header h5 { color: #f8fafc !important; }
+        [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        [data-theme="dark"] .list-group-item { background-color: #1e293b; color: #cbd5e1; border-color: #334155; }
+        [data-theme="dark"] .text-dark { color: #f8fafc !important; }
+        [data-theme="dark"] .text-muted { color: #94a3b8 !important; }
+        [data-theme="dark"] .panel-card { background: #1e293b; border-color: #334155; }
+        [data-theme="dark"] .navbar-light-custom { background: #1e293b; border-color: #334155; }
+        [data-theme="dark"] .bg-light { background-color: #334155 !important; }
+        [data-theme="dark"] table.table { color: #cbd5e1; border-color: #334155; }
+        [data-theme="dark"] table.table thead th { background-color: #0f172a; border-bottom-color: #334155; color: #94a3b8; }
+        [data-theme="dark"] table.table tbody td { background-color: #1e293b; border-color: #0f172a; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar-light-custom {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .brand-title {
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-heading);
+            background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .panel-card {
+            background: var(--surface-white);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: all 0.3s;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 20px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-emerald);
+            background: transparent;
+            border-bottom: 3px solid var(--primary-emerald);
+        }
+
+        .team-logo-small {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .match-score-input {
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 4px;
+        }
+
+        .bracket-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px;
+            gap: 40px;
+        }
+
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            min-width: 200px;
+        }
+
+        .bracket-match {
+            background: var(--surface-white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 10px;
+            position: relative;
+        }
+
+        .bracket-team {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .bracket-team:first-child {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .bracket-match { background: #1e293b; border-color: #334155; }
+        [data-theme="dark"] .bracket-team:first-child { border-bottom-color: #334155; }
+
+    </style>
+</head>
+<body class="pb-5">
+
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-light-custom mb-4 py-3 sticky-top">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-success bg-opacity-10 text-success p-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="fa-solid fa-trophy fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="mb-0 brand-title">TOURNAMENT MANAGER</h5>
+                    <small class="text-muted">Group Stage & Knockout Bracket</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="index.html" class="btn d-none d-md-flex align-items-center gap-1 ms-1" style="border-radius:8px;border:1px solid var(--border-color);background:var(--bg-page);color:var(--text-body);font-weight:700;font-size:0.78rem;padding:5px 13px;text-decoration:none;transition:all 0.2s;">
+                    <i class="fa-solid fa-house text-success"></i>
+                    <span>Beranda</span>
+                </a>
+                <button id="btnExport" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                    <i class="fa-solid fa-download"></i> Export Data
+                </button>
+                <button id="btnImport" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold" onclick="document.getElementById('importFile').click()">
+                    <i class="fa-solid fa-upload"></i> Import Data
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button id="themeToggle" class="btn btn-outline-secondary rounded-circle ms-1" style="width: 40px; height: 40px; border: none; background: var(--bg-page); transition: background 0.2s;" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon text-muted"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <div class="panel-card p-0 mb-4 overflow-hidden">
+            <ul class="nav nav-tabs px-3 pt-3 bg-light border-bottom-0" id="tournamentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="setup-tab" data-bs-toggle="tab" data-bs-target="#setup" type="button" role="tab"><i class="fa-solid fa-gear me-1"></i> Setup & Tim</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="group-tab" data-bs-toggle="tab" data-bs-target="#group" type="button" role="tab"><i class="fa-solid fa-table-list me-1"></i> Group Stage</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="knockout-tab" data-bs-toggle="tab" data-bs-target="#knockout" type="button" role="tab"><i class="fa-solid fa-sitemap me-1"></i> Knockout Bracket</button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-4" id="tournamentTabsContent">
+                
+                <!-- SETUP & TEAMS TAB -->
+                <div class="tab-pane fade show active" id="setup" role="tabpanel">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 mb-3">
+                                <h6 class="fw-bold mb-3">Format Turnamen</h6>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Jumlah Grup</label>
+                                    <select class="form-select" id="numGroups">
+                                        <option value="1">1 Grup (Liga)</option>
+                                        <option value="2" selected>2 Grup</option>
+                                        <option value="4">4 Grup</option>
+                                        <option value="8">8 Grup</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Lolos per Grup (ke Knockout)</label>
+                                    <select class="form-select" id="advancingPerGroup">
+                                        <option value="1">1 Tim</option>
+                                        <option value="2" selected>2 Tim</option>
+                                        <option value="4">4 Tim</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary w-100 fw-bold" id="btnGenerateGroups">Generate Group Stage</button>
+                                <small class="text-danger d-block mt-2 text-center" id="generateWarning"></small>
+                            </div>
+
+                            <div class="border rounded p-3">
+                                <h6 class="fw-bold mb-3">Tambah Tim</h6>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Pilih Klub EA FC</label>
+                                    <div class="input-group">
+                                        <select class="form-select" id="fcTeamSelect">
+                                            <option value="">Loading teams...</option>
+                                        </select>
+                                        <button class="btn btn-success fw-bold" id="btnAddFcTeam">Tambah</button>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Atau Tim Kustom</label>
+                                    <input type="text" class="form-control mb-2" id="customTeamName" placeholder="Nama Tim...">
+                                    <input type="text" class="form-control mb-2" id="customTeamLogo" placeholder="URL Logo (Opsional)...">
+                                    <button class="btn btn-outline-success w-100 fw-bold" id="btnAddCustomTeam">Tambah Tim Kustom</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold mb-0">Tim Terdaftar (<span id="teamCount">0</span>)</h6>
+                                <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="50">No</th>
+                                            <th width="60">Logo</th>
+                                            <th>Nama Tim</th>
+                                            <th width="100" class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="registeredTeamsList">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GROUP STAGE TAB -->
+                <div class="tab-pane fade" id="group" role="tabpanel">
+                    <div id="groupStageContainer">
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-layer-group fs-1 mb-3"></i>
+                            <h5>Group Stage Belum Di-generate</h5>
+                            <p>Silakan daftarkan tim dan klik "Generate Group Stage" di tab Setup.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KNOCKOUT TAB -->
+                <div class="tab-pane fade" id="knockout" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold">Bagan Turnamen (Knockout)</h6>
+                        <button class="btn btn-success fw-bold" id="btnGenerateKnockout">Generate dari Klasemen Akhir</button>
+                    </div>
+                    
+                    <div id="bracketContainer" class="bracket-container border rounded bg-light" style="min-height: 400px;">
+                        <div class="text-center py-5 text-muted w-100 align-self-center">
+                            <i class="fa-solid fa-sitemap fs-1 mb-3"></i>
+                            <h5>Bracket Belum Tersedia</h5>
+                            <p>Selesaikan Group Stage dan klik "Generate dari Klasemen Akhir".</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & Plugins JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Tournament Logic JS -->
+    <script>
+        // State
+        let state = {
+            teams: [], // { id, name, logo }
+            format: { groups: 2, advancing: 2 },
+            groups: {}, // { "Group A": { standings: [], matches: [] } }
+            knockout: [] // array of rounds
+        };
+
+        const STORAGE_KEY = 'fc_tournament_state';
+        let fcTeamsData = [];
+
+        // Elements
+        const fcTeamSelect = document.getElementById('fcTeamSelect');
+        const registeredTeamsList = document.getElementById('registeredTeamsList');
+        const groupStageContainer = document.getElementById('groupStageContainer');
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            initTheme();
+            await loadFcTeams();
+            loadState();
+            renderRegisteredTeams();
+            renderGroups();
+            renderBracket();
+        });
+
+        function initTheme() {
+            const toggle = document.getElementById('themeToggle');
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            updateThemeIcon(currentTheme);
+
+            toggle.addEventListener('click', () => {
+                const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                updateThemeIcon(theme);
+            });
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.querySelector('#themeToggle i');
+            if (theme === 'dark') {
+                icon.className = 'fa-solid fa-sun text-warning';
+            } else {
+                icon.className = 'fa-solid fa-moon text-muted';
+            }
+        }
+
+        async function loadFcTeams() {
+            try {
+                const res = await fetch('public/data/fc_teams.json');
+                fcTeamsData = await res.json();
+                fcTeamSelect.innerHTML = '<option value="">-- Pilih Klub --</option>';
+                fcTeamsData.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.textContent = t.name;
+                    fcTeamSelect.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("Gagal load data klub:", e);
+                fcTeamSelect.innerHTML = '<option value="">Gagal memuat tim</option>';
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                state = JSON.parse(saved);
+                document.getElementById('numGroups').value = state.format.groups || 2;
+                document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+            }
+        }
+
+        // Teams Registration
+        document.getElementById('btnAddFcTeam').addEventListener('click', () => {
+            const id = fcTeamSelect.value;
+            if (!id) return;
+            const team = fcTeamsData.find(t => t.id === id);
+            if (team && !state.teams.find(t => t.id === team.id)) {
+                state.teams.push({ id: team.id, name: team.name, logo: team.logo });
+                saveState();
+                renderRegisteredTeams();
+            }
+        });
+
+        document.getElementById('btnAddCustomTeam').addEventListener('click', () => {
+            const name = document.getElementById('customTeamName').value.trim();
+            const logo = document.getElementById('customTeamLogo').value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+            if (!name) return;
+            const id = 'cust_' + Date.now();
+            state.teams.push({ id, name, logo });
+            document.getElementById('customTeamName').value = '';
+            document.getElementById('customTeamLogo').value = '';
+            saveState();
+            renderRegisteredTeams();
+        });
+
+        function removeTeam(id) {
+            state.teams = state.teams.filter(t => t.id !== id);
+            saveState();
+            renderRegisteredTeams();
+        }
+
+        document.getElementById('btnClearTeams').addEventListener('click', () => {
+            if (confirm('Yakin ingin menghapus semua tim terdaftar?')) {
+                state.teams = [];
+                state.groups = {};
+                state.knockout = [];
+                saveState();
+                renderRegisteredTeams();
+                renderGroups();
+                renderBracket();
+            }
+        });
+
+        function renderRegisteredTeams() {
+            document.getElementById('teamCount').textContent = state.teams.length;
+            if (state.teams.length === 0) {
+                registeredTeamsList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar.</td></tr>`;
+                return;
+            }
+            registeredTeamsList.innerHTML = state.teams.map((t, i) => `
+                <tr>
+                    <td class="fw-bold text-muted">${i+1}</td>
+                    <td><img src="${t.logo}" class="team-logo-small rounded-circle border bg-white p-1" alt="${t.name}"></td>
+                    <td class="fw-bold">${t.name}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-danger" onclick="removeTeam('${t.id}')"><i class="fa-solid fa-xmark"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Generate Groups
+        document.getElementById('btnGenerateGroups').addEventListener('click', () => {
+            const numGroups = parseInt(document.getElementById('numGroups').value);
+            const advancing = parseInt(document.getElementById('advancingPerGroup').value);
+            
+            if (state.teams.length < numGroups) {
+                document.getElementById('generateWarning').textContent = "Jumlah tim kurang dari jumlah grup.";
+                return;
+            }
+            
+            document.getElementById('generateWarning').textContent = "";
+            state.format = { groups: numGroups, advancing };
+            
+            // Shuffle teams
+            const shuffled = [...state.teams].sort(() => 0.5 - Math.random());
+            
+            state.groups = {};
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            
+            for(let i=0; i<numGroups; i++) {
+                state.groups[`Group ${alphabet[i]}`] = {
+                    standings: [],
+                    matches: []
+                };
+            }
+            
+            // Distribute
+            shuffled.forEach((team, idx) => {
+                const groupName = `Group ${alphabet[idx % numGroups]}`;
+                state.groups[groupName].standings.push({
+                    id: team.id, name: team.name, logo: team.logo,
+                    p:0, w:0, d:0, l:0, gf:0, ga:0, gd:0, pts:0
+                });
+            });
+
+            // Generate Round Robin matches
+            Object.keys(state.groups).forEach(gName => {
+                const t = state.groups[gName].standings.map(s => s.id);
+                state.groups[gName].matches = generateRoundRobin(t);
+            });
+            
+            saveState();
+            renderGroups();
+            
+            // Switch tab
+            const groupTab = new bootstrap.Tab(document.getElementById('group-tab'));
+            groupTab.show();
+        });
+
+        function generateRoundRobin(teams) {
+            const matches = [];
+            if (teams.length < 2) return matches;
+            const t = [...teams];
+            if (t.length % 2 !== 0) t.push(null); // dummy for bye
+            
+            const n = t.length;
+            for (let round = 0; round < n - 1; round++) {
+                for (let i = 0; i < n / 2; i++) {
+                    const t1 = t[i];
+                    const t2 = t[n - 1 - i];
+                    if (t1 !== null && t2 !== null) {
+                        matches.push({
+                            id: `m_${Date.now()}_${Math.random().toString(36).substr(2,5)}`,
+                            round: round + 1,
+                            team1: t1,
+                            team2: t2,
+                            score1: null,
+                            score2: null,
+                            played: false
+                        });
+                    }
+                }
+                t.splice(1, 0, t.pop()); // Rotate
+            }
+            return matches;
+        }
+
+        // Render Groups
+        function renderGroups() {
+            if (Object.keys(state.groups).length === 0) {
+                groupStageContainer.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-layer-group fs-1 mb-3"></i>
+                        <h5>Group Stage Belum Di-generate</h5>
+                        <p>Silakan daftarkan tim dan klik "Generate Group Stage" di tab Setup.</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '<div class="row g-4">';
+            Object.keys(state.groups).forEach(gName => {
+                const g = state.groups[gName];
+                // Recalculate standings
+                recalcStandings(gName);
+
+                html += `
+                <div class="col-xl-6">
+                    <div class="border rounded p-3 bg-white" data-theme-aware="true">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">${gName}</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-sm table-hover align-middle text-center small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-start">Tim</th>
+                                        <th title="Main">P</th>
+                                        <th title="Menang">W</th>
+                                        <th title="Seri">D</th>
+                                        <th title="Kalah">L</th>
+                                        <th title="Gol Masuk">GF</th>
+                                        <th title="Gol Kebobolan">GA</th>
+                                        <th title="Selisih Gol">GD</th>
+                                        <th title="Poin">PTS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${g.standings.map((s, i) => `
+                                        <tr class="${i < state.format.advancing ? 'table-success' : ''}">
+                                            <td class="text-start fw-bold">
+                                                <img src="${s.logo}" width="20" class="me-1"> ${s.name}
+                                            </td>
+                                            <td>${s.p}</td>
+                                            <td>${s.w}</td>
+                                            <td>${s.d}</td>
+                                            <td>${s.l}</td>
+                                            <td>${s.gf}</td>
+                                            <td>${s.ga}</td>
+                                            <td>${s.gd > 0 ? '+'+s.gd : s.gd}</td>
+                                            <td class="fw-bold">${s.pts}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <h6 class="fw-bold mb-2 small text-muted text-uppercase">Jadwal Pertandingan</h6>
+                        <div class="list-group list-group-flush">
+                            ${g.matches.map(m => {
+                                const t1 = state.teams.find(x => x.id === m.team1);
+                                const t2 = state.teams.find(x => x.id === m.team2);
+                                return `
+                                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
+                                    <div class="text-end" style="flex:1">
+                                        <span class="fw-bold small d-none d-sm-inline">${t1.name}</span>
+                                        <img src="${t1.logo}" width="24" class="ms-2">
+                                    </div>
+                                    <div class="px-3 d-flex align-items-center gap-1">
+                                        <input type="number" class="form-control form-control-sm match-score-input" value="${m.score1 !== null ? m.score1 : ''}" onchange="updateMatchScore('${gName}', '${m.id}', 1, this.value)">
+                                        <span class="fw-bold text-muted">-</span>
+                                        <input type="number" class="form-control form-control-sm match-score-input" value="${m.score2 !== null ? m.score2 : ''}" onchange="updateMatchScore('${gName}', '${m.id}', 2, this.value)">
+                                    </div>
+                                    <div class="text-start" style="flex:1">
+                                        <img src="${t2.logo}" width="24" class="me-2">
+                                        <span class="fw-bold small d-none d-sm-inline">${t2.name}</span>
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            html += '</div>';
+            groupStageContainer.innerHTML = html;
+        }
+
+        function updateMatchScore(gName, matchId, teamNum, val) {
+            const match = state.groups[gName].matches.find(m => m.id === matchId);
+            if (!match) return;
+            
+            if (val === '') {
+                if (teamNum === 1) match.score1 = null;
+                else match.score2 = null;
+            } else {
+                if (teamNum === 1) match.score1 = parseInt(val);
+                else match.score2 = parseInt(val);
+            }
+            
+            match.played = (match.score1 !== null && match.score2 !== null);
+            saveState();
+            renderGroups();
+        }
+
+        function recalcStandings(gName) {
+            const g = state.groups[gName];
+            // Reset
+            g.standings.forEach(s => { s.p=0; s.w=0; s.d=0; s.l=0; s.gf=0; s.ga=0; s.gd=0; s.pts=0; });
+            
+            g.matches.forEach(m => {
+                if(m.played) {
+                    const s1 = g.standings.find(s => s.id === m.team1);
+                    const s2 = g.standings.find(s => s.id === m.team2);
+                    s1.p++; s2.p++;
+                    s1.gf += m.score1; s1.ga += m.score2;
+                    s2.gf += m.score2; s2.ga += m.score1;
+                    
+                    if(m.score1 > m.score2) { s1.w++; s1.pts+=3; s2.l++; }
+                    else if(m.score1 < m.score2) { s2.w++; s2.pts+=3; s1.l++; }
+                    else { s1.d++; s2.d++; s1.pts+=1; s2.pts+=1; }
+                }
+            });
+
+            // Calc GD and Sort (Points -> GD -> GF)
+            g.standings.forEach(s => s.gd = s.gf - s.ga);
+            g.standings.sort((a,b) => {
+                if(b.pts !== a.pts) return b.pts - a.pts;
+                if(b.gd !== a.gd) return b.gd - a.gd;
+                return b.gf - a.gf;
+            });
+        }
+
+        // Import / Export
+        document.getElementById('btnExport').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `tournament_state_${new Date().getTime()}.json`);
+            dlAnchorElem.click();
+        });
+
+        document.getElementById('importFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.teams && imported.groups) {
+                        state = imported;
+                        saveState();
+                        document.getElementById('numGroups').value = state.format.groups || 2;
+                        document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+                        renderRegisteredTeams();
+                        renderGroups();
+                        renderBracket();
+                        alert('Data turnamen berhasil di-import!');
+                    } else {
+                        alert('Format file JSON tidak sesuai.');
+                    }
+                } catch(err) {
+                    alert('Gagal membaca file JSON.');
+                }
+            };
+            reader.readAsText(file);
+            this.value = null;
+        });
+
+        document.getElementById('btnGenerateKnockout').addEventListener('click', () => {
+            const qualifiedTeams = [];
+            const groupNames = Object.keys(state.groups);
+            
+            if (groupNames.length === 0) {
+                alert('Belum ada grup yang digenerate.');
+                return;
+            }
+
+            // Ambil tim teratas dari tiap grup
+            groupNames.forEach(gName => {
+                const standings = state.groups[gName].standings;
+                for (let i = 0; i < state.format.advancing; i++) {
+                    if (standings[i]) {
+                        qualifiedTeams.push({ ...standings[i], fromGroup: gName, rank: i + 1 });
+                    }
+                }
+            });
+
+            if (qualifiedTeams.length < 2) {
+                alert('Tim yang lolos kurang dari 2.');
+                return;
+            }
+
+            // Shuffle atau silangkan tim untuk bracket awal
+            // Sederhana: acak urutannya agar tim dari grup yang sama punya peluang terpisah
+            const shuffled = qualifiedTeams.sort(() => 0.5 - Math.random());
+            
+            const firstRoundMatches = [];
+            for (let i = 0; i < shuffled.length; i += 2) {
+                firstRoundMatches.push({
+                    id: 'ko_' + Date.now() + '_' + i,
+                    t1: shuffled[i],
+                    t2: shuffled[i+1] || null,
+                    s1: null,
+                    s2: null
+                });
+            }
+
+            state.knockout = [firstRoundMatches];
+            saveState();
+            renderBracket();
+            
+            alert('Bracket Knockout berhasil dibuat!');
+        });
+
+        function updateKnockoutScore(roundIndex, matchIndex, teamNum, val) {
+            const match = state.knockout[roundIndex][matchIndex];
+            if (val === '') {
+                if (teamNum === 1) match.s1 = null;
+                else match.s2 = null;
+            } else {
+                if (teamNum === 1) match.s1 = parseInt(val);
+                else match.s2 = parseInt(val);
+            }
+            saveState();
+            renderBracket();
+        }
+
+        function advanceKnockoutWinner(roundIndex, matchIndex) {
+            const match = state.knockout[roundIndex][matchIndex];
+            if (match.s1 === null || match.s2 === null || match.s1 === match.s2) {
+                alert('Skor harus diisi dan tidak boleh seri untuk menentukan pemenang!');
+                return;
+            }
+            
+            const winner = match.s1 > match.s2 ? match.t1 : match.t2;
+            
+            // Cek apakah ronde berikutnya sudah ada
+            if (!state.knockout[roundIndex + 1]) {
+                state.knockout[roundIndex + 1] = [];
+            }
+            
+            const nextRound = state.knockout[roundIndex + 1];
+            const nextMatchIndex = Math.floor(matchIndex / 2);
+            
+            if (!nextRound[nextMatchIndex]) {
+                nextRound[nextMatchIndex] = { id: 'ko_' + Date.now() + '_' + nextMatchIndex, t1: null, t2: null, s1: null, s2: null };
+            }
+            
+            if (matchIndex % 2 === 0) {
+                nextRound[nextMatchIndex].t1 = winner;
+            } else {
+                nextRound[nextMatchIndex].t2 = winner;
+            }
+            
+            saveState();
+            renderBracket();
+        }
+
+        function renderBracket() {
+            const container = document.getElementById('bracketContainer');
+            if (!state.knockout || state.knockout.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 text-muted w-100 align-self-center">
+                        <i class="fa-solid fa-sitemap fs-1 mb-3"></i>
+                        <h5>Bracket Belum Tersedia</h5>
+                        <p>Selesaikan Group Stage dan klik "Generate dari Klasemen Akhir".</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            state.knockout.forEach((round, rIndex) => {
+                let roundName = 'Round ' + (rIndex + 1);
+                // Nama ronde sederhana
+                if (rIndex === state.knockout.length - 1 && round.length === 1 && state.knockout[0].length > 1) {
+                    roundName = 'Final';
+                }
+
+                html += `<div class="bracket-round">
+                    <h6 class="text-center fw-bold mb-4 text-muted">${roundName}</h6>`;
+                
+                round.forEach((m, mIndex) => {
+                    const t1Name = m.t1 ? m.t1.name : 'TBD';
+                    const t1Logo = m.t1 ? `<img src="${m.t1.logo}" width="20" class="me-2">` : '';
+                    const t2Name = m.t2 ? m.t2.name : 'TBD';
+                    const t2Logo = m.t2 ? `<img src="${m.t2.logo}" width="20" class="me-2">` : '';
+                    
+                    html += `
+                    <div class="bracket-match">
+                        <div class="bracket-team">
+                            <div class="d-flex align-items-center">${t1Logo} <span class="fw-bold small text-truncate" style="max-width:100px;">${t1Name}</span></div>
+                            <input type="number" class="form-control form-control-sm match-score-input ms-2" value="${m.s1 !== null ? m.s1 : ''}" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value)">
+                        </div>
+                        <div class="bracket-team">
+                            <div class="d-flex align-items-center">${t2Logo} <span class="fw-bold small text-truncate" style="max-width:100px;">${t2Name}</span></div>
+                            <input type="number" class="form-control form-control-sm match-score-input ms-2" value="${m.s2 !== null ? m.s2 : ''}" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value)">
+                        </div>
+                        <button class="btn btn-sm btn-light w-100 mt-2 border" onclick="advanceKnockoutWinner(${rIndex}, ${mIndex})"><i class="fa-solid fa-check text-success"></i> Loloskan</button>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>
