@@ -53,9 +53,14 @@
         [data-theme="dark"] .panel-card { background: #1e293b; border-color: #334155; }
         [data-theme="dark"] .navbar-light-custom { background: #1e293b; border-color: #334155; }
         [data-theme="dark"] .bg-light { background-color: #334155 !important; }
+        [data-theme="dark"] .bg-white { background-color: #1e293b !important; }
+        [data-theme="dark"] .border { border-color: #334155 !important; }
         [data-theme="dark"] table.table { color: #cbd5e1; border-color: #334155; }
         [data-theme="dark"] table.table thead th { background-color: #0f172a; border-bottom-color: #334155; color: #94a3b8; }
         [data-theme="dark"] table.table tbody td { background-color: #1e293b; border-color: #0f172a; }
+        [data-theme="dark"] .bg-primary-subtle { background-color: #1e3a8a !important; color: #93c5fd !important; }
+        [data-theme="dark"] .bg-secondary-subtle { background-color: #334155 !important; color: #cbd5e1 !important; }
+        [data-theme="dark"] .match-score-input { background-color: #0f172a; color: #f8fafc; border-color: #334155; }
 
         body {
             background-color: var(--bg-page);
@@ -102,13 +107,13 @@
         }
 
         .team-logo-small {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             object-fit: contain;
         }
 
         .match-score-input {
-            width: 50px;
+            width: 52px;
             text-align: center;
             font-weight: bold;
             font-family: 'JetBrains Mono', monospace;
@@ -126,23 +131,24 @@
             display: flex;
             flex-direction: column;
             justify-content: space-around;
-            min-width: 200px;
+            min-width: 250px;
         }
 
         .bracket-match {
             background: var(--surface-white);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
             position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
 
         .bracket-team {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 0;
+            padding: 6px 0;
         }
 
         .bracket-team:first-child {
@@ -207,8 +213,9 @@
                 <div class="tab-pane fade show active" id="setup" role="tabpanel">
                     <div class="row g-4">
                         <div class="col-md-4">
-                            <div class="border rounded p-3 mb-3">
-                                <h6 class="fw-bold mb-3">Format Turnamen</h6>
+                            <!-- Format Turnamen -->
+                            <div class="border rounded p-3 mb-3 bg-white" data-theme-aware="true">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>Format Turnamen</h6>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Jumlah Grup</label>
                                     <select class="form-select" id="numGroups">
@@ -226,49 +233,83 @@
                                         <option value="4">4 Tim</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-primary w-100 fw-bold" id="btnGenerateGroups">Generate Group Stage</button>
+                                <button class="btn btn-primary w-100 fw-bold" id="btnGenerateGroups">
+                                    <i class="fa-solid fa-diagram-project me-1"></i> Generate Group Stage
+                                </button>
                                 <small class="text-danger d-block mt-2 text-center" id="generateWarning"></small>
                             </div>
 
-                            <div class="border rounded p-3">
-                                <h6 class="fw-bold mb-3">Tambah Tim</h6>
+                            <!-- Tambah Tim & User -->
+                            <div class="border rounded p-3 bg-white" data-theme-aware="true">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-user-plus text-success me-2"></i>Daftarkan Peserta & Tim</h6>
+                                
                                 <div class="mb-3">
-                                    <label class="form-label small fw-bold">Pilih Klub EA FC</label>
-                                    <div class="input-group">
-                                        <select class="form-select" id="fcTeamSelect">
-                                            <option value="">Loading teams...</option>
-                                        </select>
-                                        <button class="btn btn-success fw-bold" id="btnAddFcTeam">Tambah</button>
+                                    <label class="form-label small fw-bold">
+                                        <i class="fa-solid fa-user text-primary me-1"></i> Nama User / Player <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="playerNameInput" placeholder="Contoh: Andre, Budi, GamerTag..." autocomplete="off">
+                                    <div class="text-muted" style="font-size: 0.75rem; margin-top: 4px;">
+                                        Beberapa user bisa memilih klub yang sama (misal: Andre - Real Madrid & Budi - Real Madrid).
                                     </div>
                                 </div>
-                                <hr>
-                                <div class="mb-2">
-                                    <label class="form-label small fw-bold">Atau Tim Kustom</label>
-                                    <input type="text" class="form-control mb-2" id="customTeamName" placeholder="Nama Tim...">
-                                    <input type="text" class="form-control mb-2" id="customTeamLogo" placeholder="URL Logo (Opsional)...">
-                                    <button class="btn btn-outline-success w-100 fw-bold" id="btnAddCustomTeam">Tambah Tim Kustom</button>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">
+                                        <i class="fa-solid fa-shield-halved text-success me-1"></i> Pilih Klub EA FC 26
+                                    </label>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <img id="selectedTeamLogoPreview" src="" alt="" style="width: 36px; height: 36px; object-fit: contain; display: none;" class="rounded-circle border p-1 bg-white flex-shrink-0">
+                                        <select class="form-select flex-grow-1" id="fcTeamSelect">
+                                            <option value="">Loading clubs...</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-success w-100 fw-bold" id="btnAddFcTeam">
+                                        <i class="fa-solid fa-plus me-1"></i> Tambah Klub FC
+                                    </button>
+                                </div>
+
+                                <div class="accordion mt-3" id="customTeamAccordion">
+                                    <div class="accordion-item border rounded overflow-hidden">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed py-2 px-3 bg-light small fw-bold text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCustom">
+                                                <i class="fa-solid fa-pen-nib me-2"></i> Atau Gunakan Tim Kustom...
+                                            </button>
+                                        </h2>
+                                        <div id="collapseCustom" class="accordion-collapse collapse p-3">
+                                            <div class="mb-2">
+                                                <label class="form-label small fw-bold">Nama Tim Kustom</label>
+                                                <input type="text" class="form-control form-control-sm mb-2" id="customTeamName" placeholder="Contoh: Persigar Garut">
+                                                <label class="form-label small fw-bold">URL Logo Tim (Opsional)</label>
+                                                <input type="text" class="form-control form-control-sm mb-2" id="customTeamLogo" placeholder="https://... (kosong = auto avatar)">
+                                                <button class="btn btn-outline-success w-100 fw-bold btn-sm" id="btnAddCustomTeam">
+                                                    <i class="fa-solid fa-plus me-1"></i> Tambah Tim Kustom
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Daftar Tim Terdaftar -->
                         <div class="col-md-8">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold mb-0">Tim Terdaftar (<span id="teamCount">0</span>)</h6>
+                                <h6 class="fw-bold mb-0">Peserta & Tim Terdaftar (<span id="teamCount">0</span>)</h6>
                                 <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle border">
+                            <div class="table-responsive bg-white rounded border" data-theme-aware="true">
+                                <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th width="50">No</th>
-                                            <th width="60">Logo</th>
-                                            <th>Nama Tim</th>
-                                            <th width="100" class="text-center">Aksi</th>
+                                            <th width="50" class="text-center">No</th>
+                                            <th>Tim & Logo</th>
+                                            <th>Nama User / Player</th>
+                                            <th width="80" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="registeredTeamsList">
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar.</td>
+                                            <td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -291,8 +332,13 @@
                 <!-- KNOCKOUT TAB -->
                 <div class="tab-pane fade" id="knockout" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold">Bagan Turnamen (Knockout)</h6>
-                        <button class="btn btn-success fw-bold" id="btnGenerateKnockout">Generate dari Klasemen Akhir</button>
+                        <div>
+                            <h6 class="fw-bold mb-0">Bagan Turnamen (Knockout)</h6>
+                            <small class="text-muted">Babak gugur ditentukan otomatis dari posisi klasemen grup</small>
+                        </div>
+                        <button class="btn btn-success fw-bold" id="btnGenerateKnockout">
+                            <i class="fa-solid fa-diagram-next me-1"></i> Generate dari Klasemen Akhir
+                        </button>
                     </div>
                     
                     <div id="bracketContainer" class="bracket-container border rounded bg-light" style="min-height: 400px;">
@@ -315,7 +361,7 @@
     <script>
         // State
         let state = {
-            teams: [], // { id, name, logo }
+            teams: [], // array of { id, playerName, teamName, name, logo }
             format: { groups: 2, advancing: 2 },
             groups: {}, // { "Group A": { standings: [], matches: [] } }
             knockout: [] // array of rounds
@@ -326,6 +372,8 @@
 
         // Elements
         const fcTeamSelect = document.getElementById('fcTeamSelect');
+        const selectedTeamLogoPreview = document.getElementById('selectedTeamLogoPreview');
+        const playerNameInput = document.getElementById('playerNameInput');
         const registeredTeamsList = document.getElementById('registeredTeamsList');
         const groupStageContainer = document.getElementById('groupStageContainer');
 
@@ -373,6 +421,18 @@
                     opt.textContent = t.name;
                     fcTeamSelect.appendChild(opt);
                 });
+
+                // Event listener untuk preview logo
+                fcTeamSelect.addEventListener('change', () => {
+                    const id = fcTeamSelect.value;
+                    const team = fcTeamsData.find(t => t.id === id);
+                    if (team && team.logo) {
+                        selectedTeamLogoPreview.src = team.logo;
+                        selectedTeamLogoPreview.style.display = 'block';
+                    } else {
+                        selectedTeamLogoPreview.style.display = 'none';
+                    }
+                });
             } catch (e) {
                 console.error("Gagal load data klub:", e);
                 fcTeamSelect.innerHTML = '<option value="">Gagal memuat tim</option>';
@@ -386,34 +446,125 @@
         function loadState() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                state = JSON.parse(saved);
-                document.getElementById('numGroups').value = state.format.groups || 2;
-                document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+                try {
+                    state = JSON.parse(saved);
+                    // Migrasi data tim jika dari versi lama tanpa playerName
+                    if (Array.isArray(state.teams)) {
+                        state.teams.forEach(t => {
+                            if (!t.playerName && !t.teamName) {
+                                t.teamName = t.name || 'Tim';
+                                t.playerName = '';
+                            }
+                        });
+                    }
+                    if (state.groups) {
+                        Object.keys(state.groups).forEach(gName => {
+                            if (state.groups[gName].standings) {
+                                state.groups[gName].standings.forEach(s => {
+                                    if (!s.playerName && !s.teamName) {
+                                        s.teamName = s.name || 'Tim';
+                                        s.playerName = '';
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    document.getElementById('numGroups').value = state.format.groups || 2;
+                    document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+                } catch (e) {
+                    console.error("Error parsing saved state:", e);
+                }
             }
         }
 
-        // Teams Registration
+        // Teams Registration: Klub FC
         document.getElementById('btnAddFcTeam').addEventListener('click', () => {
-            const id = fcTeamSelect.value;
-            if (!id) return;
-            const team = fcTeamsData.find(t => t.id === id);
-            if (team && !state.teams.find(t => t.id === team.id)) {
-                state.teams.push({ id: team.id, name: team.name, logo: team.logo });
-                saveState();
-                renderRegisteredTeams();
+            const playerName = playerNameInput.value.trim();
+            if (!playerName) {
+                alert('Silakan masukkan Nama User / Player terlebih dahulu!');
+                playerNameInput.focus();
+                return;
             }
+
+            const id = fcTeamSelect.value;
+            if (!id) {
+                alert('Silakan pilih klub EA FC 26!');
+                fcTeamSelect.focus();
+                return;
+            }
+
+            const team = fcTeamsData.find(t => t.id === id);
+            if (!team) return;
+
+            // Cek duplikasi player + klub yang sama persis
+            const isDuplicate = state.teams.some(t => 
+                (t.playerName || '').toLowerCase() === playerName.toLowerCase() && 
+                (t.teamName || t.name || '').toLowerCase() === team.name.toLowerCase()
+            );
+
+            if (isDuplicate) {
+                alert(`User "${playerName}" dengan klub "${team.name}" sudah terdaftar!`);
+                return;
+            }
+
+            const uniqueId = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            state.teams.push({
+                id: uniqueId,
+                playerName: playerName,
+                teamName: team.name,
+                name: `${team.name} (${playerName})`,
+                logo: team.logo
+            });
+
+            playerNameInput.value = '';
+            saveState();
+            renderRegisteredTeams();
+            playerNameInput.focus();
         });
 
+        // Teams Registration: Kustom
         document.getElementById('btnAddCustomTeam').addEventListener('click', () => {
-            const name = document.getElementById('customTeamName').value.trim();
-            const logo = document.getElementById('customTeamLogo').value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
-            if (!name) return;
-            const id = 'cust_' + Date.now();
-            state.teams.push({ id, name, logo });
+            const playerName = playerNameInput.value.trim();
+            if (!playerName) {
+                alert('Silakan masukkan Nama User / Player terlebih dahulu!');
+                playerNameInput.focus();
+                return;
+            }
+
+            const teamName = document.getElementById('customTeamName').value.trim();
+            if (!teamName) {
+                alert('Silakan masukkan Nama Tim Kustom!');
+                document.getElementById('customTeamName').focus();
+                return;
+            }
+
+            const logo = document.getElementById('customTeamLogo').value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(teamName)}&background=random`;
+
+            const isDuplicate = state.teams.some(t => 
+                (t.playerName || '').toLowerCase() === playerName.toLowerCase() && 
+                (t.teamName || t.name || '').toLowerCase() === teamName.toLowerCase()
+            );
+
+            if (isDuplicate) {
+                alert(`User "${playerName}" dengan tim "${teamName}" sudah terdaftar!`);
+                return;
+            }
+
+            const uniqueId = 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            state.teams.push({
+                id: uniqueId,
+                playerName: playerName,
+                teamName: teamName,
+                name: `${teamName} (${playerName})`,
+                logo: logo
+            });
+
+            playerNameInput.value = '';
             document.getElementById('customTeamName').value = '';
             document.getElementById('customTeamLogo').value = '';
             saveState();
             renderRegisteredTeams();
+            playerNameInput.focus();
         });
 
         function removeTeam(id) {
@@ -423,7 +574,7 @@
         }
 
         document.getElementById('btnClearTeams').addEventListener('click', () => {
-            if (confirm('Yakin ingin menghapus semua tim terdaftar?')) {
+            if (confirm('Yakin ingin menghapus semua tim & peserta terdaftar?')) {
                 state.teams = [];
                 state.groups = {};
                 state.knockout = [];
@@ -437,19 +588,34 @@
         function renderRegisteredTeams() {
             document.getElementById('teamCount').textContent = state.teams.length;
             if (state.teams.length === 0) {
-                registeredTeamsList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar.</td></tr>`;
+                registeredTeamsList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td></tr>`;
                 return;
             }
-            registeredTeamsList.innerHTML = state.teams.map((t, i) => `
+            registeredTeamsList.innerHTML = state.teams.map((t, i) => {
+                const teamTitle = t.teamName || t.name;
+                const playerTitle = t.playerName || '-';
+                return `
                 <tr>
-                    <td class="fw-bold text-muted">${i+1}</td>
-                    <td><img src="${t.logo}" class="team-logo-small rounded-circle border bg-white p-1" alt="${t.name}"></td>
-                    <td class="fw-bold">${t.name}</td>
+                    <td class="text-center fw-bold text-muted">${i+1}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="${t.logo}" class="team-logo-small rounded-circle border bg-white p-1 flex-shrink-0" style="width:34px; height:34px; object-fit:contain;" alt="${teamTitle}">
+                            <span class="fw-bold text-dark">${teamTitle}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5 fw-semibold" style="font-size:0.85rem;">
+                            <i class="fa-solid fa-user me-1"></i> ${playerTitle}
+                        </span>
+                    </td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-danger" onclick="removeTeam('${t.id}')"><i class="fa-solid fa-xmark"></i></button>
+                        <button class="btn btn-sm btn-outline-danger border-0" title="Hapus" onclick="removeTeam('${t.id}')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Generate Groups
@@ -482,8 +648,12 @@
             shuffled.forEach((team, idx) => {
                 const groupName = `Group ${alphabet[idx % numGroups]}`;
                 state.groups[groupName].standings.push({
-                    id: team.id, name: team.name, logo: team.logo,
-                    p:0, w:0, d:0, l:0, gf:0, ga:0, gd:0, pts:0
+                    id: team.id,
+                    playerName: team.playerName || '',
+                    teamName: team.teamName || team.name,
+                    name: team.name,
+                    logo: team.logo,
+                    p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0
                 });
             });
 
@@ -496,7 +666,7 @@
             saveState();
             renderGroups();
             
-            // Switch tab
+            // Switch tab to group
             const groupTab = new bootstrap.Tab(document.getElementById('group-tab'));
             groupTab.show();
         });
@@ -518,8 +688,8 @@
                             round: round + 1,
                             team1: t1,
                             team2: t2,
-                            score1: null,
-                            score2: null,
+                            score1: 0,
+                            score2: 0,
                             played: false
                         });
                     }
@@ -549,13 +719,13 @@
 
                 html += `
                 <div class="col-xl-6">
-                    <div class="border rounded p-3 bg-white" data-theme-aware="true">
+                    <div class="border rounded p-3 bg-white shadow-sm" data-theme-aware="true">
                         <h5 class="fw-bold mb-3 border-bottom pb-2">${gName}</h5>
                         <div class="table-responsive mb-4">
-                            <table class="table table-sm table-hover align-middle text-center small">
+                            <table class="table table-sm table-hover align-middle text-center small mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="text-start">Tim</th>
+                                        <th class="text-start">Tim & User</th>
                                         <th title="Main">P</th>
                                         <th title="Menang">W</th>
                                         <th title="Seri">D</th>
@@ -569,8 +739,12 @@
                                 <tbody>
                                     ${g.standings.map((s, i) => `
                                         <tr class="${i < state.format.advancing ? 'table-success' : ''}">
-                                            <td class="text-start fw-bold">
-                                                <img src="${s.logo}" width="20" class="me-1"> ${s.name}
+                                            <td class="text-start">
+                                                <div class="d-inline-flex align-items-center gap-2">
+                                                    <img src="${s.logo}" width="22" height="22" style="object-fit:contain; flex-shrink:0;" class="rounded-circle border p-0.5 bg-white" alt="">
+                                                    <span class="fw-bold text-dark">${s.teamName || s.name}</span>
+                                                    ${s.playerName ? `<span class="badge bg-secondary-subtle text-secondary border fw-semibold" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${s.playerName}</span>` : ''}
+                                                </div>
                                             </td>
                                             <td>${s.p}</td>
                                             <td>${s.w}</td>
@@ -585,25 +759,47 @@
                                 </tbody>
                             </table>
                         </div>
-                        <h6 class="fw-bold mb-2 small text-muted text-uppercase">Jadwal Pertandingan</h6>
+                        <h6 class="fw-bold mb-2 small text-muted text-uppercase"><i class="fa-solid fa-calendar-days me-1"></i> Jadwal & Skor Pertandingan</h6>
                         <div class="list-group list-group-flush">
                             ${g.matches.map(m => {
-                                const t1 = state.teams.find(x => x.id === m.team1);
-                                const t2 = state.teams.find(x => x.id === m.team2);
+                                const t1 = state.teams.find(x => x.id === m.team1) || g.standings.find(x => x.id === m.team1);
+                                const t2 = state.teams.find(x => x.id === m.team2) || g.standings.find(x => x.id === m.team2);
+
+                                const t1Team = t1 ? (t1.teamName || t1.name) : 'Tim 1';
+                                const t1Player = t1 && t1.playerName ? t1.playerName : '';
+                                const t1Logo = t1 ? t1.logo : '';
+
+                                const t2Team = t2 ? (t2.teamName || t2.name) : 'Tim 2';
+                                const t2Player = t2 && t2.playerName ? t2.playerName : '';
+                                const t2Logo = t2 ? t2.logo : '';
+
+                                const s1 = m.score1 !== null ? Math.max(0, m.score1) : 0;
+                                const s2 = m.score2 !== null ? Math.max(0, m.score2) : 0;
+
                                 return `
-                                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
-                                    <div class="text-end" style="flex:1">
-                                        <span class="fw-bold small d-none d-sm-inline">${t1.name}</span>
-                                        <img src="${t1.logo}" width="24" class="ms-2">
+                                <div class="list-group-item px-2 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
+                                    <div class="d-flex align-items-center justify-content-end gap-2 text-end" style="flex: 1; min-width: 0;">
+                                        <div class="text-truncate">
+                                            <div class="fw-bold small text-truncate text-dark">${t1Team}</div>
+                                            ${t1Player ? `<div class="text-muted text-truncate" style="font-size: 0.72rem;"><i class="fa-solid fa-user me-1"></i>${t1Player}</div>` : ''}
+                                        </div>
+                                        <img src="${t1Logo}" width="28" height="28" style="object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
                                     </div>
-                                    <div class="px-3 d-flex align-items-center gap-1">
-                                        <input type="number" class="form-control form-control-sm match-score-input" value="${m.score1 !== null ? m.score1 : ''}" onchange="updateMatchScore('${gName}', '${m.id}', 1, this.value)">
+                                    <div class="px-2 d-flex align-items-center gap-1 flex-shrink-0">
+                                        <input type="number" min="0" class="form-control form-control-sm match-score-input" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateMatchScore('${gName}', '${m.id}', 1, this.value)">
                                         <span class="fw-bold text-muted">-</span>
-                                        <input type="number" class="form-control form-control-sm match-score-input" value="${m.score2 !== null ? m.score2 : ''}" onchange="updateMatchScore('${gName}', '${m.id}', 2, this.value)">
+                                        <input type="number" min="0" class="form-control form-control-sm match-score-input" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateMatchScore('${gName}', '${m.id}', 2, this.value)">
+                                        <button class="btn btn-sm ${m.played ? 'btn-success' : 'btn-outline-secondary'} px-2 py-0.5 ms-1 fw-semibold" onclick="toggleMatchPlayed('${gName}', '${m.id}')" title="${m.played ? 'Status: Selesai (klik untuk reset)' : 'Simpan hasil match (termasuk 0-0)'}">
+                                            <i class="fa-solid ${m.played ? 'fa-check' : 'fa-floppy-disk'}"></i>
+                                            <span class="d-none d-md-inline ms-1">${m.played ? 'Selesai' : 'Simpan'}</span>
+                                        </button>
                                     </div>
-                                    <div class="text-start" style="flex:1">
-                                        <img src="${t2.logo}" width="24" class="me-2">
-                                        <span class="fw-bold small d-none d-sm-inline">${t2.name}</span>
+                                    <div class="d-flex align-items-center justify-content-start gap-2 text-start" style="flex: 1; min-width: 0;">
+                                        <img src="${t2Logo}" width="28" height="28" style="object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
+                                        <div class="text-truncate">
+                                            <div class="fw-bold small text-truncate text-dark">${t2Team}</div>
+                                            ${t2Player ? `<div class="text-muted text-truncate" style="font-size: 0.72rem;"><i class="fa-solid fa-user me-1"></i>${t2Player}</div>` : ''}
+                                        </div>
                                     </div>
                                 </div>
                                 `;
@@ -621,15 +817,30 @@
             const match = state.groups[gName].matches.find(m => m.id === matchId);
             if (!match) return;
             
-            if (val === '') {
-                if (teamNum === 1) match.score1 = null;
-                else match.score2 = null;
+            let num = parseInt(val);
+            if (isNaN(num) || num < 0) num = 0;
+
+            if (teamNum === 1) match.score1 = num;
+            else match.score2 = num;
+
+            if (match.score1 === null || match.score1 < 0) match.score1 = 0;
+            if (match.score2 === null || match.score2 < 0) match.score2 = 0;
+
+            match.played = true;
+            saveState();
+            renderGroups();
+        }
+
+        function toggleMatchPlayed(gName, matchId) {
+            const match = state.groups[gName].matches.find(m => m.id === matchId);
+            if (!match) return;
+            if (match.played) {
+                match.played = false;
             } else {
-                if (teamNum === 1) match.score1 = parseInt(val);
-                else match.score2 = parseInt(val);
+                if (match.score1 === null || match.score1 < 0) match.score1 = 0;
+                if (match.score2 === null || match.score2 < 0) match.score2 = 0;
+                match.played = true;
             }
-            
-            match.played = (match.score1 !== null && match.score2 !== null);
             saveState();
             renderGroups();
         }
@@ -643,6 +854,8 @@
                 if(m.played) {
                     const s1 = g.standings.find(s => s.id === m.team1);
                     const s2 = g.standings.find(s => s.id === m.team2);
+                    if (!s1 || !s2) return;
+
                     s1.p++; s2.p++;
                     s1.gf += m.score1; s1.ga += m.score2;
                     s2.gf += m.score2; s2.ga += m.score1;
@@ -680,6 +893,15 @@
                     const imported = JSON.parse(e.target.result);
                     if (imported.teams && imported.groups) {
                         state = imported;
+                        // Migrasi backward compatibility
+                        if (Array.isArray(state.teams)) {
+                            state.teams.forEach(t => {
+                                if (!t.playerName && !t.teamName) {
+                                    t.teamName = t.name || 'Tim';
+                                    t.playerName = '';
+                                }
+                            });
+                        }
                         saveState();
                         document.getElementById('numGroups').value = state.format.groups || 2;
                         document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
@@ -712,7 +934,15 @@
                 const standings = state.groups[gName].standings;
                 for (let i = 0; i < state.format.advancing; i++) {
                     if (standings[i]) {
-                        qualifiedTeams.push({ ...standings[i], fromGroup: gName, rank: i + 1 });
+                        qualifiedTeams.push({ 
+                            id: standings[i].id,
+                            playerName: standings[i].playerName || '',
+                            teamName: standings[i].teamName || standings[i].name,
+                            name: standings[i].name,
+                            logo: standings[i].logo,
+                            fromGroup: gName, 
+                            rank: i + 1 
+                        });
                     }
                 }
             });
@@ -722,8 +952,7 @@
                 return;
             }
 
-            // Shuffle atau silangkan tim untuk bracket awal
-            // Sederhana: acak urutannya agar tim dari grup yang sama punya peluang terpisah
+            // Acak urutan tim untuk babak gugur
             const shuffled = qualifiedTeams.sort(() => 0.5 - Math.random());
             
             const firstRoundMatches = [];
@@ -732,8 +961,8 @@
                     id: 'ko_' + Date.now() + '_' + i,
                     t1: shuffled[i],
                     t2: shuffled[i+1] || null,
-                    s1: null,
-                    s2: null
+                    s1: 0,
+                    s2: 0
                 });
             }
 
@@ -746,13 +975,16 @@
 
         function updateKnockoutScore(roundIndex, matchIndex, teamNum, val) {
             const match = state.knockout[roundIndex][matchIndex];
-            if (val === '') {
-                if (teamNum === 1) match.s1 = null;
-                else match.s2 = null;
-            } else {
-                if (teamNum === 1) match.s1 = parseInt(val);
-                else match.s2 = parseInt(val);
-            }
+            if (!match) return;
+            let num = parseInt(val);
+            if (isNaN(num) || num < 0) num = 0;
+
+            if (teamNum === 1) match.s1 = num;
+            else match.s2 = num;
+
+            if (match.s1 === null || match.s1 < 0) match.s1 = 0;
+            if (match.s2 === null || match.s2 < 0) match.s2 = 0;
+
             saveState();
             renderBracket();
         }
@@ -760,7 +992,7 @@
         function advanceKnockoutWinner(roundIndex, matchIndex) {
             const match = state.knockout[roundIndex][matchIndex];
             if (match.s1 === null || match.s2 === null || match.s1 === match.s2) {
-                alert('Skor harus diisi dan tidak boleh seri untuk menentukan pemenang!');
+                alert('Skor tidak boleh seri untuk menentukan pemenang babak gugur! Masukkan skor pemenang (misal: agregat/adu penalti).');
                 return;
             }
             
@@ -775,7 +1007,7 @@
             const nextMatchIndex = Math.floor(matchIndex / 2);
             
             if (!nextRound[nextMatchIndex]) {
-                nextRound[nextMatchIndex] = { id: 'ko_' + Date.now() + '_' + nextMatchIndex, t1: null, t2: null, s1: null, s2: null };
+                nextRound[nextMatchIndex] = { id: 'ko_' + Date.now() + '_' + nextMatchIndex, t1: null, t2: null, s1: 0, s2: 0 };
             }
             
             if (matchIndex % 2 === 0) {
@@ -803,31 +1035,50 @@
             let html = '';
             state.knockout.forEach((round, rIndex) => {
                 let roundName = 'Round ' + (rIndex + 1);
-                // Nama ronde sederhana
                 if (rIndex === state.knockout.length - 1 && round.length === 1 && state.knockout[0].length > 1) {
-                    roundName = 'Final';
+                    roundName = '🏆 Final';
                 }
 
                 html += `<div class="bracket-round">
                     <h6 class="text-center fw-bold mb-4 text-muted">${roundName}</h6>`;
                 
                 round.forEach((m, mIndex) => {
-                    const t1Name = m.t1 ? m.t1.name : 'TBD';
-                    const t1Logo = m.t1 ? `<img src="${m.t1.logo}" width="20" class="me-2">` : '';
-                    const t2Name = m.t2 ? m.t2.name : 'TBD';
-                    const t2Logo = m.t2 ? `<img src="${m.t2.logo}" width="20" class="me-2">` : '';
+                    const t1Team = m.t1 ? (m.t1.teamName || m.t1.name) : 'TBD';
+                    const t1Player = m.t1 && m.t1.playerName ? m.t1.playerName : '';
+                    const t1Logo = m.t1 ? `<img src="${m.t1.logo}" width="24" height="24" style="object-fit:contain; flex-shrink:0;" class="rounded-circle border p-0.5 bg-white" alt="">` : '';
                     
+                    const t2Team = m.t2 ? (m.t2.teamName || m.t2.name) : 'TBD';
+                    const t2Player = m.t2 && m.t2.playerName ? m.t2.playerName : '';
+                    const t2Logo = m.t2 ? `<img src="${m.t2.logo}" width="24" height="24" style="object-fit:contain; flex-shrink:0;" class="rounded-circle border p-0.5 bg-white" alt="">` : '';
+                    
+                    const s1 = m.s1 !== null ? Math.max(0, m.s1) : 0;
+                    const s2 = m.s2 !== null ? Math.max(0, m.s2) : 0;
+
                     html += `
                     <div class="bracket-match">
-                        <div class="bracket-team">
-                            <div class="d-flex align-items-center">${t1Logo} <span class="fw-bold small text-truncate" style="max-width:100px;">${t1Name}</span></div>
-                            <input type="number" class="form-control form-control-sm match-score-input ms-2" value="${m.s1 !== null ? m.s1 : ''}" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value)">
+                        <div class="bracket-team py-1">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
+                                ${t1Logo}
+                                <div class="text-truncate">
+                                    <div class="fw-bold small text-truncate text-dark">${t1Team}</div>
+                                    ${t1Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t1Player}</div>` : ''}
+                                </div>
+                            </div>
+                            <input type="number" min="0" class="form-control form-control-sm match-score-input ms-2" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value)">
                         </div>
-                        <div class="bracket-team">
-                            <div class="d-flex align-items-center">${t2Logo} <span class="fw-bold small text-truncate" style="max-width:100px;">${t2Name}</span></div>
-                            <input type="number" class="form-control form-control-sm match-score-input ms-2" value="${m.s2 !== null ? m.s2 : ''}" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value)">
+                        <div class="bracket-team py-1">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
+                                ${t2Logo}
+                                <div class="text-truncate">
+                                    <div class="fw-bold small text-truncate text-dark">${t2Team}</div>
+                                    ${t2Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t2Player}</div>` : ''}
+                                </div>
+                            </div>
+                            <input type="number" min="0" class="form-control form-control-sm match-score-input ms-2" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value)">
                         </div>
-                        <button class="btn btn-sm btn-light w-100 mt-2 border" onclick="advanceKnockoutWinner(${rIndex}, ${mIndex})"><i class="fa-solid fa-check text-success"></i> Loloskan</button>
+                        <button class="btn btn-sm btn-light w-100 mt-2 border fw-bold text-dark" onclick="advanceKnockoutWinner(${rIndex}, ${mIndex})">
+                            <i class="fa-solid fa-check text-success me-1"></i> Loloskan
+                        </button>
                     </div>`;
                 });
                 
