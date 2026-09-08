@@ -254,6 +254,40 @@
             color: #34d399;
         }
 
+        .btn-xs {
+            padding: 2px 8px;
+            font-size: 0.72rem;
+            border-radius: 6px;
+        }
+        .step-pill {
+            transition: all 0.2s ease;
+        }
+        .step-pill.active {
+            border-color: var(--primary-emerald) !important;
+            background: rgba(5, 150, 105, 0.06) !important;
+        }
+        .transition-all {
+            transition: all 0.25s ease-in-out;
+        }
+        #inputMethodTabs .nav-link {
+            border-radius: 8px;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+        #inputMethodTabs .nav-link.active {
+            background-color: var(--surface-white);
+            color: var(--primary-emerald);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] #inputMethodTabs .nav-link.active {
+            background-color: #1e293b;
+            color: #10b981;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .shadow-xs {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
         /* PRINT MODE: Only print the certificate */
         @media print {
             body * {
@@ -500,123 +534,125 @@
                 
                 <!-- SETUP & TEAMS TAB -->
                 <div class="tab-pane fade show active" id="setup" role="tabpanel">
+                    
+                    <!-- 3-STEP VISUAL PROGRESS GUIDE -->
+                    <div class="row g-2 mb-3 text-center">
+                        <div class="col-4">
+                            <div class="step-pill active p-2 rounded-3 border bg-white shadow-xs d-flex align-items-center justify-content-center gap-2" data-theme-aware="true">
+                                <span class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 26px; height: 26px; font-size: 0.8rem;">1</span>
+                                <div class="text-start d-none d-sm-block">
+                                    <div class="fw-bold small text-dark lh-sm" style="font-size: 0.8rem;">1. Format Turnamen</div>
+                                    <small class="text-muted" style="font-size: 0.68rem;">Nama liga & jumlah grup</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="step-pill p-2 rounded-3 border bg-white shadow-xs d-flex align-items-center justify-content-center gap-2" data-theme-aware="true">
+                                <span class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 26px; height: 26px; font-size: 0.8rem;">2</span>
+                                <div class="text-start d-none d-sm-block">
+                                    <div class="fw-bold small text-dark lh-sm" style="font-size: 0.8rem;">2. Input Peserta</div>
+                                    <small class="text-muted" style="font-size: 0.68rem;">Copas bulk / manual</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="step-pill p-2 rounded-3 border bg-white shadow-xs d-flex align-items-center justify-content-center gap-2" data-theme-aware="true">
+                                <span class="badge rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold" style="width: 26px; height: 26px; font-size: 0.8rem;">3</span>
+                                <div class="text-start d-none d-sm-block">
+                                    <div class="fw-bold small text-dark lh-sm" style="font-size: 0.8rem;">3. Mulai Jadwal</div>
+                                    <small class="text-muted" style="font-size: 0.68rem;">Undi & buat group stage</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-3 g-md-4">
-                        <div class="col-md-4">
-                            <!-- Format Turnamen -->
-                            <div class="border rounded p-3 mb-3 bg-white" data-theme-aware="true">
-                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>Format Turnamen</h6>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">
+                        <!-- LEFT COLUMN: LANGKAH 1 & LANGKAH 2 -->
+                        <div class="col-lg-5 col-md-5">
+                            
+                            <!-- LANGKAH 1: FORMAT TURNAMEN -->
+                            <div class="card border rounded-3 p-3 mb-3 bg-white shadow-sm" data-theme-aware="true">
+                                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">Langkah 1</span>
+                                        <h6 class="fw-bold mb-0 text-dark">Format & Nama Liga</h6>
+                                    </div>
+                                    <i class="fa-solid fa-sliders text-muted"></i>
+                                </div>
+
+                                <div class="mb-2.5">
+                                    <label class="form-label small fw-bold text-muted mb-1">
                                         <i class="fa-solid fa-trophy text-warning me-1"></i> Nama Liga / Turnamen
                                     </label>
-                                    <input type="text" class="form-control" id="leagueNameInput" placeholder="Contoh: Liga Ramadhan FC 26, Persigar Cup..." value="Turnamen EA FC 26">
+                                    <input type="text" class="form-control fw-semibold" id="leagueNameInput" placeholder="Contoh: Liga Ramadhan FC 26, Persigar Cup..." value="Turnamen EA FC 26">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Jumlah Grup</label>
-                                    <select class="form-select" id="numGroups" onchange="onNumGroupsChange()">
-                                        <option value="1">1 Grup (Liga)</option>
-                                        <option value="2" selected>2 Grup</option>
-                                        <option value="4">4 Grup</option>
-                                        <option value="8">8 Grup</option>
-                                    </select>
+
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted mb-1">Jumlah Grup</label>
+                                        <select class="form-select" id="numGroups" onchange="onNumGroupsChange()">
+                                            <option value="1">1 Grup (Liga)</option>
+                                            <option value="2" selected>2 Grup</option>
+                                            <option value="4">4 Grup</option>
+                                            <option value="8">8 Grup</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted mb-1">Lolos ke Knockout</label>
+                                        <select class="form-select" id="advancingPerGroup" onchange="onAdvancingChange()">
+                                            <option value="1">Top 1 Tim</option>
+                                            <option value="2" selected>Top 2 Tim</option>
+                                            <option value="4">Top 4 Tim</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Lolos per Grup (ke Knockout)</label>
-                                    <select class="form-select" id="advancingPerGroup">
-                                        <option value="1">1 Tim</option>
-                                        <option value="2" selected>2 Tim</option>
-                                        <option value="4">4 Tim</option>
-                                    </select>
+                                
+                                <div class="bg-light rounded p-2 small text-muted d-flex align-items-center gap-2 mt-1" id="formatQuickSummary">
+                                    <i class="fa-solid fa-circle-info text-primary flex-shrink-0"></i>
+                                    <span style="font-size: 0.74rem;">Mode <b>2 Grup</b>. Total <b>4 tim</b> lolos ke babak Knockout.</span>
                                 </div>
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-primary fw-bold" id="btnGenerateGroups">
-                                        <i class="fa-solid fa-diagram-project me-1"></i> Buat Group Stage
-                                    </button>
-                                    <button class="btn btn-outline-primary btn-sm fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
-                                        <i class="fa-solid fa-users-gear me-1"></i> Setting Manual Peserta Grup
-                                    </button>
-                                </div>
-                                <small class="text-danger d-block mt-2 text-center" id="generateWarning"></small>
                             </div>
 
-                            <!-- Tambah Tim & User -->
-                            <div class="border rounded p-3 bg-white" data-theme-aware="true">
-                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-user-plus text-success me-2"></i>Daftarkan Peserta & Tim</h6>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">
-                                        <i class="fa-solid fa-user text-primary me-1"></i> Nama User / Player <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="playerNameInput" placeholder="Contoh: Andre, Budi, GamerTag..." autocomplete="off">
-                                    <div class="text-muted" style="font-size: 0.75rem; margin-top: 4px;">
-                                        Beberapa user bisa memilih klub yang sama (misal: Andre - Real Madrid & Budi - Real Madrid).
+                            <!-- LANGKAH 2: INPUT PESERTA (UNIFIED WITH TABS) -->
+                            <div class="card border rounded-3 p-3 bg-white shadow-sm" data-theme-aware="true">
+                                <div class="d-flex align-items-center justify-content-between mb-2.5 border-bottom pb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">Langkah 2</span>
+                                        <h6 class="fw-bold mb-0 text-dark">Daftarkan Peserta</h6>
                                     </div>
+                                    <span class="badge bg-light text-dark border px-2 py-1 small" id="teamCounterSidebar">0 Tim</span>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-1">
-                                        <span><i class="fa-solid fa-shield-halved text-success me-1"></i> Pilih Klub EA FC 26</span>
-                                        <span class="text-muted small" style="font-size: 0.72rem;">Ketik untuk mencari</span>
-                                    </label>
-                                    <div class="position-relative" id="fcTeamSearchWrapper">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-white" id="teamSearchPrefix" style="width: 44px; justify-content: center; padding: 4px;">
-                                                <img id="selectedTeamLogoPreview" src="" alt="" style="width: 26px; height: 26px; object-fit: contain; display: none;" class="rounded-circle border p-0.5 bg-white">
-                                                <i id="defaultSearchIcon" class="fa-solid fa-magnifying-glass text-muted"></i>
-                                            </span>
-                                            <input type="text" class="form-control" id="fcTeamSearchInput" placeholder="Ketik nama klub (cth: Madrid, Arsenal, Barca)..." autocomplete="off">
-                                            <button class="btn btn-outline-secondary" type="button" id="btnToggleTeamDropdown" title="Buka daftar klub">
-                                                <i class="fa-solid fa-chevron-down small"></i>
-                                            </button>
-                                        </div>
-                                        <input type="hidden" id="selectedTeamId" value="">
+                                <!-- Segmented Tab Mode Input -->
+                                <ul class="nav nav-pills nav-fill p-1 bg-light rounded-2 mb-3" id="inputMethodTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active py-1.5 px-2 fw-bold small" id="tab-bulk-method" data-bs-toggle="pill" data-bs-target="#pane-bulk-method" type="button" role="tab" style="font-size: 0.78rem;">
+                                            <i class="fa-solid fa-paste me-1"></i> Copas Sekaligus (Cepat)
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link py-1.5 px-2 fw-bold small" id="tab-manual-method" data-bs-toggle="pill" data-bs-target="#pane-manual-method" type="button" role="tab" style="font-size: 0.78rem;">
+                                            <i class="fa-solid fa-user-plus me-1"></i> Input Manual (1 per 1)
+                                        </button>
+                                    </li>
+                                </ul>
 
-                                        <!-- Searchable Dropdown List -->
-                                        <div id="fcTeamDropdown" class="position-absolute w-100 bg-white border rounded-3 shadow-lg mt-1 p-1 list-group" style="max-height: 280px; overflow-y: auto; z-index: 1050; display: none;">
-                                            <!-- Populated via JS -->
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-success w-100 fw-bold mt-2" id="btnAddFcTeam">
-                                        <i class="fa-solid fa-plus me-1"></i> Tambah Klub FC
-                                    </button>
-                                </div>
-
-                                <div class="accordion mt-3" id="customTeamAccordion">
-                                    <div class="accordion-item border rounded overflow-hidden">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed py-2 px-3 bg-light small fw-bold text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCustom">
-                                                <i class="fa-solid fa-pen-nib me-2"></i> Atau Gunakan Tim Kustom...
-                                            </button>
-                                        </h2>
-                                        <div id="collapseCustom" class="accordion-collapse collapse p-3">
-                                            <div class="mb-2">
-                                                <label class="form-label small fw-bold">Nama Tim Kustom</label>
-                                                <input type="text" class="form-control form-control-sm mb-2" id="customTeamName" placeholder="Contoh: Persigar Garut">
-                                                <label class="form-label small fw-bold">URL Logo Tim (Opsional)</label>
-                                                <input type="text" class="form-control form-control-sm mb-2" id="customTeamLogo" placeholder="https://... (kosong = auto avatar)">
-                                                <button class="btn btn-outline-success w-100 fw-bold btn-sm" id="btnAddCustomTeam">
-                                                    <i class="fa-solid fa-plus me-1"></i> Tambah Tim Kustom
+                                <div class="tab-content" id="inputMethodTabContent">
+                                    <!-- PANE 1: COPAS BULK (DEFAULT) -->
+                                    <div class="tab-pane fade show active" id="pane-bulk-method" role="tabpanel">
+                                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                            <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Tempel dari WA / Catatan:</small>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-xs btn-outline-primary py-0.5 px-2 fw-semibold" id="btnLoadBulkExample" type="button" style="font-size: 0.72rem;">
+                                                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Isi Contoh
+                                                </button>
+                                                <button class="btn btn-xs btn-outline-secondary py-0.5 px-2 fw-semibold" id="btnClearBulkText" type="button" style="font-size: 0.72rem;">
+                                                    <i class="fa-solid fa-trash-can"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- Quick Bulk Copas Peserta & Tim -->
-                            <div class="border rounded p-3 bg-white mt-3" data-theme-aware="true">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="fw-bold mb-0 text-primary">
-                                        <i class="fa-solid fa-paste me-2"></i>Bulk Copas Peserta & Tim
-                                    </h6>
-                                    <button class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold" id="btnLoadBulkExample" type="button" style="font-size: 0.75rem;" title="Isi dengan contoh format">
-                                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Isi Contoh
-                                    </button>
-                                </div>
-                                <div class="text-muted small mb-2" style="font-size: 0.78rem;">
-                                    Copas daftar peserta & tim sekaligus (otomatis mengenali nomor, nama pemain, dan klub/singkatan):
-                                </div>
-                                <textarea class="form-control font-monospace mb-2" id="bulkInsertTextarea" rows="7" style="font-size: 0.82rem; line-height: 1.45;" placeholder="Contoh format:
+                                        <textarea class="form-control font-monospace mb-2" id="bulkInsertTextarea" rows="6" style="font-size: 0.82rem; line-height: 1.45;" placeholder="Contoh:
 1. Raju mancity
 2. Ubed PSG
 3. Iyan Barca
@@ -625,51 +661,125 @@
 6. Nep Liverpool
 7. Rovi MU
 8. Yudha Munchen"></textarea>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-muted small" id="bulkPreviewSummary" style="font-size: 0.74rem;">Format: <code>No. Nama Tim</code></span>
-                                    <button class="btn btn-link btn-sm p-0 text-decoration-none text-danger small" type="button" id="btnClearBulkText" style="font-size: 0.74rem;">
-                                        <i class="fa-solid fa-trash-can me-1"></i>Bersihkan
-                                    </button>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted small" id="bulkPreviewSummary" style="font-size: 0.74rem;">Format: <code>No. Nama Tim</code></span>
+                                            <span class="text-success small fw-semibold" style="font-size: 0.72rem;"><i class="fa-solid fa-bolt me-1"></i>Auto-deteksi nama klub</span>
+                                        </div>
+
+                                        <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm d-flex align-items-center justify-content-center gap-1.5" id="btnProcessBulkInsert">
+                                            <i class="fa-solid fa-plus-circle"></i>
+                                            <span>Tambahkan Peserta ke Turnamen</span>
+                                        </button>
+                                        <div id="bulkInsertStatus" class="mt-2 small" style="display: none;"></div>
+                                    </div>
+
+                                    <!-- PANE 2: INPUT MANUAL -->
+                                    <div class="tab-pane fade" id="pane-manual-method" role="tabpanel">
+                                        <div class="mb-2.5">
+                                            <label class="form-label small fw-bold text-muted mb-1">
+                                                <i class="fa-solid fa-user text-primary me-1"></i> Nama User / Player <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control form-control-sm" id="playerNameInput" placeholder="Contoh: Andre, Budi, GamerTag..." autocomplete="off">
+                                        </div>
+
+                                        <div class="mb-2.5">
+                                            <label class="form-label small fw-bold text-muted mb-1 d-flex justify-content-between">
+                                                <span><i class="fa-solid fa-shield-halved text-success me-1"></i> Pilih Klub EA FC 26</span>
+                                                <span class="text-muted small" style="font-size: 0.7rem;">Ketik untuk mencari</span>
+                                            </label>
+                                            <div class="position-relative" id="fcTeamSearchWrapper">
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text bg-white" id="teamSearchPrefix" style="width: 38px; justify-content: center; padding: 2px;">
+                                                        <img id="selectedTeamLogoPreview" src="" alt="" style="width: 22px; height: 22px; object-fit: contain; display: none;" class="rounded-circle border p-0.5 bg-white">
+                                                        <i id="defaultSearchIcon" class="fa-solid fa-magnifying-glass text-muted small"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" id="fcTeamSearchInput" placeholder="Cari nama klub (cth: Madrid, Barca)..." autocomplete="off">
+                                                    <button class="btn btn-outline-secondary" type="button" id="btnToggleTeamDropdown">
+                                                        <i class="fa-solid fa-chevron-down small"></i>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" id="selectedTeamId" value="">
+
+                                                <div id="fcTeamDropdown" class="position-absolute w-100 bg-white border rounded-3 shadow-lg mt-1 p-1 list-group" style="max-height: 220px; overflow-y: auto; z-index: 1050; display: none;">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button class="btn btn-success w-100 fw-bold btn-sm py-2 mb-2 shadow-sm" id="btnAddFcTeam">
+                                            <i class="fa-solid fa-plus me-1"></i> Tambahkan Peserta Ini
+                                        </button>
+
+                                        <div class="accordion" id="customTeamAccordion">
+                                            <div class="accordion-item border rounded">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button collapsed py-1.5 px-2.5 bg-light small fw-bold text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCustom" style="font-size: 0.75rem;">
+                                                        <i class="fa-solid fa-pen-nib me-1.5"></i> Klub Kustom Lainnya...
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseCustom" class="accordion-collapse collapse p-2.5">
+                                                    <input type="text" class="form-control form-control-sm mb-1.5" id="customTeamName" placeholder="Nama Tim Kustom (cth: Persigar)">
+                                                    <input type="text" class="form-control form-control-sm mb-2" id="customTeamLogo" placeholder="URL Logo (opsional)">
+                                                    <button class="btn btn-outline-success w-100 fw-bold btn-sm" id="btnAddCustomTeam">
+                                                        <i class="fa-solid fa-plus me-1"></i> Tambah Tim Kustom
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button class="btn btn-primary w-100 fw-bold shadow-sm" id="btnProcessBulkInsert">
-                                    <i class="fa-solid fa-file-import me-1"></i> Proses & Tambahkan Semua
-                                </button>
-                                <div id="bulkInsertStatus" class="mt-2 small" style="display: none;"></div>
                             </div>
                         </div>
 
-                        <!-- Daftar Tim Terdaftar -->
-                        <!-- Daftar Tim Terdaftar -->
-                        <div class="col-md-8">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                                <h6 class="fw-bold mb-0">Peserta & Tim Terdaftar (<span id="teamCount">0</span>)</h6>
-                                <div class="d-flex gap-1 gap-sm-2">
-                                    <button class="btn btn-sm btn-outline-primary fw-bold" type="button" onclick="openShareModal()">
-                                        <i class="fa-solid fa-share-nodes me-1"></i> Share
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal">
-                                        <i class="fa-solid fa-users-gear me-1"></i> Atur Grup
-                                    </button>
-                                    <button class="btn btn-sm btn-danger fw-bold" id="btnClearTeams"><i class="fa-solid fa-trash"></i> Hapus</button>
-                                </div>
+                        <!-- RIGHT COLUMN: LANGKAH 3 & DAFTAR PESERTA -->
+                        <div class="col-lg-7 col-md-7">
+                            
+                            <!-- THE HERO ACTION BANNER (STEP 3) -->
+                            <div id="startTournamentBanner" class="p-3 mb-3 rounded-3 border d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 shadow-sm transition-all">
+                                <!-- Populated dynamically by updateStartBanner() -->
                             </div>
-                            <div class="table-responsive bg-white rounded border" data-theme-aware="true">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th width="35" class="text-center">No</th>
-                                            <th>Tim <span class="d-none d-md-inline">& Logo</span><span class="d-md-none">& User</span></th>
-                                            <th class="d-none d-md-table-cell">Nama User / Player</th>
-                                            <th style="min-width: 95px; width: 135px;">Pilih Grup</th>
-                                            <th width="50" class="text-center">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="registeredTeamsList">
-                                        <tr>
-                                            <td colspan="5" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+
+                            <!-- DAFTAR PESERTA TABLE CARD -->
+                            <div class="card border rounded-3 p-3 bg-white shadow-sm" data-theme-aware="true">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 border-bottom pb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">Langkah 3</span>
+                                        <h6 class="fw-bold mb-0 text-dark">Peserta Terdaftar</h6>
+                                        <span class="badge bg-primary rounded-pill fw-bold" id="teamCount">0</span>
+                                    </div>
+
+                                    <!-- Utility Action Buttons neatly grouped -->
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <button class="btn btn-sm btn-outline-primary fw-semibold px-2.5" type="button" data-bs-toggle="modal" data-bs-target="#manualGroupModal" title="Atur grup masing-masing peserta secara manual">
+                                            <i class="fa-solid fa-users-gear me-1"></i> Atur Grup
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary fw-semibold px-2.5" type="button" onclick="openShareModal()" title="Bagikan daftar peserta ke WhatsApp">
+                                            <i class="fa-solid fa-share-nodes me-1"></i> Share
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger fw-semibold px-2" id="btnClearTeams" title="Hapus semua peserta terdaftar">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th width="35" class="text-center">No</th>
+                                                <th>Klub & Tim</th>
+                                                <th class="d-none d-md-table-cell">Nama Player</th>
+                                                <th style="min-width: 95px; width: 130px;">Grup</th>
+                                                <th width="45" class="text-center">Hapus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="registeredTeamsList">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -697,6 +807,23 @@
                             <h5>Group Stage Belum Di-generate</h5>
                             <p>Silakan daftarkan tim dan klik "Buat Group Stage" di tab Setup.</p>
                         </div>
+                    </div>
+
+                    <!-- Next Step: Go to Knockout Banner -->
+                    <div id="groupToKnockoutBanner" class="card border border-primary bg-primary-subtle p-3 mt-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 shadow-sm" style="display: none;">
+                        <div>
+                            <div class="fw-bold text-primary d-flex align-items-center gap-2" style="font-size: 1.05rem;">
+                                <i class="fa-solid fa-sitemap fs-5"></i>
+                                <span>Babak Grup Selesai? Lanjut ke Knockout</span>
+                            </div>
+                            <small class="text-muted mt-0.5 d-block">
+                                Tim-tim terbaik di tiap grup sudah ditentukan. Buat bagan babak gugur secara otomatis:
+                            </small>
+                        </div>
+                        <button class="btn btn-primary btn-lg fw-bold px-4 py-2.5 shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center gap-2" onclick="goToKnockoutAndGenerate()">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Buat Bagan Knockout ➔</span>
+                        </button>
                     </div>
                 </div>
 
@@ -963,6 +1090,7 @@
             await loadFcTeams();
             loadState();
             await checkAndLoadSharedTournament();
+            updateFormatSummaryHelper();
             renderRegisteredTeams();
             renderGroups();
             renderBracket();
@@ -991,6 +1119,75 @@
             if (input && input.value !== name && document.activeElement !== input) {
                 input.value = name;
             }
+        }
+
+        function updateFormatSummaryHelper() {
+            const numGroups = parseInt(document.getElementById('numGroups').value) || (state.format && state.format.groups) || 2;
+            const advancing = parseInt(document.getElementById('advancingPerGroup').value) || (state.format && state.format.advancing) || 2;
+            const totalAdvancing = numGroups * advancing;
+            const el = document.getElementById('formatQuickSummary');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-circle-info text-primary flex-shrink-0"></i><span style="font-size:0.74rem;">Mode <b>${numGroups} Grup</b>. Top ${advancing} tim per grup (Total <b>${totalAdvancing} tim</b>) lolos ke babak Knockout.</span>`;
+            }
+        }
+
+        function onAdvancingChange() {
+            const adv = parseInt(document.getElementById('advancingPerGroup').value) || 2;
+            state.format.advancing = adv;
+            saveState();
+            updateFormatSummaryHelper();
+        }
+
+        function updateStartBanner() {
+            const banner = document.getElementById('startTournamentBanner');
+            if (!banner) return;
+            const numGroups = parseInt(document.getElementById('numGroups').value) || (state.format && state.format.groups) || 2;
+            const teamCount = (state.teams || []).length;
+            const needed = Math.max(2, numGroups);
+
+            if (teamCount >= needed) {
+                banner.className = 'p-3 mb-3 rounded-3 border border-success bg-success-subtle d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 shadow-sm transition-all';
+                banner.innerHTML = `
+                    <div>
+                        <div class="fw-bold text-success d-flex align-items-center gap-2" style="font-size: 1.05rem;">
+                            <i class="fa-solid fa-circle-check fs-5"></i>
+                            <span>Peserta Siap Diundi (${teamCount} Tim)</span>
+                        </div>
+                        <div class="small text-muted mt-0.5">
+                            Semua peserta siap dibagi secara merata ke <b>${numGroups} Grup</b>. Klik tombol untuk memulai:
+                        </div>
+                    </div>
+                    <button class="btn btn-success btn-lg fw-bold px-4 py-2.5 shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center gap-2" id="btnGenerateGroups" onclick="generateGroupsLogic()">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Buat Group Stage & Jadwal ➔</span>
+                    </button>
+                `;
+            } else {
+                banner.className = 'p-3 mb-3 rounded-3 border bg-light d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 transition-all';
+                banner.innerHTML = `
+                    <div>
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-primary fs-5"></i>
+                            <span>Langkah 3: Siapkan Peserta Turnamen</span>
+                        </div>
+                        <div class="small text-muted mt-0.5">
+                            Saat ini ada <b>${teamCount}</b> tim terdaftar. Tambahkan minimal <b>${needed}</b> tim pada Langkah 2 untuk memulai turnamen.
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary fw-semibold px-3 py-2 flex-shrink-0" disabled id="btnGenerateGroups">
+                        <i class="fa-solid fa-lock me-1"></i> Perlu Minimal ${needed} Tim
+                    </button>
+                `;
+            }
+        }
+
+        function goToKnockoutAndGenerate() {
+            const koTab = document.getElementById('knockout-tab');
+            if (koTab) bootstrap.Tab.getOrCreateInstance(koTab).show();
+            setTimeout(() => {
+                const btn = document.getElementById('btnGenerateKnockout');
+                if (btn) btn.click();
+            }, 150);
         }
 
         function initTheme() {
@@ -1169,11 +1366,13 @@
                     document.getElementById('numGroups').value = state.format.groups || 2;
                     document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
                     updateLeagueNameDisplay();
+                    updateFormatSummaryHelper();
                 } catch (e) {
                     console.error("Error parsing saved state:", e);
                 }
             } else {
                 updateLeagueNameDisplay();
+                updateFormatSummaryHelper();
             }
         }
 
@@ -1661,6 +1860,8 @@
             const num = parseInt(document.getElementById('numGroups').value) || 2;
             state.format.groups = num;
             saveState();
+            updateFormatSummaryHelper();
+            updateStartBanner();
             renderRegisteredTeams();
             const modalEl = document.getElementById('manualGroupModal');
             if (modalEl && modalEl.classList.contains('show')) {
@@ -1681,8 +1882,14 @@
         }
 
         function renderRegisteredTeams() {
-            document.getElementById('teamCount').textContent = state.teams.length;
-            if (state.teams.length === 0) {
+            const count = (state.teams || []).length;
+            const cntEl = document.getElementById('teamCount');
+            if (cntEl) cntEl.textContent = count;
+            const sideEl = document.getElementById('teamCounterSidebar');
+            if (sideEl) sideEl.textContent = count;
+            updateStartBanner();
+
+            if (count === 0) {
                 registeredTeamsList.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Belum ada tim terdaftar. Silakan masukkan nama user dan pilih tim.</td></tr>`;
                 return;
             }
@@ -1869,12 +2076,14 @@
             const advancing = parseInt(document.getElementById('advancingPerGroup').value);
             
             if (state.teams.length < numGroups) {
-                document.getElementById('generateWarning').textContent = "Jumlah tim kurang dari jumlah grup.";
+                const warn = document.getElementById('generateWarning');
+                if (warn) warn.textContent = "Jumlah tim kurang dari jumlah grup.";
                 alert("Jumlah tim terdaftar (" + state.teams.length + ") kurang dari jumlah grup (" + numGroups + ").");
                 return;
             }
             
-            document.getElementById('generateWarning').textContent = "";
+            const warn = document.getElementById('generateWarning');
+            if (warn) warn.textContent = "";
             state.format = { groups: numGroups, advancing };
             
             const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -1947,9 +2156,12 @@
         }
 
         // Generate Groups Button
-        document.getElementById('btnGenerateGroups').addEventListener('click', () => {
-            generateGroupsLogic();
-        });
+        const btnGen = document.getElementById('btnGenerateGroups');
+        if (btnGen) {
+            btnGen.addEventListener('click', () => {
+                generateGroupsLogic();
+            });
+        }
 
         function generateRoundRobin(teams) {
             const matches = [];
@@ -1981,15 +2193,18 @@
 
         // Render Groups
         function renderGroups() {
+            const koBanner = document.getElementById('groupToKnockoutBanner');
             if (Object.keys(state.groups).length === 0) {
+                if (koBanner) koBanner.classList.add('d-none');
                 groupStageContainer.innerHTML = `
                     <div class="text-center py-5 text-muted">
                         <i class="fa-solid fa-layer-group fs-1 mb-3"></i>
                         <h5>Group Stage Belum Di-generate</h5>
-                        <p>Silakan daftarkan tim dan klik "Generate Group Stage" di tab Setup.</p>
+                        <p>Silakan daftarkan tim dan klik "Buat Group Stage & Jadwal" di Langkah 3 (Setup).</p>
                     </div>`;
                 return;
             }
+            if (koBanner) koBanner.classList.remove('d-none');
 
             let html = '<div class="row g-4">';
             Object.keys(state.groups).forEach(gName => {
@@ -2186,6 +2401,7 @@
                         updateLeagueNameDisplay();
                         document.getElementById('numGroups').value = state.format.groups || 2;
                         document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+                        updateFormatSummaryHelper();
                         renderRegisteredTeams();
                         renderGroups();
                         renderBracket();
@@ -2327,6 +2543,7 @@
             const advancingInput = document.getElementById('advancingPerGroup');
             if (numGroupsInput) numGroupsInput.value = numGroups;
             if (advancingInput) advancingInput.value = advancing;
+            updateFormatSummaryHelper();
 
             const activeGroups = [];
             for (let i = 0; i < numGroups; i++) {
