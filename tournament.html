@@ -607,6 +607,27 @@
                                     </div>
                                 </div>
                                 
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted mb-1">
+                                            <i class="fa-solid fa-arrows-rotate text-primary me-1"></i> Mode Grup
+                                        </label>
+                                        <select class="form-select form-select-sm" id="groupLegsMode" onchange="onLegsModeChange()">
+                                            <option value="single" selected>1x Main (Tunggal)</option>
+                                            <option value="home_away">Home & Away (2 Leg)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted mb-1">
+                                            <i class="fa-solid fa-code-branch text-primary me-1"></i> Knockout
+                                        </label>
+                                        <select class="form-select form-select-sm" id="knockoutLegsMode" onchange="onLegsModeChange()">
+                                            <option value="single" selected>1 Match (Tunggal)</option>
+                                            <option value="home_away">Home & Away (2 Leg)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
                                 <div class="bg-light rounded p-2 small text-muted d-flex align-items-center gap-2 mt-1" id="formatQuickSummary">
                                     <i class="fa-solid fa-circle-info text-primary flex-shrink-0"></i>
                                     <span style="font-size: 0.74rem;">Mode <b>2 Grup</b>. Total <b>4 tim</b> lolos ke babak Knockout.</span>
@@ -1059,7 +1080,7 @@
         let state = {
             leagueName: 'Turnamen EA FC 26',
             teams: [], // array of { id, playerName, teamName, name, logo }
-            format: { groups: 2, advancing: 2 },
+            format: { groups: 2, advancing: 2, groupLegs: 'single', knockoutLegs: 'single' },
             groups: {}, // { "Group A": { standings: [], matches: [] } }
             knockout: [], // array of rounds
             champion: null // { playerName, teamName, logo, winnerScore, runnerUpScore, runnerUp, leagueName, date }
@@ -1124,11 +1145,25 @@
         function updateFormatSummaryHelper() {
             const numGroups = parseInt(document.getElementById('numGroups').value) || (state.format && state.format.groups) || 2;
             const advancing = parseInt(document.getElementById('advancingPerGroup').value) || (state.format && state.format.advancing) || 2;
+            const groupLegs = document.getElementById('groupLegsMode') ? document.getElementById('groupLegsMode').value : ((state.format && state.format.groupLegs) || 'single');
+            const knockoutLegs = document.getElementById('knockoutLegsMode') ? document.getElementById('knockoutLegsMode').value : ((state.format && state.format.knockoutLegs) || 'single');
             const totalAdvancing = numGroups * advancing;
             const el = document.getElementById('formatQuickSummary');
             if (el) {
-                el.innerHTML = `<i class="fa-solid fa-circle-info text-primary flex-shrink-0"></i><span style="font-size:0.74rem;">Mode <b>${numGroups} Grup</b>. Top ${advancing} tim per grup (Total <b>${totalAdvancing} tim</b>) lolos ke babak Knockout.</span>`;
+                const groupLegText = groupLegs === 'home_away' ? 'Home & Away (2 Leg)' : '1x Main';
+                const koLegText = knockoutLegs === 'home_away' ? 'Home & Away (2 Leg Agregat)' : '1 Match';
+                el.innerHTML = `<i class="fa-solid fa-circle-info text-primary flex-shrink-0"></i><span style="font-size:0.74rem;"><b>${numGroups} Grup</b> (${groupLegText}). Top ${advancing} tim per grup (Total <b>${totalAdvancing} tim</b>) lolos ke Knockout (${koLegText}).</span>`;
             }
+        }
+
+        function onLegsModeChange() {
+            const gLegsEl = document.getElementById('groupLegsMode');
+            const koLegsEl = document.getElementById('knockoutLegsMode');
+            if (!state.format) state.format = {};
+            state.format.groupLegs = gLegsEl ? gLegsEl.value : 'single';
+            state.format.knockoutLegs = koLegsEl ? koLegsEl.value : 'single';
+            saveState();
+            updateFormatSummaryHelper();
         }
 
         function onAdvancingChange() {
@@ -1363,8 +1398,17 @@
                             }
                         });
                     }
+                    if (!state.format) state.format = { groups: 2, advancing: 2 };
+                    if (!state.format.groupLegs) state.format.groupLegs = 'single';
+                    if (!state.format.knockoutLegs) state.format.knockoutLegs = 'single';
+
                     document.getElementById('numGroups').value = state.format.groups || 2;
                     document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+                    const gLegsEl = document.getElementById('groupLegsMode');
+                    if (gLegsEl) gLegsEl.value = state.format.groupLegs;
+                    const koLegsEl = document.getElementById('knockoutLegsMode');
+                    if (koLegsEl) koLegsEl.value = state.format.knockoutLegs;
+
                     updateLeagueNameDisplay();
                     updateFormatSummaryHelper();
                 } catch (e) {
@@ -2084,7 +2128,15 @@
             
             const warn = document.getElementById('generateWarning');
             if (warn) warn.textContent = "";
-            state.format = { groups: numGroups, advancing };
+
+            const groupLegs = document.getElementById('groupLegsMode') ? document.getElementById('groupLegsMode').value : ((state.format && state.format.groupLegs) || 'single');
+            const knockoutLegs = document.getElementById('knockoutLegsMode') ? document.getElementById('knockoutLegsMode').value : ((state.format && state.format.knockoutLegs) || 'single');
+            state.format = { 
+                groups: numGroups, 
+                advancing: advancing,
+                groupLegs: groupLegs,
+                knockoutLegs: knockoutLegs
+            };
             
             const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const activeGroupNames = [];
@@ -2140,10 +2192,11 @@
                 });
             });
 
-            // 4. Generate Round Robin matches
+            // 4. Generate Round Robin matches (Single atau Home & Away)
+            const isHomeAway = (groupLegs === 'home_away');
             Object.keys(state.groups).forEach(gName => {
                 const t = state.groups[gName].standings.map(s => s.id);
-                state.groups[gName].matches = generateRoundRobin(t);
+                state.groups[gName].matches = generateRoundRobin(t, isHomeAway);
             });
             
             saveState();
@@ -2163,23 +2216,29 @@
             });
         }
 
-        function generateRoundRobin(teams) {
+        function generateRoundRobin(teams, isHomeAway = false) {
             const matches = [];
             if (teams.length < 2) return matches;
             const t = [...teams];
             if (t.length % 2 !== 0) t.push(null); // dummy for bye
             
             const n = t.length;
-            for (let round = 0; round < n - 1; round++) {
+            const totalRounds = n - 1;
+            const leg1Matches = [];
+
+            for (let round = 0; round < totalRounds; round++) {
                 for (let i = 0; i < n / 2; i++) {
                     const t1 = t[i];
                     const t2 = t[n - 1 - i];
                     if (t1 !== null && t2 !== null) {
-                        matches.push({
-                            id: `m_${Date.now()}_${Math.random().toString(36).substr(2,5)}`,
+                        const home = (round % 2 === 0) ? t1 : t2;
+                        const away = (round % 2 === 0) ? t2 : t1;
+                        leg1Matches.push({
+                            id: `m_${Date.now()}_r${round+1}_${Math.random().toString(36).substr(2,5)}`,
                             round: round + 1,
-                            team1: t1,
-                            team2: t2,
+                            leg: 1,
+                            team1: home,
+                            team2: away,
                             score1: 0,
                             score2: 0,
                             played: false
@@ -2188,6 +2247,25 @@
                 }
                 t.splice(1, 0, t.pop()); // Rotate
             }
+
+            matches.push(...leg1Matches);
+
+            if (isHomeAway) {
+                // Leg 2: Tuan Rumah dibalik (Home <-> Away)
+                leg1Matches.forEach(m => {
+                    matches.push({
+                        id: `m_${Date.now()}_leg2_r${m.round + totalRounds}_${Math.random().toString(36).substr(2,5)}`,
+                        round: m.round + totalRounds,
+                        leg: 2,
+                        team1: m.team2,
+                        team2: m.team1,
+                        score1: 0,
+                        score2: 0,
+                        played: false
+                    });
+                });
+            }
+
             return matches;
         }
 
@@ -2254,7 +2332,12 @@
                                 </tbody>
                             </table>
                         </div>
-                        <h6 class="fw-bold mb-2 small text-muted text-uppercase"><i class="fa-solid fa-calendar-days me-1"></i> Jadwal & Skor Pertandingan</h6>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold mb-0 small text-muted text-uppercase"><i class="fa-solid fa-calendar-days me-1"></i> Jadwal & Skor Pertandingan</h6>
+                            ${(state.format && state.format.groupLegs === 'home_away')
+                                ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small fw-bold" style="font-size:0.7rem;"><i class="fa-solid fa-arrows-rotate me-1"></i>Home & Away (2 Leg)</span>`
+                                : `<span class="badge bg-light text-muted border px-2 py-1 small" style="font-size:0.7rem;">1 Pertemuan</span>`}
+                        </div>
                         <div class="list-group list-group-flush">
                             ${g.matches.map(m => {
                                 const t1 = state.teams.find(x => x.id === m.team1) || g.standings.find(x => x.id === m.team1);
@@ -2271,6 +2354,13 @@
                                 const s1 = m.score1 !== null ? Math.max(0, m.score1) : 0;
                                 const s2 = m.score2 !== null ? Math.max(0, m.score2) : 0;
 
+                                const isGroupHA = (state.format && state.format.groupLegs === 'home_away');
+                                const legBadge = isGroupHA ? (
+                                    m.leg === 2 
+                                        ? `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-1.5 py-0.5 fw-bold" style="font-size:0.62rem;" title="Leg 2 (Away)">L2</span>`
+                                        : `<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1.5 py-0.5 fw-bold" style="font-size:0.62rem;" title="Leg 1 (Home)">L1</span>`
+                                ) : '';
+
                                 return `
                                 <div class="list-group-item px-1 px-sm-2 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
                                     <div class="d-flex align-items-center justify-content-end gap-1 gap-sm-2 text-end" style="flex: 1; min-width: 0;">
@@ -2281,6 +2371,7 @@
                                         <img src="${t1Logo}" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" class="rounded-circle border p-0.5 bg-white" alt="">
                                     </div>
                                     <div class="px-1 px-sm-2 d-flex align-items-center gap-1 flex-shrink-0">
+                                        ${legBadge}
                                         <input type="number" min="0" class="form-control form-control-sm match-score-input" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateMatchScore('${gName}', '${m.id}', 1, this.value)">
                                         <span class="fw-bold text-muted small">-</span>
                                         <input type="number" min="0" class="form-control form-control-sm match-score-input" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateMatchScore('${gName}', '${m.id}', 2, this.value)">
@@ -2397,10 +2488,17 @@
                                 }
                             });
                         }
+                        if (!state.format) state.format = { groups: 2, advancing: 2 };
+                        if (!state.format.groupLegs) state.format.groupLegs = 'single';
+                        if (!state.format.knockoutLegs) state.format.knockoutLegs = 'single';
                         saveState();
                         updateLeagueNameDisplay();
                         document.getElementById('numGroups').value = state.format.groups || 2;
                         document.getElementById('advancingPerGroup').value = state.format.advancing || 2;
+                        const gLegsEl = document.getElementById('groupLegsMode');
+                        if (gLegsEl) gLegsEl.value = state.format.groupLegs;
+                        const koLegsEl = document.getElementById('knockoutLegsMode');
+                        if (koLegsEl) koLegsEl.value = state.format.knockoutLegs;
                         updateFormatSummaryHelper();
                         renderRegisteredTeams();
                         renderGroups();
@@ -2462,7 +2560,12 @@
 
             const compact = {
                 l: state.leagueName || 'Turnamen EA FC 26',
-                f: [state.format.groups || 2, state.format.advancing || 2],
+                f: [
+                    state.format.groups || 2, 
+                    state.format.advancing || 2,
+                    (state.format.groupLegs === 'home_away') ? 1 : 0,
+                    (state.format.knockoutLegs === 'home_away') ? 1 : 0
+                ],
                 t: compactTeams
             };
 
@@ -2499,7 +2602,8 @@
                                 m.score1 !== null && m.score1 !== undefined ? m.score1 : 0, 
                                 m.score2 !== null && m.score2 !== undefined ? m.score2 : 0, 
                                 m.played ? 1 : 0,
-                                m.round || 1
+                                m.round || 1,
+                                m.leg || 1
                             ];
                         });
                     }
@@ -2516,7 +2620,9 @@
                             t1Idx,
                             t2Idx,
                             m.s1 !== null && m.s1 !== undefined ? m.s1 : 0,
-                            m.s2 !== null && m.s2 !== undefined ? m.s2 : 0
+                            m.s2 !== null && m.s2 !== undefined ? m.s2 : 0,
+                            m.s1_l2 !== null && m.s1_l2 !== undefined ? m.s1_l2 : 0,
+                            m.s2_l2 !== null && m.s2_l2 !== undefined ? m.s2_l2 : 0
                         ];
                     });
                 });
@@ -2530,6 +2636,8 @@
             const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const numGroups = compact.f && compact.f[0] ? compact.f[0] : 2;
             const advancing = compact.f && compact.f[1] ? compact.f[1] : 2;
+            const groupLegs = (compact.f && compact.f[2] === 1) ? 'home_away' : 'single';
+            const knockoutLegs = (compact.f && compact.f[3] === 1) ? 'home_away' : 'single';
 
             if (compact.l) {
                 state.leagueName = compact.l;
@@ -2538,11 +2646,20 @@
             }
             updateLeagueNameDisplay();
 
-            state.format = { groups: numGroups, advancing: advancing };
+            state.format = { 
+                groups: numGroups, 
+                advancing: advancing,
+                groupLegs: groupLegs,
+                knockoutLegs: knockoutLegs
+            };
             const numGroupsInput = document.getElementById('numGroups');
             const advancingInput = document.getElementById('advancingPerGroup');
             if (numGroupsInput) numGroupsInput.value = numGroups;
             if (advancingInput) advancingInput.value = advancing;
+            const gLegsEl = document.getElementById('groupLegsMode');
+            if (gLegsEl) gLegsEl.value = groupLegs;
+            const koLegsEl = document.getElementById('knockoutLegsMode');
+            if (koLegsEl) koLegsEl.value = knockoutLegs;
             updateFormatSummaryHelper();
 
             const activeGroups = [];
@@ -2607,6 +2724,7 @@
                         return {
                             id: `m_${letter}_${mIdx}_${Date.now()}`,
                             round: m[5] || 1,
+                            leg: m[6] || 1,
                             team1: t1 ? t1.id : null,
                             team2: t2 ? t2.id : null,
                             score1: m[2] !== undefined ? m[2] : 0,
@@ -2637,7 +2755,9 @@
                             t1: t1 ? { ...t1 } : null,
                             t2: t2 ? { ...t2 } : null,
                             s1: m[2] !== undefined ? m[2] : 0,
-                            s2: m[3] !== undefined ? m[3] : 0
+                            s2: m[3] !== undefined ? m[3] : 0,
+                            s1_l2: m[4] !== undefined ? m[4] : 0,
+                            s2_l2: m[5] !== undefined ? m[5] : 0
                         };
                     });
                 });
@@ -2935,7 +3055,9 @@
                     t1: shuffled[i],
                     t2: shuffled[i+1] || null,
                     s1: 0,
-                    s2: 0
+                    s2: 0,
+                    s1_l2: 0,
+                    s2_l2: 0
                 });
             }
 
@@ -2947,17 +3069,23 @@
             alert('Bracket Knockout berhasil dibuat!');
         });
 
-        function updateKnockoutScore(roundIndex, matchIndex, teamNum, val) {
+        function updateKnockoutScore(roundIndex, matchIndex, teamNum, val, leg = 1) {
             const match = state.knockout[roundIndex][matchIndex];
             if (!match) return;
             let num = parseInt(val);
             if (isNaN(num) || num < 0) num = 0;
 
-            if (teamNum === 1) match.s1 = num;
-            else match.s2 = num;
-
-            if (match.s1 === null || match.s1 < 0) match.s1 = 0;
-            if (match.s2 === null || match.s2 < 0) match.s2 = 0;
+            if (leg === 2) {
+                if (teamNum === 1) match.s1_l2 = num;
+                else match.s2_l2 = num;
+                if (match.s1_l2 === null || match.s1_l2 < 0) match.s1_l2 = 0;
+                if (match.s2_l2 === null || match.s2_l2 < 0) match.s2_l2 = 0;
+            } else {
+                if (teamNum === 1) match.s1 = num;
+                else match.s2 = num;
+                if (match.s1 === null || match.s1 < 0) match.s1 = 0;
+                if (match.s2 === null || match.s2 < 0) match.s2 = 0;
+            }
 
             saveState();
             renderBracket();
@@ -2969,13 +3097,34 @@
                 alert('Pertandingan belum lengkap dengan 2 tim!');
                 return;
             }
-            if (match.s1 === null || match.s2 === null || match.s1 === match.s2) {
-                alert('Skor tidak boleh seri untuk menentukan pemenang babak gugur! Masukkan skor pemenang (misal: agregat/adu penalti).');
-                return;
+
+            const isKnockoutHA = (state.format && state.format.knockoutLegs === 'home_away');
+            let tot1 = 0;
+            let tot2 = 0;
+
+            if (isKnockoutHA) {
+                const s1_l1 = match.s1 !== null ? Math.max(0, match.s1) : 0;
+                const s2_l1 = match.s2 !== null ? Math.max(0, match.s2) : 0;
+                const s1_l2 = match.s1_l2 !== null ? Math.max(0, match.s1_l2) : 0;
+                const s2_l2 = match.s2_l2 !== null ? Math.max(0, match.s2_l2) : 0;
+                tot1 = s1_l1 + s1_l2;
+                tot2 = s2_l1 + s2_l2;
+
+                if (tot1 === tot2) {
+                    alert(`Skor agregat masih seri (${tot1} - ${tot2})!\nSilakan tentukan pemenang dengan menambahkan skor adu penalti / extra time pada salah satu leg.`);
+                    return;
+                }
+            } else {
+                if (match.s1 === null || match.s2 === null || match.s1 === match.s2) {
+                    alert('Skor tidak boleh seri untuk menentukan pemenang babak gugur! Masukkan skor pemenang (misal: agregat/adu penalti).');
+                    return;
+                }
+                tot1 = match.s1;
+                tot2 = match.s2;
             }
             
-            const winner = match.s1 > match.s2 ? match.t1 : match.t2;
-            const runnerUp = match.s1 > match.s2 ? match.t2 : match.t1;
+            const winner = tot1 > tot2 ? match.t1 : match.t2;
+            const runnerUp = tot1 > tot2 ? match.t2 : match.t1;
             const isFinalMatch = (state.knockout[roundIndex].length === 1);
 
             if (isFinalMatch) {
@@ -2986,8 +3135,9 @@
                     teamName: winner.teamName || winner.name,
                     name: winner.name,
                     logo: winner.logo,
-                    winnerScore: Math.max(match.s1, match.s2),
-                    runnerUpScore: Math.min(match.s1, match.s2),
+                    winnerScore: Math.max(tot1, tot2),
+                    runnerUpScore: Math.min(tot1, tot2),
+                    isAggregate: isKnockoutHA,
                     runnerUp: runnerUp ? {
                         playerName: runnerUp.playerName || '',
                         teamName: runnerUp.teamName || runnerUp.name,
@@ -3012,7 +3162,15 @@
             const nextMatchIndex = Math.floor(matchIndex / 2);
             
             if (!nextRound[nextMatchIndex]) {
-                nextRound[nextMatchIndex] = { id: 'ko_' + Date.now() + '_' + nextMatchIndex, t1: null, t2: null, s1: 0, s2: 0 };
+                nextRound[nextMatchIndex] = { 
+                    id: 'ko_' + Date.now() + '_' + nextMatchIndex, 
+                    t1: null, 
+                    t2: null, 
+                    s1: 0, 
+                    s2: 0,
+                    s1_l2: 0,
+                    s2_l2: 0
+                };
             }
             
             if (matchIndex % 2 === 0) {
@@ -3038,19 +3196,21 @@
             }
 
             let html = '';
+            const isKnockoutHA = (state.format && state.format.knockoutLegs === 'home_away');
+
             state.knockout.forEach((round, rIndex) => {
                 const isFinalRound = (round.length === 1);
                 let roundName = 'Round ' + (rIndex + 1);
                 if (isFinalRound) {
-                    roundName = '🏆 Final';
+                    roundName = isKnockoutHA ? '🏆 Final (Agregat)' : '🏆 Final';
                 } else if (round.length === 2) {
-                    roundName = 'Semi Final';
+                    roundName = isKnockoutHA ? 'Semi Final (2 Leg)' : 'Semi Final';
                 } else if (round.length === 4) {
-                    roundName = 'Quarter Final';
+                    roundName = isKnockoutHA ? 'Quarter Final (2 Leg)' : 'Quarter Final';
                 }
 
                 html += `<div class="bracket-round">
-                    <h6 class="text-center fw-bold mb-4 ${isFinalRound ? 'text-warning' : 'text-muted'}">${roundName}</h6>`;
+                    <h6 class="text-center fw-bold mb-3 ${isFinalRound ? 'text-warning' : 'text-muted'}">${roundName}</h6>`;
                 
                 round.forEach((m, mIndex) => {
                     const t1Team = m.t1 ? (m.t1.teamName || m.t1.name) : 'TBD';
@@ -3063,6 +3223,10 @@
                     
                     const s1 = m.s1 !== null ? Math.max(0, m.s1) : 0;
                     const s2 = m.s2 !== null ? Math.max(0, m.s2) : 0;
+                    const s1_l2 = m.s1_l2 !== null ? Math.max(0, m.s1_l2) : 0;
+                    const s2_l2 = m.s2_l2 !== null ? Math.max(0, m.s2_l2) : 0;
+                    const tot1 = s1 + s1_l2;
+                    const tot2 = s2 + s2_l2;
 
                     let advanceBtnHtml = '';
                     if (isFinalRound) {
@@ -3084,30 +3248,73 @@
                         </button>`;
                     }
 
-                    html += `
-                    <div class="bracket-match ${isFinalRound ? 'border-warning shadow-sm' : ''}">
-                        <div class="bracket-team py-1">
-                            <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
-                                ${t1Logo}
-                                <div class="text-truncate">
-                                    <div class="fw-bold small text-truncate text-dark">${t1Team}</div>
-                                    ${t1Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t1Player}</div>` : ''}
+                    if (isKnockoutHA) {
+                        html += `
+                        <div class="bracket-match ${isFinalRound ? 'border-warning shadow-sm' : ''}">
+                            <div class="d-flex justify-content-between align-items-center px-1 mb-1" style="font-size: 0.68rem;">
+                                <span class="text-muted fw-bold">TIM</span>
+                                <div class="d-flex gap-1 text-center">
+                                    <span class="badge bg-primary-subtle text-primary border" style="width: 28px;" title="Leg 1">L1</span>
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border" style="width: 28px;" title="Leg 2">L2</span>
+                                    <span class="badge bg-dark text-white" style="width: 34px;" title="Total Agregat">AGG</span>
                                 </div>
                             </div>
-                            <input type="number" min="0" class="form-control form-control-sm match-score-input ms-2" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value)">
-                        </div>
-                        <div class="bracket-team py-1">
-                            <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
-                                ${t2Logo}
-                                <div class="text-truncate">
-                                    <div class="fw-bold small text-truncate text-dark">${t2Team}</div>
-                                    ${t2Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t2Player}</div>` : ''}
+                            <div class="bracket-team py-1">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
+                                    ${t1Logo}
+                                    <div class="text-truncate">
+                                        <div class="fw-bold small text-truncate text-dark">${t1Team}</div>
+                                        ${t1Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t1Player}</div>` : ''}
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1 align-items-center ms-1">
+                                    <input type="number" min="0" class="form-control form-control-sm match-score-input p-0 text-center" style="width: 28px; font-size: 0.78rem;" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value, 1)">
+                                    <input type="number" min="0" class="form-control form-control-sm match-score-input p-0 text-center" style="width: 28px; font-size: 0.78rem;" value="${s1_l2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value, 2)">
+                                    <span class="badge ${tot1 > tot2 ? 'bg-success text-white' : 'bg-light text-dark border'} fw-bold" style="width: 34px; font-size: 0.82rem;">${tot1}</span>
                                 </div>
                             </div>
-                            <input type="number" min="0" class="form-control form-control-sm match-score-input ms-2" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value)">
-                        </div>
-                        ${advanceBtnHtml}
-                    </div>`;
+                            <div class="bracket-team py-1">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
+                                    ${t2Logo}
+                                    <div class="text-truncate">
+                                        <div class="fw-bold small text-truncate text-dark">${t2Team}</div>
+                                        ${t2Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t2Player}</div>` : ''}
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1 align-items-center ms-1">
+                                    <input type="number" min="0" class="form-control form-control-sm match-score-input p-0 text-center" style="width: 28px; font-size: 0.78rem;" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value, 1)">
+                                    <input type="number" min="0" class="form-control form-control-sm match-score-input p-0 text-center" style="width: 28px; font-size: 0.78rem;" value="${s2_l2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value, 2)">
+                                    <span class="badge ${tot2 > tot1 ? 'bg-success text-white' : 'bg-light text-dark border'} fw-bold" style="width: 34px; font-size: 0.82rem;">${tot2}</span>
+                                </div>
+                            </div>
+                            ${advanceBtnHtml}
+                        </div>`;
+                    } else {
+                        html += `
+                        <div class="bracket-match ${isFinalRound ? 'border-warning shadow-sm' : ''}">
+                            <div class="bracket-team py-1">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
+                                    ${t1Logo}
+                                    <div class="text-truncate">
+                                        <div class="fw-bold small text-truncate text-dark">${t1Team}</div>
+                                        ${t1Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t1Player}</div>` : ''}
+                                    </div>
+                                </div>
+                                <input type="number" min="0" class="form-control form-control-sm match-score-input ms-2" value="${s1}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 1, this.value)">
+                            </div>
+                            <div class="bracket-team py-1">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex:1; min-width:0;">
+                                    ${t2Logo}
+                                    <div class="text-truncate">
+                                        <div class="fw-bold small text-truncate text-dark">${t2Team}</div>
+                                        ${t2Player ? `<div class="text-muted text-truncate" style="font-size:0.72rem;"><i class="fa-solid fa-user me-1"></i>${t2Player}</div>` : ''}
+                                    </div>
+                                </div>
+                                <input type="number" min="0" class="form-control form-control-sm match-score-input ms-2" value="${s2}" oninput="if(this.value < 0) this.value = 0;" onchange="updateKnockoutScore(${rIndex}, ${mIndex}, 2, this.value)">
+                            </div>
+                            ${advanceBtnHtml}
+                        </div>`;
+                    }
                 });
                 
                 html += `</div>`;
